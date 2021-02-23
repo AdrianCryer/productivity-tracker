@@ -80,7 +80,7 @@ export default function EventAdder(props: EventAdderProps) {
                                     onChange={onCategoryChange}
                                 >
                                     {Object.values(props.categories).map((c: Category) => (
-                                        <Option value={c.name}>{c.name}</Option>
+                                        <Option key={c.name} value={c.name}>{c.name}</Option>
                                     ))}
                                 </Select>
                             </Form.Item>
@@ -98,7 +98,7 @@ export default function EventAdder(props: EventAdderProps) {
                                     placeholder="Activity"
                                 >
                                     {category && props.categories[category].activities.map((a: Activity) => (
-                                        <Option value={a.name}>{a.name}</Option>
+                                        <Option key={a.name} value={a.name}>{a.name}</Option>
                                     ))}
                                 </Select>
                             </Form.Item>

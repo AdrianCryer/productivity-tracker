@@ -62,6 +62,7 @@ export default function TimelineBar(props: TimelineProps) {
         },
         [props.timeline]
     );
+    console.log(props.timeline);
 
     const totalMs = (+endTime - +startTime);
     let tickers = useMemo(
@@ -144,7 +145,7 @@ export default function TimelineBar(props: TimelineProps) {
                         />
                     );
                     return type === Segment.SOLID ? (
-                        <Popover content={popoverContent}>
+                        <Popover key={id} content={popoverContent}>
                             {body}
                         </Popover>
                     ) : body;

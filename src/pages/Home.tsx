@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, Statistic, Row, Col, Button, Space } from 'antd';
 import { TimelineBar, EventAdder } from '../components';
 import { blue } from '@ant-design/colors';
-import { Category, EventCollection } from '../core';
+import { Category, Duration, EventCollection } from '../core';
 import { useDataStore } from '../stores/DataStore';
 
 
@@ -19,23 +19,41 @@ type HomeProps = {
     // categories: Category[];
 };
 
+type CategoryDurations = { [category: string]: Duration[] };
+
 export default function Home(props: HomeProps) {
 
     const store = useDataStore();
+    const categoryDurations: CategoryDurations = useMemo(
+        () => {
+            let durations: CategoryDurations = {};
+            for (let category of Object.keys(store.events)) {
+                let group: Duration[] = [];
+                group = Object.values(store.events[category])
+                                            .reduce((acc, d) => ([...acc, ...d]), []);
 
-    const getTimeStartArray = (category: string): [Date[], Date[]] => {
+                // Make sure we are dealing with date objects
+                group = group.map((d: Duration) => ({
+                    timeStart: new Date(d.timeStart),
+                    timeEnd: new Date(d.timeEnd)
+                }));
+                group.sort((a, b) => +a.timeEnd - +b.timeEnd);
+                durations[category] = group;
+            }
+            return durations;
+        },
+        [store.events]
+    );
+
+    const getTimeStartArray = (durations: Duration[]): [Date[], Date[]] => {
         let start = [];
         let end = [];
-
-        let durations = Object.values(store.events[category])
-                              .reduce((acc, d) => ([...acc, ...d]), []);
-        durations.sort((a, b) => +a.timeEnd - +b.timeEnd);
-        for (let { timeStart, timeEnd} of durations) {
-            start.push(timeStart);
-            end.push(timeEnd);
+        for (let { timeStart, timeEnd } of durations) {
+            start.push(new Date(timeStart));
+            end.push(new Date(timeEnd));
         }
         // for (let durations of Object.values(store.events[category])) {
-            
+
         //     let durations.sort((a, b) => +a.timeEnd - +b.timeEnd);
         //     for (let { timeStart, timeEnd} of durations) {
         //         start.push(timeStart);
@@ -48,18 +66,18 @@ export default function Home(props: HomeProps) {
     return (
         <Space direction="vertical">
             {/* <h1>Active</h1> */}
-            <EventAdder 
+            <EventAdder
                 categories={store.indexedCategories}
                 onAddEntry={data => {
                     const day = data.date.get("date");
                     const timeStart = data.timeStart.set("date", day).toDate();
                     const timeEnd = data.timeEnd.set("date", day).toDate();
                     store.addEvent(
-                        data.category, 
+                        data.category,
                         data.activity,
                         { timeStart, timeEnd }
                     );
-                }} 
+                }}
             />
             {/* <h1>Overview</h1>
             <Card>
@@ -77,9 +95,10 @@ export default function Home(props: HomeProps) {
             </Card> */}
             <h1>Today's progress</h1>
             {Object.keys(store.events).map(category => (
-                <TimelineBar 
-                    day={props.currentDate} 
-                    timeline={getTimeStartArray(category)} 
+                <TimelineBar
+                    key={category}
+                    day={props.currentDate}
+                    timeline={getTimeStartArray(categoryDurations[category])}
                     tickerSpacing={4}
                     title={category}
                 />
