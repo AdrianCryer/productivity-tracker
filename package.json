@@ -6,11 +6,10 @@
   "homepage": "./",
   "dependencies": {
     "@ant-design/colors": "^6.0.0",
+    "@craco/craco": "^6.1.1",
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",
-    "@types/electron-json-storage": "^4.0.0",
-    "@types/node-persist": "^3.1.1",
     "@types/react": "^17.0.2",
     "@types/react-dom": "^17.0.1",
     "@types/react-router-dom": "^5.1.7",
@@ -19,8 +18,7 @@
     "electron": "^11.3.0",
     "electron-builder": "^22.9.1",
     "electron-is-dev": "^1.2.0",
-    "electron-json-storage": "^4.4.0",
-    "node-persist": "^3.1.0",
+    "electron-store": "^7.0.2",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "react-router-dom": "^5.2.0",
@@ -31,10 +29,10 @@
     "zustand": "^3.3.2"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject",
+    "start": "craco start",
+    "build": "craco build",
+    "test": "craco test",
+    "eject": "craco eject",
     "ebuild": "npm run build && node_modules/.bin/build",
     "dev": "concurrently \"npm start\" \"wait-on http://localhost:3000 && electron .\""
   },

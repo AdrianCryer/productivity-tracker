@@ -1,6 +1,7 @@
 const { app, BrowserWindow } = require('electron');
 const isDev = require('electron-is-dev');
 const path = require('path');
+const Store = require('electron-store');
 
 let mainWindow;
 
@@ -8,7 +9,10 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1200,
     height: 900,
-    show: false
+    show: false,
+    webPreferences: {
+      nodeIntegration: true
+    }
   });
   const startURL = isDev ? 'http://localhost:3000' : `file://${path.join(__dirname, '../build/index.html')}`;
 
@@ -18,4 +22,6 @@ function createWindow() {
     mainWindow = null;
   });
 }
+
+Store.initRenderer();
 app.on('ready', createWindow);

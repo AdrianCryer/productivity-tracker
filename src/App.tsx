@@ -25,12 +25,12 @@ const { Sider } = Layout;
 /**
  * Set initial data for testing
  */
-useDataStore.setState({
-    indexedCategories: categoryData.reduce((acc: any, c: Category) => ({
-        ...acc, [c.name]: c
-    }), {}),
-    events: activityData
-});
+// useDataStore.setState({
+//     indexedCategories: categoryData.reduce((acc: any, c: Category) => ({
+//         ...acc, [c.name]: c
+//     }), {}),
+//     events: activityData
+// });
 
 const SideNav = (props: { categories: Category[] }) => (
     <Menu

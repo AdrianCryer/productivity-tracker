@@ -1,7 +1,7 @@
+import ElectronStore from 'electron-store';
 import create, { State, StateCreator } from 'zustand';
 import { persist } from "zustand/middleware";
 import { Category, Duration, EventCollection } from '../core';
-import fileStorage from 'electron-json-storage';
 
 export interface IDataStore extends State {
     indexedCategories: { [name: string]: Category };
@@ -26,6 +26,21 @@ const store: StateCreator<IDataStore> = (set, get) => ({
     }
 });
 
+
+
+const storageKey = "productivity-tracker-storage";
+const storage = new ElectronStore<IDataStore>();
+// const storeMiddleware: typeof devtools = config => (set, get, api) => 
+//     // Set
+//     config(args => {
+//         storage.set(storageKey, args);
+//         set(args);
+//     }, 
+//     // Get
+//     get, 
+//     api
+// );
+
 /**
  * From Zustand:
  * 
@@ -34,22 +49,13 @@ const store: StateCreator<IDataStore> = (set, get) => ({
  *     setItem: (name: string, value: string) => void | Promise<void>
  * }
  */
-// const electronStorage: Storage = {
-//     getItem: (key: string) => {
-//         fileStorage.get(key, (error, data) => {
-//             if (error) {
-//                 console.error("Could not retrieve storage " + key);
-//             }
-
-//         });
-//     }
-// }
-
 export const useDataStore = create<IDataStore>(persist(store, {
-    name: "productivity-tracker-storage",
-    // getStorage: () => sessionStorage
-    // getStorage: () => ({
-    //     getItem: (key: string) => fileStorage.getItem(key),
-    //     setItem: (key: string, value: string) => { fileStorage.setItem(key, value) },
-    // })
+    name: storageKey,
+    getStorage: () => ({
+        getItem: (name: string) => {
+            const res = storage.get(name);
+            return typeof res === 'string' ? res : null;
+        },
+        setItem: (name: string, value: string) => { storage.set(name, value) }
+    })
 }));

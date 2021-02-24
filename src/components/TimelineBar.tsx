@@ -62,7 +62,6 @@ export default function TimelineBar(props: TimelineProps) {
         },
         [props.timeline]
     );
-    console.log(props.timeline);
 
     const totalMs = (+endTime - +startTime);
     let tickers = useMemo(
@@ -85,7 +84,7 @@ export default function TimelineBar(props: TimelineProps) {
             hoverable={props.hoverable || false}
             title={props.title} 
             bordered={false} 
-            style={{ height: 60 + 3 * height, position: 'relative' }}
+            style={{ height: 60 + 3 * height, overflowX: 'hidden' }}
         >
             <div style={{ position: 'absolute', width: '100%' }}>
                 {/* Tick markers */}
@@ -94,10 +93,12 @@ export default function TimelineBar(props: TimelineProps) {
                         key={id} 
                         style={{ 
                             position: 'absolute', 
-                            backgroundColor: 'lightgrey', 
                             left: `${(id/tickers.length)*100}%`, 
                             height: height, 
-                            width: 1 
+                            borderLeftWidth: 1,
+                            borderLeftStyle: 'dashed',
+                            borderLeftColor: 'lightgray',
+
                         }}
                     />
                 ))}
