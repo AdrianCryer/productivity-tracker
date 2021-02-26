@@ -18,17 +18,17 @@ function getNumberOfWeek(date: Date) {
 }
 
 type SummaryHeaderProps = {
-    // todaysDate: Date;
     currentDate: Date;
 };
 
 export default function SummaryHeader(props: SummaryHeaderProps) {
     const dateString = props.currentDate.toLocaleDateString();
+    const todaysDateString = (new Date()).toLocaleDateString();
     return (
         <PageHeader
             title="Summary"
             subTitle={dateString}
-            tags={<Tag color="blue">Today</Tag>}
+            tags={dateString === todaysDateString ? <Tag color="blue">Today</Tag> : <></>}
             style={{ backgroundColor: 'white' }}
             extra={[
                 <Button key="3" icon={<LeftOutlined style={styles.paginationIcon} />}></Button>,

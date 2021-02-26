@@ -61,6 +61,7 @@ export default function App() {
 
     const [collapsed, setCollapsed] = useState(false);
     const storedCategories = useDataStore(state => Object.values(state.indexedCategories));
+    // useDataStore.getState().loadDerivedState();
 
     return (
         <BrowserRouter>

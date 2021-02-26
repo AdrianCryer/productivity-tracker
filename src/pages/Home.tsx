@@ -51,7 +51,7 @@ export default function Home(props: HomeProps) {
         <Space direction="vertical">
             {/* <h1>Active</h1> */}
             <SummaryHeader currentDate={props.currentDate}/>
-            {/* <EventAdder
+            <EventAdder
                 categories={store.indexedCategories}
                 onAddEntry={data => {
                     const day = data.date.get("date");
@@ -63,7 +63,7 @@ export default function Home(props: HomeProps) {
                         { timeStart, timeEnd }
                     );
                 }}
-            /> */}
+            />
             {/* <h1>Overview</h1>
             <Card>
                 <Row>
