@@ -121,7 +121,8 @@ export default function TimelineBar(props: TimelineProps) {
                         height: height,
                         position: 'absolute',
                         width: `${(end - start) / totalMs * 100}%`,
-                        left: `${(start - +startTime) / totalMs * 100}%`
+                        left: `${(start - +startTime) / totalMs * 100}%`,
+                        borderRadius: 5
                     };
                     let popoverContent;
                     if (type === Segment.SOLID) {

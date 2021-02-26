@@ -1,22 +1,14 @@
 import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { Card, Statistic, Row, Col, Button, Space } from 'antd';
-import { TimelineBar, EventAdder } from '../components';
+import { Card, Statistic, Row, Col, Button, Space, Divider } from 'antd';
+import { TimelineBar, EventAdder, SummaryHeader } from '../components';
 import { blue } from '@ant-design/colors';
 import { Category, Duration, EventCollection } from '../core';
 import { useDataStore } from '../stores/DataStore';
 
 
-function getNumberOfWeek(date: Date) {
-    const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
-    const pastDaysOfYear = (+date - +firstDayOfYear) / 86400000;
-    return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
-}
-
 type HomeProps = {
     currentDate: Date,
-    // dailyActivities: EventCollection;
-    // categories: Category[];
 };
 
 type CategoryDurations = { [category: string]: Duration[] };
@@ -52,21 +44,14 @@ export default function Home(props: HomeProps) {
             start.push(new Date(timeStart));
             end.push(new Date(timeEnd));
         }
-        // for (let durations of Object.values(store.events[category])) {
-
-        //     let durations.sort((a, b) => +a.timeEnd - +b.timeEnd);
-        //     for (let { timeStart, timeEnd} of durations) {
-        //         start.push(timeStart);
-        //         end.push(timeEnd);
-        //     }
-        // }
         return [start, end];
     };
 
     return (
         <Space direction="vertical">
             {/* <h1>Active</h1> */}
-            <EventAdder
+            <SummaryHeader currentDate={props.currentDate}/>
+            {/* <EventAdder
                 categories={store.indexedCategories}
                 onAddEntry={data => {
                     const day = data.date.get("date");
@@ -78,7 +63,7 @@ export default function Home(props: HomeProps) {
                         { timeStart, timeEnd }
                     );
                 }}
-            />
+            /> */}
             {/* <h1>Overview</h1>
             <Card>
                 <Row>
@@ -93,7 +78,8 @@ export default function Home(props: HomeProps) {
                     </Col>
                 </Row>
             </Card> */}
-            <h1>Today's progress</h1>
+            {/* <h1>Progress</h1> */}
+            {/* <Divider/> */}
             {Object.keys(store.events).map(category => (
                 <TimelineBar
                     key={category}
