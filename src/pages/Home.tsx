@@ -67,7 +67,10 @@ export default function Home(props: HomeProps) {
                     store.addEvent(
                         data.category,
                         data.activity,
-                        { timeStart, timeEnd }
+                        { 
+                            timeStart: timeStart.toString(), 
+                            timeEnd: timeEnd.toString() 
+                        }
                     );
                 }}
             />

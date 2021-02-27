@@ -65,7 +65,7 @@ export default function EventAdder(props: EventAdderProps) {
                                 name="date"
                                 rules={[{ required: true, message: 'Please input date.' }]}
                             >
-                                <DatePicker style={{ width: '100%' }} placeholder="Date" value={moment()} />
+                                <DatePicker style={{ width: '100%' }} placeholder="Date" />
                             </Form.Item>
                         </Col>
                         <Col span={8}>

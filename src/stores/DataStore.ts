@@ -80,7 +80,7 @@ const useDataStore = createStore<IDataStore>((set, get) => ({
             state.eventsByActivity[key].push(duration);
 
             // By Date
-            const dateString = (new Date()).toLocaleDateString();
+            const dateString = (new Date(duration.timeStart)).toLocaleDateString();
             if (!state.eventsByDate[dateString]) {
                 state.eventsByDate[dateString] = [];
             }
