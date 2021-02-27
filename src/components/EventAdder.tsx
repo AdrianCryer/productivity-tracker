@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, Button, Select, Form, Row, Col, DatePicker, TimePicker } from 'antd';
 import { blue } from '@ant-design/colors';
 import moment from 'moment';
@@ -8,9 +8,10 @@ const { Option } = Select;
 
 const styles = {
     container: {
-        borderWidth: 10,
+        borderWidth: 8,
         borderColor: blue.primary,
         marginBottom: 8,
+        // borderRadius: 5
     },
     formItem: {
         marginBottom: 4
@@ -18,7 +19,7 @@ const styles = {
 };
 
 type EventAdderProps = {
-    categories: { [name: string]: Category };
+    categories: { [id: number]: Category };
     onAddEntry(formData: any): void;
 }
 
@@ -26,15 +27,15 @@ export default function EventAdder(props: EventAdderProps) {
 
     const [form] = Form.useForm();
     const [, forceUpdate] = useState({});
-    const [category, setCategory] = useState('');
+    const [categoryId, setCategoryId] = useState(-1);
 
     // To disable submit button at the beginning.
     useEffect(() => {
         forceUpdate({});
     }, []);
 
-    const onCategoryChange = (category: string) => {
-        setCategory(category);
+    const onCategoryChange = (categoryId: number) => {
+        setCategoryId(categoryId);
         form.setFields([{ name: 'activity', value: '' }]);
     };
 
@@ -80,7 +81,7 @@ export default function EventAdder(props: EventAdderProps) {
                                     onChange={onCategoryChange}
                                 >
                                     {Object.values(props.categories).map((c: Category) => (
-                                        <Option key={c.name} value={c.name}>{c.name}</Option>
+                                        <Option key={c.name} value={c.id}>{c.name}</Option>
                                     ))}
                                 </Select>
                             </Form.Item>
@@ -97,8 +98,8 @@ export default function EventAdder(props: EventAdderProps) {
                                     style={{ width: '100%' }}
                                     placeholder="Activity"
                                 >
-                                    {category && props.categories[category].activities.map((a: Activity) => (
-                                        <Option key={a.name} value={a.name}>{a.name}</Option>
+                                    {categoryId !== -1 && props.categories[categoryId].activities.map((a: Activity) => (
+                                        <Option key={a.name} value={a.id}>{a.name}</Option>
                                     ))}
                                 </Select>
                             </Form.Item>

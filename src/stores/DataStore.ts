@@ -1,32 +1,36 @@
 import ElectronStore from 'electron-store';
-import create, { State, StateCreator } from 'zustand';
-import { persist } from "zustand/middleware";
-import { Category, Duration, EventCollection } from '../core';
-import produce, { Draft } from "immer";
+import { State } from 'zustand';
+import { Category, Duration, DurationEvent } from '../core';
+import { createStore } from "./Store";
 
+/**
+ * Primary data store of the application.
+ */
+type Indexed<T> = { [id: number]: T }
 export interface IDataStore extends State {
+
     /** PERSISTED STATE */
-    indexedCategories: { [name: string]: Category };
-    events: EventCollection;
+    categories: Indexed<Category>;
+    events: Indexed<DurationEvent>;
 
     /** DERIVED STATE */
-    eventsByDate: { [date: string]: EventCollection };
+    eventsByActivity: { [key: string]: Duration[] };
+    eventsByDate: { [key: string]: DurationEvent[] };
+    // eventsByDate: { [date: string]: EventCollection };
 
     /** ACTIONS */
-    addEvent: (categoryName: string, activityName: string, duration: Duration) => void;
-    loadDerivedState: () => void;
+    addEvent: (categoryId: number, activityId: number, duration: Duration) => void;
+    // loadDerivedState: () => void;
 };
 
-type DraftSetState<T> = (fn: (draft: Draft<T>) => void) => void;
-const immer = <T extends State>(
-    config: StateCreator<T, DraftSetState<T>>
-): StateCreator<T> => (set, get, api) => 
-    config((fn) => set(produce(fn) as (state: T) => T), get, api);
 
+/**
+ * Local storage
+ */
 const storageKey = "productivity-tracker-storage";
 const storage = new ElectronStore<IDataStore>();
 
-const derivedFields = ['eventsByDate'];
+const derivedFields = ['eventsByActivity', 'eventsByDate'];
 const persistOptions = {
     name: storageKey,
     getStorage: () => ({
@@ -34,47 +38,62 @@ const persistOptions = {
             const res = storage.get(name);
             return typeof res === 'string' ? res : null;
         },
-        setItem: (name: string, value: string) => { storage.set(name, JSON.parse(value)) }
+        setItem: (name: string, value: string) => { storage.set(name, value) }
     }),
-    blacklist: derivedFields
+    /** Just store the derived fields. Makes things easier for now. */
+    // blacklist: derivedFields
 };
 
-const createStore: StateCreator<IDataStore, DraftSetState<IDataStore>> = (set, get) => ({
-    indexedCategories: {},
-    events: {},
-    eventsByDate: {},
-    
-    loadDerivedState: () => {
-        let eventsByDate: { [date: string]: EventCollection } = {};
-        for (let [category, activities] of Object.entries(get().events)) {
-            for (let [activity, durations] of Object.entries(activities)) {
-                for (let d of durations) {
-                    const dateString = d.timeStart.toLocaleDateString();
-                    if (!eventsByDate.hasOwnProperty(dateString)) {
-                        eventsByDate[dateString] = {
-                            [category]: { [activity]: [] }
-                        };
-                    }
-                    eventsByDate[dateString][category][activity].push(d);
-                }
-            }
-        }
-        set(() => ({ eventsByDate }));
+/**
+ * Store configurations
+ */
+const useDataStore = createStore<IDataStore>((set, get) => ({
+    categories: {
+        // Test data
+        // 0: {
+        //     id: 0,
+        //     name: "Projects",
+        //     dateAdded: (new Date("2021-02-27")).toString(),
+        //     activities: [
+        //         {
+        //             id: 0,
+        //             name: "Voxel Game",
+        //             dateAdded: (new Date("2021-02-27")).toString()
+        //         }
+        //     ]
+        // }
     },
-    addEvent: (categoryName: string, activityName: string, duration: Duration) => {
-        console.log(get().events)
-        const startDateString = duration.timeStart.toLocaleDateString();
-        set(state => {
-            state.events[categoryName][activityName].push(duration);
-            if (!state.eventsByDate[startDateString]) {
-                state.eventsByDate[startDateString] = {
-                    [categoryName]: { [activityName]: [] }
-                };
-            }
-            state.eventsByDate[startDateString][categoryName][activityName].push(duration);
-        });
-    }
-});
+    events: {},
+    eventsByActivity: {},
+    eventsByDate: {},
 
-export const useDataStore = create<IDataStore>(
-    persist(immer(createStore), persistOptions));
+    addEvent(categoryId: number, activityId: number, duration: Duration) {
+        set(state => {
+            // Just get latest for now.
+            const id = Object.keys(state.events).length;
+            const event: DurationEvent = { id, categoryId, activityId, duration };
+            state.events[id] = event;
+
+            // Handle indexes
+            const key = new String([categoryId, activityId]) as string;
+            if (!state.eventsByActivity[key]) {
+                state.eventsByActivity[key] = [];
+            }
+            state.eventsByActivity[key].push(duration);
+
+            // By Date
+            const dateString = (new Date()).toLocaleDateString();
+            if (!state.eventsByDate[dateString]) {
+                state.eventsByDate[dateString] = [];
+            }
+            state.eventsByDate[dateString].push(event);
+        });
+    },
+
+    removeEvent(eventId: number) {
+
+    }
+
+}), persistOptions);
+
+export { useDataStore };

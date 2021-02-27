@@ -1,10 +1,11 @@
 import { useState, useMemo } from 'react';
-import { Card, Popover, Row, Col, Button, TimePicker } from 'antd';
+import { Card, Popover } from 'antd';
 import { blue } from '@ant-design/colors';
+import { Duration } from '../core';
 
 type TimelineProps = {
     day: Date;
-    timeline: [start: Date[], end: Date[]];
+    durations: Duration[];
     endTime?: Date;
     dayStartTime?: Date;
     tickerSpacing: number;
@@ -22,6 +23,16 @@ function formatAMPM(date: Date) {
     return strTime;
 }
 
+const getTimeStartArray = (durations: Duration[]): [Date[], Date[]] => {
+    let start = [];
+    let end = [];
+    for (let { timeStart, timeEnd } of durations) {
+        start.push(new Date(timeStart));
+        end.push(new Date(timeEnd));
+    }
+    return [start, end];
+};
+
 enum Segment { SOLID,  EMPTY };
 type TimelineSegment = Array<[type: Segment, start: number, end: number]>;
 
@@ -37,30 +48,26 @@ export default function TimelineBar(props: TimelineProps) {
     let endTime = new Date(defaultDayStartTime);
     endTime.setDate(endTime.getDate() + 1);
     endTime.setHours(endTime.getHours() - 4);
-
-    // if (!endTime) {
-    //     endTime = new Date(Math.max.apply(null, props.timeline[1].map(d => d.getTime())));
-    // }
-
-    // let endTime = props.endTime;
-    // if (!endTime) {
-    //     endTime = new Date(Math.max.apply(null, props.timeline[1].map(d => d.getTime())));
-    // }
+    console.log(props.durations)
 
     let segments: TimelineSegment = useMemo(
         () => {
+            // Convert to an ordered array for ease of use.
+            const durations = (props.durations || []).sort((a, b) => +a.timeEnd - +b.timeEnd);
+            const timeline: [start: Date[], end: Date[]] = getTimeStartArray(durations);
+
             let last = +startTime;
             let segments: TimelineSegment = [];
-            for (let i = 0; i < props.timeline[0].length; i++) {
-                if (+props.timeline[1][i] > last && +props.timeline[1][i] <= +endTime) {
-                    segments.push([Segment.EMPTY, +last, +props.timeline[0][i]]);
-                    segments.push([Segment.SOLID, +props.timeline[0][i], +props.timeline[1][i]]);
-                    last = +props.timeline[1][i];
+            for (let i = 0; i < timeline[0].length; i++) {
+                if (+timeline[1][i] > last && +timeline[1][i] <= +endTime) {
+                    segments.push([Segment.EMPTY, +last, +timeline[0][i]]);
+                    segments.push([Segment.SOLID, +timeline[0][i], +timeline[1][i]]);
+                    last = +timeline[1][i];
                 }
             }
             return segments;
         },
-        [props.timeline]
+        [props.durations]
     );
 
     const totalMs = (+endTime - +startTime);

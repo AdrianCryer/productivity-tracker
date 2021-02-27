@@ -60,8 +60,7 @@ const SideNav = (props: { categories: Category[] }) => (
 export default function App() {
 
     const [collapsed, setCollapsed] = useState(false);
-    const storedCategories = useDataStore(state => Object.values(state.indexedCategories));
-    // useDataStore.getState().loadDerivedState();
+    const categories = useDataStore(state => Object.values(state.categories));
 
     return (
         <BrowserRouter>
@@ -80,7 +79,7 @@ export default function App() {
                     >
                         {React.createElement(collapsed ? DoubleRightOutlined : DoubleLeftOutlined)}
                     </Button>
-                    <SideNav categories={storedCategories} />
+                    <SideNav categories={categories} />
                 </Sider>
                 <Layout className="content">
                     <Route
@@ -88,7 +87,7 @@ export default function App() {
                         exact
                         component={() => (
                             <Page title="Home">
-                                <HomePage currentDate={new Date("2021-02-22")} />
+                                <HomePage currentDate={new Date()} />
                             </Page>
                         )}
                     />
