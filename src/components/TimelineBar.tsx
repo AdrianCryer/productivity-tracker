@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { Card, Popover } from 'antd';
 import { blue } from '@ant-design/colors';
 import { Duration } from '../core';
+import { formatAMPM, formatDuration } from '../core/helpers';
 
 type TimelineProps = {
     day: Date;
@@ -13,15 +14,6 @@ type TimelineProps = {
     hoverable?: boolean;
     title: string;
 };
-
-function formatAMPM(date: Date) {
-    let hours = date.getHours();
-    let ampm = hours >= 12 ? 'PM' : 'AM';
-    hours = hours % 12;
-    hours = hours ? hours : 12;
-    let strTime = hours + ampm;
-    return strTime;
-}
 
 const getTimeStartArray = (durations: Duration[]): [Date[], Date[]] => {
     let start = [];
@@ -48,7 +40,6 @@ export default function TimelineBar(props: TimelineProps) {
     let endTime = new Date(defaultDayStartTime);
     endTime.setDate(endTime.getDate() + 1);
     endTime.setHours(endTime.getHours() - 4);
-    console.log(props.durations)
 
     let segments: TimelineSegment = useMemo(
         () => {
@@ -134,14 +125,15 @@ export default function TimelineBar(props: TimelineProps) {
                     let popoverContent;
                     if (type === Segment.SOLID) {
                         style.backgroundColor = id === hoveredSegment ? blue[4] : blue.primary;
-                        let startString = (new Date(start)).toTimeString().substring(0, 5);
-                        let endString = (new Date(end)).toTimeString().substring(0, 5);
-                        let hours = Math.floor((end - start) / 3600000);
-                        let minutes = Math.round((end - start) / 60000 - hours * 60);
+                        let startDate = new Date(start);
+                        let endDate = new Date(end);
+                        let startTime = startDate.toTimeString().substring(0, 5);
+                        let endTime = endDate.toTimeString().substring(0, 5);
+
                         popoverContent = (
                             <div>
-                                <h3>{hours}h {minutes}m</h3>
-                                <div>{startString} - {endString}</div>
+                                <h3>{formatDuration(startDate, endDate)}</h3>
+                                <div>{startTime} - {endTime}</div>
                             </div>
                         );
                     }

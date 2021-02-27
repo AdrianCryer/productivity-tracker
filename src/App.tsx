@@ -87,7 +87,7 @@ export default function App() {
                         exact
                         component={() => (
                             <Page title="Home">
-                                <HomePage currentDate={new Date()} />
+                                <HomePage initialDate={new Date()} />
                             </Page>
                         )}
                     />

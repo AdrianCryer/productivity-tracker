@@ -19,11 +19,22 @@ function getNumberOfWeek(date: Date) {
 
 type SummaryHeaderProps = {
     currentDate: Date;
+    totalHours: number;
+    totalMinutes: number;
+    onChangeDate: (date: Date) => void;
 };
 
 export default function SummaryHeader(props: SummaryHeaderProps) {
     const dateString = props.currentDate.toLocaleDateString();
     const todaysDateString = (new Date()).toLocaleDateString();
+
+    const changeDate = (delta: number) => {
+        const nextDate = props.currentDate;
+        nextDate.setDate(nextDate.getDate() + delta);
+        // Have to make copy here otherwise react thinks the object hasnt changed.
+        props.onChangeDate(new Date(nextDate));
+    }
+
     return (
         <PageHeader
             title="Summary"
@@ -31,16 +42,24 @@ export default function SummaryHeader(props: SummaryHeaderProps) {
             tags={dateString === todaysDateString ? <Tag color="blue">Today</Tag> : <></>}
             style={{ backgroundColor: 'white' }}
             extra={[
-                <Button key="3" icon={<LeftOutlined style={styles.paginationIcon} />}></Button>,
+                <Button 
+                    key="3" 
+                    icon={<LeftOutlined style={styles.paginationIcon} />}
+                    onClick={() => changeDate(-1)}
+                />,
                 <Button key="2">{dateString}</Button>,
-                <Button key="1" icon={<RightOutlined style={styles.paginationIcon} />}></Button>,
+                <Button 
+                    key="1" 
+                    icon={<RightOutlined style={styles.paginationIcon} />}
+                    onClick={() => changeDate(1)}
+                />,
             ]}
             >
             <Row>
                 <Statistic title="Week" value={getNumberOfWeek(props.currentDate)} />
                 <Statistic
                     title="Total hours"
-                    value="5h 30m"
+                    value={`${props.totalHours}h ${props.totalMinutes}m`}
                     style={{
                         margin: '0 32px',
                     }}

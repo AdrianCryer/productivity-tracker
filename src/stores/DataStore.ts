@@ -16,11 +16,9 @@ export interface IDataStore extends State {
     /** DERIVED STATE */
     eventsByActivity: { [key: string]: Duration[] };
     eventsByDate: { [key: string]: DurationEvent[] };
-    // eventsByDate: { [date: string]: EventCollection };
 
     /** ACTIONS */
     addEvent: (categoryId: number, activityId: number, duration: Duration) => void;
-    // loadDerivedState: () => void;
 };
 
 

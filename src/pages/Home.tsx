@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Space } from 'antd';
 import { TimelineBar, EventAdder, SummaryHeader } from '../components';
@@ -7,16 +7,18 @@ import { useDataStore } from '../stores/DataStore';
 
 
 type HomeProps = {
-    currentDate: Date,
+    initialDate: Date,
 };
 
 export default function Home(props: HomeProps) {
 
     const store = useDataStore();
+    const [currentDate, setCurrentDate] = useState(props.initialDate);
+
     const categoryDurations: CategoryDurations = useMemo(
         () => {
 
-            const dateString = props.currentDate.toLocaleDateString();
+            const dateString = currentDate.toLocaleDateString();
             const events = store.eventsByDate[dateString] || [];
             const categoryDurations: CategoryDurations = {};
 
@@ -28,8 +30,30 @@ export default function Home(props: HomeProps) {
             }
             return categoryDurations;
         },
-        [store.events]
+        [store.events, currentDate]
     );
+
+    const [hours, minutes] = useMemo(
+        () => {
+            const dateString = currentDate.toLocaleDateString();
+            const events = store.eventsByDate[dateString] || [];
+
+            const totalMs = events.reduce((total, e) => {
+                const diff = +(new Date(e.duration.timeEnd)) - +(new Date(e.duration.timeStart));
+                return total + diff;
+            }, 0);
+
+            return [
+                Math.floor(totalMs / 3600000), 
+                Math.floor((totalMs % 3600000) / 60000)
+            ];
+        },  
+        [store.events, currentDate]
+    );
+
+    const onChangeDate = (date: Date) => {
+        setCurrentDate(date);
+    }
 
     return (
         <Space direction="vertical">
@@ -47,11 +71,16 @@ export default function Home(props: HomeProps) {
                     );
                 }}
             />
-            <SummaryHeader currentDate={props.currentDate}/>
+            <SummaryHeader 
+                currentDate={currentDate}
+                totalMinutes={minutes}
+                totalHours={hours}
+                onChangeDate={onChangeDate}
+            />
             {Object.values(store.categories).map(category => (
                 <TimelineBar
                     key={category.id}
-                    day={props.currentDate}
+                    day={currentDate}
                     durations={categoryDurations[category.id]}
                     tickerSpacing={4}
                     title={category.name}
