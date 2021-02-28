@@ -4,7 +4,7 @@ import { Link, BrowserRouter, Route, useHistory } from 'react-router-dom';
 import InfoPage from './pages/Info';
 import HomePage from './pages/Home';
 import SettingsPage from './pages/Settings';
-import { Page } from './components';
+import { EventAdderTopbar, Page } from './components';
 import { Menu, Button, Layout } from 'antd';
 import {
     DoubleLeftOutlined,
@@ -89,25 +89,28 @@ export default function App() {
                     </Button>
                     <SideNav categories={categories} />
                 </Sider>
-                <Layout className="content">
-                    <Route
-                        path="/"
-                        exact
-                        component={() => (
-                            <Page title="Home">
-                                <HomePage initialDate={new Date()} />
-                            </Page>
-                        )}
-                    />
-                    <Route
-                        path="/settings"
-                        exact
-                        component={() => (
-                            <Page title="Settings">
-                                <SettingsPage/>
-                            </Page>
-                        )}
-                    />
+                <Layout>
+                    <EventAdderTopbar />
+                    <Layout  className="content">
+                        <Route
+                            path="/"
+                            exact
+                            component={() => (
+                                <Page title="Home">
+                                    <HomePage initialDate={new Date()} />
+                                </Page>
+                            )}
+                        />
+                        <Route
+                            path="/settings"
+                            exact
+                            component={() => (
+                                <Page title="Settings">
+                                    <SettingsPage/>
+                                </Page>
+                            )}
+                        />
+                    </Layout>
                 </Layout>
             </Layout>
             {/* <div style={{ width: 256 }}>

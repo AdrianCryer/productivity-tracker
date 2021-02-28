@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Card, Button, Select, Form, Row, Col, DatePicker, TimePicker } from 'antd';
 import { blue } from '@ant-design/colors';
-import moment from 'moment';
 import { Activity, Category } from '../core';
 
 const { Option } = Select;

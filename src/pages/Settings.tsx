@@ -1,5 +1,5 @@
-import { Typography, Card, Avatar, Row, Button, Space } from "antd";
-import classnames from "classnames";
+import { Typography, Card, Row, Button, Space } from "antd";
+import { PageHeading } from "../components";
 
 const { Title, Text } = Typography;
 
@@ -28,7 +28,8 @@ export default function Settings(props: SettingsProps) {
 
     return (
         <Space direction="vertical">
-            <Title level={2}>Settings</Title>
+            <PageHeading title="Settings"/>
+            {/* <Title level={2}>Settings</Title> */}
             {/* Account settings */}
             <Card title={<Title level={4}>Account</Title>}>
                 <div style={styles.settingsEntry}>

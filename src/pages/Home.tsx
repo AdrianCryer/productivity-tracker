@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Space } from 'antd';
-import { TimelineBar, EventAdder, SummaryHeader } from '../components';
+import { TimelineBar, EventAdder, SummaryHeader, PageHeading } from '../components';
 import { CategoryDurations } from '../core';
 import { useDataStore } from '../stores/DataStore';
 
@@ -57,8 +57,8 @@ export default function Home(props: HomeProps) {
 
     return (
         <Space direction="vertical">
-            {/* <h1>Active</h1> */}
-            <EventAdder
+            <PageHeading title="Dashboard" />
+            {/* <EventAdder
                 categories={store.categories}
                 onAddEntry={data => {
                     const day = data.date.get("date");
@@ -73,7 +73,7 @@ export default function Home(props: HomeProps) {
                         }
                     );
                 }}
-            />
+            /> */}
             <SummaryHeader 
                 currentDate={currentDate}
                 totalMinutes={minutes}
