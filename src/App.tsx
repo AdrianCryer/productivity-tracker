@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import ReactDom from 'react-dom';
-import { Link, BrowserRouter, Route } from 'react-router-dom';
+import { Link, BrowserRouter, Route, useHistory } from 'react-router-dom';
 import InfoPage from './pages/Info';
 import HomePage from './pages/Home';
-import { Page, CategoryContainer } from './components';
+import SettingsPage from './pages/Settings';
+import { Page } from './components';
 import { Menu, Button, Layout } from 'antd';
 import {
     DoubleLeftOutlined,
@@ -25,37 +26,44 @@ const { Sider } = Layout;
 /**
  * Set initial data for testing
  */
-// useDataStore.setState({
-//     indexedCategories: categoryData.reduce((acc: any, c: Category) => ({
-//         ...acc, [c.name]: c
-//     }), {}),
-//     events: activityData
-// });
+const SideNav = (props: { categories: Category[] }) => {
+    const history = useHistory();
+    const handleClick = (loc: string) => {
+        history.push("/" + loc);
+    }
 
-const SideNav = (props: { categories: Category[] }) => (
-    <Menu
-        defaultSelectedKeys={['1']}
-        mode="inline"
-    >
-        <Menu.Item key="1" icon={<PieChartOutlined />}>
-            Dashboard
-        </Menu.Item>
-        <SubMenu key="sub1" icon={<DesktopOutlined />} title="Categories">
-            {props.categories.map(c => (
-                <Menu.Item key={`cat=${c.name}`}>{c.name}</Menu.Item>
-            ))}
-        </SubMenu>
-        <Menu.Item key="3" icon={<PieChartOutlined />}>
-            Statistics
-        </Menu.Item>
-        <Menu.Item key="4" icon={<FileTextOutlined />}>
-            Notes
-        </Menu.Item>
-        <Menu.Item key="5" icon={<SettingOutlined />}>
-            Settings
-        </Menu.Item>
-    </Menu>
-);
+    return (
+        <Menu
+            defaultSelectedKeys={['1']}
+            mode="inline"
+        >
+            <Menu.Item 
+                key="1" 
+                icon={<PieChartOutlined />} 
+                onClick={() => handleClick("")}
+            >
+                Dashboard
+            </Menu.Item>
+            <SubMenu key="sub1" icon={<DesktopOutlined />} title="Categories">
+                {props.categories.map(c => (
+                    <Menu.Item key={`cat=${c.name}`}>{c.name}</Menu.Item>
+                ))}
+            </SubMenu>
+            <Menu.Item key="3" icon={<PieChartOutlined />}>
+                Statistics
+            </Menu.Item>
+            <Menu.Item key="4" icon={<FileTextOutlined />}>
+                Notes
+            </Menu.Item>
+            <Menu.Item 
+                key="5" icon={<SettingOutlined />} 
+                onClick={() => handleClick("settings")}
+            >
+                Settings
+            </Menu.Item>
+        </Menu>
+    );
+}
 
 export default function App() {
 
@@ -88,6 +96,15 @@ export default function App() {
                         component={() => (
                             <Page title="Home">
                                 <HomePage initialDate={new Date()} />
+                            </Page>
+                        )}
+                    />
+                    <Route
+                        path="/settings"
+                        exact
+                        component={() => (
+                            <Page title="Settings">
+                                <SettingsPage/>
                             </Page>
                         )}
                     />
