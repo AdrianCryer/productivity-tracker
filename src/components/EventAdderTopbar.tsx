@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Input, AutoComplete, Row, Col, Card, Button, TimePicker, Progress } from 'antd';
 import { PlayCircleFilled, PauseCircleFilled, CheckCircleFilled } from '@ant-design/icons'
 import { blue } from '@ant-design/colors';
+import moment from "moment";
 
 const styles = {
     timerIcon: {
@@ -25,13 +26,38 @@ export default function EventAdderTopbar(props: any) {
 
     const [timerActive, setTimerActive] = useState(false);
     const [canAdd, setCanAdd] = useState(false);
+    const [startTime, setStartTime] = useState<Date | null>(null);
+    const [endTime, setEndTime] = useState<Date | null>(null);
+
+    const onTimerPress = () => {
+        if (!startTime) {
+            setStartTime(new Date());
+            setEndTime(null);
+            setTimerActive(true);
+        } else if (!endTime) {
+            setEndTime(new Date());
+            setTimerActive(false);
+            setCanAdd(true);
+        } else if (canAdd) {
+            setCanAdd(false);
+            setStartTime(null);
+            setEndTime(null);
+            handleAdd();
+        }
+    }
+
+    const handleAdd = () => {
+
+    }
+
+
     const options = [
         {
             label: "test",
             options: [
                 {
-                    value: "Option 1",
-                    label: "Option 1",
+                    value: "Projects  |  Productivity Tracker",
+                    label: "Productivity Tracker",
                 }
             ]
         }
@@ -60,7 +86,7 @@ export default function EventAdderTopbar(props: any) {
                             style={{ width: '100%' }}
                             options={options}
                         >
-                            <Input.Search 
+                            <Input 
                                 size="large" 
                                 placeholder="What are you working on..." 
                                 bordered={false}
@@ -69,19 +95,21 @@ export default function EventAdderTopbar(props: any) {
                         </AutoComplete>
                     </Col>
                     
-                    <Col span={4}>
+                    <Col span={5}>
                         <TimePicker 
                             style={{ width: '100%', height: '100%' }} 
                             placeholder="Start time"
+                            value={startTime && moment(startTime)}
                         />
                     </Col>
-                    <Col span={4}>
+                    <Col span={5}>
                         <TimePicker 
                             style={{ width: '100%', height: '100%' }} 
                             placeholder="End time"
+                            value={endTime && moment(endTime)}
                         />
                     </Col>
-                    <Col span={2} style={{ width: '100%' }}>
+                    <Col span={2} style={{display: 'flex', justifyContent: 'center', flexGrow: 1}}>
                         <Button 
                             style={styles.timerButton}
                             shape="circle" 
@@ -95,7 +123,7 @@ export default function EventAdderTopbar(props: any) {
                             ) : (
                                 <PauseCircleFilled style={styles.timerIcon}/>
                             )}
-                            onClick={() => setTimerActive(active => !active)}
+                            onClick={onTimerPress}
                         />
                     </Col>
                 </Row>
