@@ -69,7 +69,8 @@ export default function App() {
 
     const [collapsed, setCollapsed] = useState(false);
     const categories = useDataStore(state => Object.values(state.categories));
-
+    const store = useDataStore();
+    
     return (
         <BrowserRouter>
             <Layout className="layout-background" style={{ minHeight: '100vh', overflow: "auto" }}>
@@ -90,7 +91,21 @@ export default function App() {
                     <SideNav categories={categories} />
                 </Sider>
                 <Layout>
-                    <EventAdderTopbar />
+                    <EventAdderTopbar 
+                        categories={store.categories}
+                        onAddEntry={data => {
+                            console.log("onSubmit", data)
+                            store.addEvent(
+                                data.categoryId,
+                                data.activityId,
+                                { 
+                                    timeStart: data.timeStart, 
+                                    timeEnd: data.timeEnd 
+                                }
+                            );
+                        }}
+                    
+                    />
                     <Layout  className="content">
                         <Route
                             path="/"
