@@ -14,6 +14,7 @@ import {
     DesktopOutlined,
     FileTextOutlined,
     SettingOutlined,
+    PlusOutlined
 } from '@ant-design/icons';
 import 'antd/dist/antd.css';
 import "./App.css"
@@ -54,6 +55,11 @@ const SideNav = (props: { categories: Category[] }) => {
                         {c.name}
                     </Menu.Item>
                 ))}
+                <Menu.Item 
+                    key="add" icon={<PlusOutlined />} 
+                >
+                    Add
+                </Menu.Item>
             </SubMenu>
             <Menu.Item key="3" icon={<PieChartOutlined />}>
                 Statistics
@@ -100,7 +106,6 @@ export default function App() {
                     <EventAdderTopbar 
                         categories={store.categories}
                         onAddEntry={data => {
-                            console.log("onSubmit", data)
                             store.addEvent(
                                 data.categoryId,
                                 data.activityId,

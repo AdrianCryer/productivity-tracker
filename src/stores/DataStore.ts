@@ -1,6 +1,6 @@
 import ElectronStore from 'electron-store';
 import { State } from 'zustand';
-import { Category, Duration, DurationEvent } from '../core';
+import { Activity, Category, Duration, DurationEvent } from '../core';
 import { createStore } from "./Store";
 
 /**
@@ -19,6 +19,7 @@ export interface IDataStore extends State {
 
     /** ACTIONS */
     addEvent: (categoryId: number, activityId: number, duration: Duration) => void;
+    addActivity: (categoryId: number, activity: Activity) => void;
 };
 
 
@@ -51,12 +52,12 @@ const useDataStore = createStore<IDataStore>((set, get) => ({
         // 0: {
         //     id: 0,
         //     name: "Projects",
-        //     dateAdded: (new Date("2021-02-27")).toString(),
+        //     dateAdded: (new Date("2021-02-27")).toISOString(),
         //     activities: [
         //         {
         //             id: 0,
         //             name: "Voxel Game",
-        //             dateAdded: (new Date("2021-02-27")).toString()
+        //             dateAdded: (new Date("2021-02-27")).toISOString()
         //         }
         //     ]
         // }
@@ -90,7 +91,15 @@ const useDataStore = createStore<IDataStore>((set, get) => ({
 
     removeEvent(eventId: number) {
 
+    },
+
+    addActivity(categoryId: number, activity: Activity) {
+        console.log("adding " + activity)
+        set(state => {
+            state.categories[categoryId].activities.push(activity);
+        });
     }
+
 
 }), persistOptions);
 
