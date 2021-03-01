@@ -26,6 +26,7 @@ const styles = {
     }
 }
 
+type ButtonStatus = 'Startable' | 'Stoppable' |  'CanAdd'; 
 type EventAdderTopbarProps = {
     categories: { [id: number]: Category };
     onAddEntry(formData: any): void;
@@ -35,8 +36,8 @@ export default function EventAdderTopbar(props: EventAdderTopbarProps) {
 
     const [form] = Form.useForm();
     const [, forceUpdate] = useState({});
-    const [timerActive, setTimerActive] = useState(false);
-    const [canAdd, setCanAdd] = useState(false);
+    const [buttonStatus, setButtonStatus] = useState<ButtonStatus>('Startable');
+    const [activityValid, setActivityValid] = useState(false);
     
     // Disable submit button at the beginning.
     useEffect(() => {
@@ -45,21 +46,40 @@ export default function EventAdderTopbar(props: EventAdderTopbarProps) {
 
     const onTimerPress = () => {
         const formValues = form.getFieldsValue();
-        console.log(formValues)
         if (!formValues.timeStart) {
             form.setFields([
                 { name: 'timeStart', value: moment() },
                 { name: 'timeEnd', value: undefined }
             ]);
-            setTimerActive(true);
         } else if (!formValues.timeEnd) {
             form.setFields([{ name: 'timeEnd', value: moment() }]);
-            setTimerActive(false);
-            setCanAdd(true);
-        } else if (canAdd) {
-            setCanAdd(false);
+        } else if (formValues.timeStart && formValues.timeEnd) {
             form.submit();
         }
+        setButtonStatus(getButtonStatus())
+    }
+    
+    const getButtonStatus = (): ButtonStatus => {
+        const formValues = form.getFieldsValue();
+        if (!formValues.timeStart && !formValues.timeEnd) {
+            return 'Startable';
+        } else if (formValues.timeStart && !formValues.timeEnd) {
+            return 'Stoppable';
+        } else if (formValues.timeStart && formValues.timeEnd) {
+            return 'CanAdd';
+        }
+        return 'Startable';
+    }
+
+    const renderButtonIcon = () => {
+        const status: ButtonStatus = buttonStatus;
+        return status === 'Startable' ? (
+            <PlayCircleFilled style={styles.timerIcon}/> 
+        ) : status === 'Stoppable' ? (
+            <PauseCircleFilled style={styles.timerIcon}/>
+        ) : (
+            <CheckCircleFilled style={styles.timerIcon}/>
+        );
     }
 
     const handleAddEvent = (payload: any) => {
@@ -69,6 +89,7 @@ export default function EventAdderTopbar(props: EventAdderTopbarProps) {
             timeStart: payload.timeStart.toDate(),
             timeEnd: payload.timeEnd.toDate(),
         });
+        form.resetFields(['timeStart', 'timeEnd']);
     }
 
     // Map to reverse the values => category.id, activity.id pair
@@ -88,10 +109,9 @@ export default function EventAdderTopbar(props: EventAdderTopbarProps) {
         options.push({ label: category.name, options: group });
     }
 
-
     return (
         <>
-            {timerActive && (
+            {buttonStatus === 'Stoppable' && (
                 <Progress
                     strokeLinecap="square"
                     strokeColor={{
@@ -123,6 +143,8 @@ export default function EventAdderTopbar(props: EventAdderTopbarProps) {
                                 name="activity"
                                 help={false}
                                 rules={[{ required: true }]}
+                                validateStatus={activityValid ? "success" : ""}
+                                hasFeedback
                             >
                                 <AutoComplete
                                     style={{ width: '100%' }}
@@ -132,7 +154,9 @@ export default function EventAdderTopbar(props: EventAdderTopbarProps) {
                                         size="large" 
                                         placeholder="What are you working on..." 
                                         bordered={false}
-                                        
+                                        onSelect={(e: any) => {
+                                            setActivityValid((e.target.value in optionsReverseMap))
+                                        }}
                                     />
                                 </AutoComplete>
                             </Form.Item>
@@ -148,6 +172,7 @@ export default function EventAdderTopbar(props: EventAdderTopbarProps) {
                                 <TimePicker 
                                     style={{ width: '100%', height: '100%' }} 
                                     placeholder="Start time"
+                                    onChange={() => setButtonStatus(getButtonStatus())}
                                     // value={startTime && moment(startTime)}
                                     // onChange={value => setStartTime(value?.toDate())}
                                 />
@@ -163,6 +188,7 @@ export default function EventAdderTopbar(props: EventAdderTopbarProps) {
                                 <TimePicker 
                                     style={{ width: '100%', height: '100%' }} 
                                     placeholder="End time"
+                                    onChange={() => setButtonStatus(getButtonStatus())}
                                     // value={endTime && moment(endTime)}
                                     // onChange={value => setEndTime(value?.toDate())}
                                 />
@@ -176,15 +202,7 @@ export default function EventAdderTopbar(props: EventAdderTopbarProps) {
                                     style={styles.timerButton}
                                     shape="circle" 
                                     size="large"
-                                    icon={!timerActive ? (
-                                        !canAdd ? (
-                                            <PlayCircleFilled style={styles.timerIcon}/> 
-                                        ) : (
-                                            <CheckCircleFilled style={styles.timerIcon}/>
-                                        )
-                                    ) : (
-                                        <PauseCircleFilled style={styles.timerIcon}/>
-                                    )}
+                                    icon={renderButtonIcon()}
                                     onClick={onTimerPress}
                                 />
                             </Form.Item>
