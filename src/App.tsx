@@ -4,6 +4,7 @@ import { Link, BrowserRouter, Route, useHistory } from 'react-router-dom';
 import InfoPage from './pages/Info';
 import HomePage from './pages/Home';
 import SettingsPage from './pages/Settings';
+import CategoriesPage from './pages/Categories';
 import { EventAdderTopbar, Page } from './components';
 import { Menu, Button, Layout } from 'antd';
 import {
@@ -44,9 +45,14 @@ const SideNav = (props: { categories: Category[] }) => {
             >
                 Dashboard
             </Menu.Item>
-            <SubMenu key="sub1" icon={<DesktopOutlined />} title="Categories">
+            <SubMenu key="categories" icon={<DesktopOutlined />} title="Categories">
                 {props.categories.map(c => (
-                    <Menu.Item key={`cat=${c.name}`}>{c.name}</Menu.Item>
+                    <Menu.Item 
+                        key={`cat=${c.name}`}
+                        onClick={() => handleClick("categories/" + c.id)}
+                    >
+                        {c.name}
+                    </Menu.Item>
                 ))}
             </SubMenu>
             <Menu.Item key="3" icon={<PieChartOutlined />}>
@@ -122,6 +128,15 @@ export default function App() {
                             component={() => (
                                 <Page title="Settings">
                                     <SettingsPage/>
+                                </Page>
+                            )}
+                        />
+                        <Route
+                            path="/categories/:categoryId"
+                            exact
+                            component={() => (
+                                <Page title="Categories">
+                                    <CategoriesPage/>
                                 </Page>
                             )}
                         />

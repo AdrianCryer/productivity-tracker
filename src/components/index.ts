@@ -4,6 +4,7 @@ import TimelineBar from './TimelineBar';
 import EventAdder from './EventAdder';
 import EventAdderTopbar from './EventAdderTopbar';
 import SummaryHeader from './SummaryHeader';
+import EditableTabs from './EditableTabs';
 
 export {
     CategoryContainer,
@@ -12,5 +13,6 @@ export {
     TimelineBar,
     EventAdder,
     SummaryHeader,
-    EventAdderTopbar
+    EventAdderTopbar,
+    EditableTabs
 };

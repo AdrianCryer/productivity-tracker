@@ -63,6 +63,18 @@ export default function Settings(props: SettingsProps) {
                     </Row>
                 </div>
             </Card>
+            <Card title={<Title level={4}>Import data</Title>}>
+                <div style={styles.settingsEntry}>
+                    <Text type="secondary">File (.csv)</Text>
+                    <Row justify="space-between" align="middle">
+                        <Text>File must have the correct format.</Text>
+                        {/* <Text strong>{weekStarting}</Text> */}
+                        <Button>
+                            Add
+                        </Button>
+                    </Row>
+                </div>
+            </Card>
         </Space>
     )
 }
