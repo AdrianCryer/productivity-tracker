@@ -42,41 +42,36 @@ const getColumns = (isEmpty: boolean, onDelete: (row: DataRow) => void): DataCol
 
 type DurationTableProps = { categoryId: number; activityId: number };
 
-export default function DurationTable({ categoryId, activityId }: DurationTableProps) {
+function DurationTable({ categoryId, activityId }: DurationTableProps) {
 
-    const [tableData, setTableData] = useState<DataRow[]>([]);
-    const { updateEvent, removeEvent } = useDataStore();
+    const { updateEvent, removeEvent } = useDataStore.getState();
 
     const key = new String([categoryId, activityId]) as string;
-    const eventsByActivity = useDataStore(state => (state.eventsByActivity[key] || []));
+    const eventsByActivity = useDataStore(state => state.eventsByActivity[key] || []);
     const activity = useDataStore(state => state.categories[categoryId].activities[activityId]);
 
-    useEffect(() => {
-        const tableData = eventsByActivity.map(event => ({
-            id: event.id,
-            key: event.id,
-            activity: activity.name,
-            duration: formatDuration(
-                new Date(event.duration.timeStart), 
-                new Date(event.duration.timeEnd)
-            ),
-            timeStart: event.duration.timeStart,
-            timeEnd: event.duration.timeEnd,
-        }));
-        setTableData(tableData);
-    }, [eventsByActivity]);
+    const tableData = eventsByActivity.map(event => ({
+        id: event.id,
+        key: event.id,
+        activity: activity.name,
+        duration: formatDuration(
+            new Date(event.duration.timeStart), 
+            new Date(event.duration.timeEnd)
+        ),
+        timeStart: event.duration.timeStart,
+        timeEnd: event.duration.timeEnd,
+    }));
 
     const onUpdate = (row: DataRow) => {
         const nextData = [...tableData];
         const index = nextData.findIndex(item => row.key === item.key);
         const item = nextData[index];
-        nextData.splice(index, 1, { ...item, ...row });
-        setTableData(nextData);
+        // nextData.splice(index, 1, { ...item, ...row });
+        // setTableData(nextData);
     };
 
     const onDelete = (row: DataRow) => {
         removeEvent(row.id);
-        setTableData(data => data.filter(item => item.key !== row.key));
     };
 
     return (
@@ -88,3 +83,5 @@ export default function DurationTable({ categoryId, activityId }: DurationTableP
         />
     );
 }
+
+export default React.memo(DurationTable);

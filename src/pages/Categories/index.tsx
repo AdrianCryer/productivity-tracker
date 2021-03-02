@@ -5,7 +5,6 @@ import { EditableTabs, PageHeading } from "../../components";
 import { useDataStore } from "../../stores/DataStore";
 import AddActivityPanel from "./AddActivityPanel";
 import DurationTable from "./DurationTable";
-import { formatDuration } from "../../core/helpers";
 import { Activity } from "../../core";
 
 
@@ -22,12 +21,14 @@ export default function Categories(props: CategoriesProps) {
     const categoryId = parseInt(params.categoryId);
 
     // Have to be careful here because the store loads asynchronously.
-    const store = useDataStore();
-    if (!params.categoryId || Object.values(store.categories).length === 0) {
+    const category = useDataStore(state => state.categories[categoryId]);
+    const addActivity = useDataStore(state => state.addActivity);
+
+    if (!params.categoryId || !category) {
         return <Layout>Could not load</Layout>
     }
 
-    const activities: Activity[] = Object.values(store.categories[categoryId].activities);
+    const activities: Activity[] = Object.values(category.activities);
     let initialTabs = activities.map(activity => {
         return {
             title: activity.name,
@@ -47,7 +48,7 @@ export default function Categories(props: CategoriesProps) {
     return (
         <>
             <Space direction="vertical">
-                <PageHeading title={store.categories[categoryId].name} />
+                <PageHeading title={category.name} />
                 <Card>
                     <EditableTabs 
                         tabs={initialTabs}
@@ -65,8 +66,8 @@ export default function Categories(props: CategoriesProps) {
                             errors: ['Activity name already exists']
                         }]);
                     } else {
-                        store.addActivity(categoryId, {
-                            id: Object.keys(store.categories[categoryId].activities).length,
+                        addActivity(categoryId, {
+                            id: Object.keys(category.activities).length,
                             dateAdded: (new Date()).toISOString(),
                             name: name
                         });

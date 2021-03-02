@@ -81,8 +81,9 @@ export default function App() {
 
     const [collapsed, setCollapsed] = useState(false);
     const categories = useDataStore(state => state.categories);
-    const addEvent = useDataStore(state => state.addEvent);
+    const addEvent = useDataStore.getState().addEvent;
     
+    console.log('rerenderd app')
     return (
         <BrowserRouter>
             <Layout className="layout-background" style={{ minHeight: '100vh', overflow: "auto" }}>
