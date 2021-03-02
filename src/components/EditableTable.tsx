@@ -5,23 +5,33 @@ const EditableContext = createContext<FormInstance<any> | null>(null);
 
 type TableProps = Parameters<typeof Table>[0];
 type ColumnTypes = Exclude<TableProps['columns'], undefined>;
-type DataRow = { key: React.Key;[key: string]: any };
+
+export type DataRow = {
+    id: number; 
+    key: React.Key; 
+    [other: string]: any 
+};
+export type DataColumn = (ColumnTypes[number] & { editable?: boolean; dataIndex: string });
 
 interface EditableTableProps extends Omit<TableProps, 'columns'> {
-    columns: (ColumnTypes[number] & { editable?: boolean; dataIndex: string })[]
-    initialData: DataRow[]
+    columns: DataColumn[];
+    data: DataRow[];
+    onUpdate: (row: DataRow) => void;
+    onDelete: (row: DataRow) => void;
+};
+
+type EditableRowProps = { index: number };
+
+interface EditableCellProps {
+    title: React.ReactNode;
+    editable: boolean;
+    children: React.ReactNode;
+    dataIndex: string;
+    record: any;
+    handleSave: (record: any) => void;
 }
 
 export default function EditableTable(props: EditableTableProps) {
-
-    const [tableData, setTableData] = useState(props.initialData);
-    const handleSave = (row: DataRow) => {
-        const nextData = [...tableData];
-        const index = nextData.findIndex(item => row.key === item.key);
-        const item = nextData[index];
-        nextData.splice(index, 1, { ...item, ...row });
-        setTableData(nextData);
-    };
 
     const components = {
         body: { row: EditableRow, cell: EditableCell }
@@ -38,7 +48,7 @@ export default function EditableTable(props: EditableTableProps) {
                 editable: col.editable,
                 dataIndex: col.dataIndex,
                 title: col.title, 
-                handleSave: handleSave,
+                handleSave: props.onUpdate,
             }),
         }
     })
@@ -48,13 +58,12 @@ export default function EditableTable(props: EditableTableProps) {
             components={components}
             rowClassName={() => 'editable-row'}
             bordered
-            dataSource={tableData}
+            dataSource={props.data}
             columns={columns as ColumnTypes}
         />
     )
 }
 
-type EditableRowProps = { index: number };
 const EditableRow: React.FC<EditableRowProps> = ({ index, ...props }) => {
     const [form] = Form.useForm();
     return (
@@ -65,15 +74,6 @@ const EditableRow: React.FC<EditableRowProps> = ({ index, ...props }) => {
         </Form>
     );
 };
-
-interface EditableCellProps {
-    title: React.ReactNode;
-    editable: boolean;
-    children: React.ReactNode;
-    dataIndex: string;
-    record: any;
-    handleSave: (record: any) => void;
-}
 
 const EditableCell: React.FC<EditableCellProps> = ({
     title,

@@ -26,29 +26,23 @@ export default function Categories(props: CategoriesProps) {
         return <Layout>Could not load</Layout>
     }
 
-    // const initialTabs = store.categories[categoryId].activities.map(activity => ({
-    //     title: activity.name,
-    //     content: <DurationTable data={store.eventsByActivity[new String([categoryId, activity.id])]} />,
-    //     key: activity.id.toString(),
-    // }));
-
     let initialTabs = store.categories[categoryId].activities.map(activity => {
-
         const key = new String([categoryId, activity.id]) as string;
         const tableData = (store.eventsByActivity[key] || []).map(event => ({
-            key: event.id.toString(),
+            id: event.id,
+            key: event.id,
             activity: activity.name,
             duration: formatDuration(new Date(event.duration.timeStart), new Date(event.duration.timeEnd)),
             timeStart: event.duration.timeStart,
             timeEnd: event.duration.timeEnd,
         }));
+        console.log(tableData, store.eventsByActivity[key], store.events)
         return {
             title: activity.name,
-            content: <DurationTable data={tableData} />,
+            content: <DurationTable initialData={tableData} />,
             key: activity.id.toString(),
         }
     });
-
 
     const onAddTab = () => {
         setAddActivityPanelVisible(true);

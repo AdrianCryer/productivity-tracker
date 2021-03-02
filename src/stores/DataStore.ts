@@ -19,6 +19,8 @@ export interface IDataStore extends State {
 
     /** ACTIONS */
     addEvent: (categoryId: number, activityId: number, duration: Duration) => void;
+    removeEvent: (eventId: number) => void;
+    updateEvent: (event: DurationEvent) => void;
     addActivity: (categoryId: number, activity: Activity) => void;
 };
 
@@ -90,7 +92,29 @@ const useDataStore = createStore<IDataStore>((set, get) => ({
     },
 
     removeEvent(eventId: number) {
+        console.log(get().events, eventId);
+        set(state => {
+            if (!state.events[eventId]) {
+                return;
+            }
+            const event = state.events[eventId];
+            
+            // Need to search in indexes...
+            let key = new String([event.categoryId, event.activityId]) as string;
+            let index = state.eventsByActivity[key].findIndex(e => e.id === eventId);
+            state.eventsByActivity[key].splice(index, 1);
+            
+            key = (new Date(event.duration.timeStart)).toLocaleDateString();
+            index = state.eventsByDate[key].findIndex(e => e.id === eventId);
+            state.eventsByDate[key].splice(index, 1);
 
+            delete state.events[eventId];
+        });
+        console.log(get().events);
+    },
+
+    updateEvent(event: DurationEvent) {
+        set(state => { state.events[event.id] = event });
     },
 
     addActivity(categoryId: number, activity: Activity) {
