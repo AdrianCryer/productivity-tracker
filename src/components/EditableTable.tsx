@@ -5,12 +5,23 @@ const EditableContext = createContext<FormInstance<any> | null>(null);
 
 type TableProps = Parameters<typeof Table>[0];
 type ColumnTypes = Exclude<TableProps['columns'], undefined>;
+type DataRow = { key: React.Key;[key: string]: any };
+
 interface EditableTableProps extends Omit<TableProps, 'columns'> {
     columns: (ColumnTypes[number] & { editable?: boolean; dataIndex: string })[]
-    data: { key: React.Key;[key: string]: any }[]
+    initialData: DataRow[]
 }
 
 export default function EditableTable(props: EditableTableProps) {
+
+    const [tableData, setTableData] = useState(props.initialData);
+    const handleSave = (row: DataRow) => {
+        const nextData = [...tableData];
+        const index = nextData.findIndex(item => row.key === item.key);
+        const item = nextData[index];
+        nextData.splice(index, 1, { ...item, ...row });
+        setTableData(nextData);
+    };
 
     const components = {
         body: { row: EditableRow, cell: EditableCell }
@@ -27,7 +38,7 @@ export default function EditableTable(props: EditableTableProps) {
                 editable: col.editable,
                 dataIndex: col.dataIndex,
                 title: col.title, 
-                // handleSave: this.handleSave,
+                handleSave: handleSave,
             }),
         }
     })
@@ -37,7 +48,7 @@ export default function EditableTable(props: EditableTableProps) {
             components={components}
             rowClassName={() => 'editable-row'}
             bordered
-            dataSource={props.data}
+            dataSource={tableData}
             columns={columns as ColumnTypes}
         />
     )

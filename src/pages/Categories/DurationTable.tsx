@@ -26,7 +26,7 @@ export default function DurationTable(props: DurationTableProps) {
     return (
         <EditableTable
             columns={columns}
-            data={props.data}
+            initialData={props.data}
         />
     );
 }
