@@ -1,6 +1,7 @@
 import { Popconfirm } from "antd";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import EditableTable, { DataColumn, DataRow } from "../../components/EditableTable";
+import { formatDuration } from "../../core/helpers";
 import { useDataStore } from "../../stores/DataStore";
 
 
@@ -16,12 +17,14 @@ const getColumns = (isEmpty: boolean, onDelete: (row: DataRow) => void): DataCol
     {
         title: 'Time Start',
         dataIndex: 'timeStart',
-        editable: true
+        editable: true,
+        width: '30%',
     },
     {
         title: 'Time End',
         dataIndex: 'timeEnd',
-        editable: true
+        editable: true,
+        width: '30%',
     },
     {
         title: 'Modify',
@@ -37,12 +40,31 @@ const getColumns = (isEmpty: boolean, onDelete: (row: DataRow) => void): DataCol
     },
 ]);
 
-type DurationTableProps = { initialData: DataRow[] };
+type DurationTableProps = { categoryId: number; activityId: number };
 
-export default function DurationTable(props: DurationTableProps) {
+export default function DurationTable({ categoryId, activityId }: DurationTableProps) {
 
-    const [tableData, setTableData] = useState(props.initialData);
+    const [tableData, setTableData] = useState<DataRow[]>([]);
     const { updateEvent, removeEvent } = useDataStore();
+
+    const key = new String([categoryId, activityId]) as string;
+    const eventsByActivity = useDataStore(state => (state.eventsByActivity[key] || []));
+    const activity = useDataStore(state => state.categories[categoryId].activities[activityId]);
+
+    useEffect(() => {
+        const tableData = eventsByActivity.map(event => ({
+            id: event.id,
+            key: event.id,
+            activity: activity.name,
+            duration: formatDuration(
+                new Date(event.duration.timeStart), 
+                new Date(event.duration.timeEnd)
+            ),
+            timeStart: event.duration.timeStart,
+            timeEnd: event.duration.timeEnd,
+        }));
+        setTableData(tableData);
+    }, [eventsByActivity]);
 
     const onUpdate = (row: DataRow) => {
         const nextData = [...tableData];

@@ -90,6 +90,7 @@ export default function EventAdderTopbar(props: EventAdderTopbarProps) {
             timeEnd: payload.timeEnd.toDate(),
         });
         form.resetFields(['timeStart', 'timeEnd']);
+        setButtonStatus(getButtonStatus())
     }
 
     // Map to reverse the values => category.id, activity.id pair
@@ -98,7 +99,7 @@ export default function EventAdderTopbar(props: EventAdderTopbarProps) {
 
     for (let category of Object.values(props.categories)) {
         let group = [];
-        for (let activity of category.activities) {
+        for (let activity of Object.values(category.activities)) {
             const key = `${category.name}  |  ${activity.name}`;
             group.push({
                 value: key,

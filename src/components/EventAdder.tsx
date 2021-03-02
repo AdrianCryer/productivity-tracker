@@ -37,6 +37,7 @@ export default function EventAdder(props: EventAdderProps) {
         setCategoryId(categoryId);
         form.setFields([{ name: 'activity', value: '' }]);
     };
+    const activities = Object.values(props.categories[categoryId].activities);
 
     const format = 'HH:mm';
     return (
@@ -97,7 +98,7 @@ export default function EventAdder(props: EventAdderProps) {
                                     style={{ width: '100%' }}
                                     placeholder="Activity"
                                 >
-                                    {categoryId !== -1 && props.categories[categoryId].activities.map((a: Activity) => (
+                                    {categoryId !== -1 && activities.map((a: Activity) => (
                                         <Option key={a.name} value={a.id}>{a.name}</Option>
                                     ))}
                                 </Select>

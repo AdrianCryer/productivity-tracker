@@ -6,6 +6,7 @@ import { useDataStore } from "../../stores/DataStore";
 import AddActivityPanel from "./AddActivityPanel";
 import DurationTable from "./DurationTable";
 import { formatDuration } from "../../core/helpers";
+import { Activity } from "../../core";
 
 
 type CategoriesProps = {
@@ -26,20 +27,11 @@ export default function Categories(props: CategoriesProps) {
         return <Layout>Could not load</Layout>
     }
 
-    let initialTabs = store.categories[categoryId].activities.map(activity => {
-        const key = new String([categoryId, activity.id]) as string;
-        const tableData = (store.eventsByActivity[key] || []).map(event => ({
-            id: event.id,
-            key: event.id,
-            activity: activity.name,
-            duration: formatDuration(new Date(event.duration.timeStart), new Date(event.duration.timeEnd)),
-            timeStart: event.duration.timeStart,
-            timeEnd: event.duration.timeEnd,
-        }));
-        console.log(tableData, store.eventsByActivity[key], store.events)
+    const activities: Activity[] = Object.values(store.categories[categoryId].activities);
+    let initialTabs = activities.map(activity => {
         return {
             title: activity.name,
-            content: <DurationTable initialData={tableData} />,
+            content: <DurationTable categoryId={categoryId} activityId={activity.id} />,
             key: activity.id.toString(),
         }
     });
@@ -49,8 +41,7 @@ export default function Categories(props: CategoriesProps) {
     };
 
     const nameAlreadyExists = (name: string) => {
-        return store.categories[categoryId]
-                    .activities.find(activity => activity.name === name);
+        return activities.find(activity => activity.name === name);
     };
 
     return (
@@ -68,8 +59,6 @@ export default function Categories(props: CategoriesProps) {
                 visible={addActivityPanelVisible}
                 handleOk={(form: FormInstance) => {
                     const name = form.getFieldValue('name');
-
-                    // Check if name already exists in category.
                     if (nameAlreadyExists(name)) {
                         form.setFields([{
                             name: 'name',

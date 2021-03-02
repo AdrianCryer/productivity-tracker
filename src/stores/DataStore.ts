@@ -55,13 +55,13 @@ const useDataStore = createStore<IDataStore>((set, get) => ({
             id: 0,
             name: "Projects",
             dateAdded: (new Date("2021-02-27")).toISOString(),
-            activities: [
-                {
+            activities: {
+                0: {
                     id: 0,
                     name: "Voxel Game",
                     dateAdded: (new Date("2021-02-27")).toISOString()
                 }
-            ]
+            }
         }
     },
     events: {},
@@ -92,7 +92,6 @@ const useDataStore = createStore<IDataStore>((set, get) => ({
     },
 
     removeEvent(eventId: number) {
-        console.log(get().events, eventId);
         set(state => {
             if (!state.events[eventId]) {
                 return;
@@ -110,7 +109,6 @@ const useDataStore = createStore<IDataStore>((set, get) => ({
 
             delete state.events[eventId];
         });
-        console.log(get().events);
     },
 
     updateEvent(event: DurationEvent) {
@@ -118,9 +116,8 @@ const useDataStore = createStore<IDataStore>((set, get) => ({
     },
 
     addActivity(categoryId: number, activity: Activity) {
-        console.log("adding " + activity)
         set(state => {
-            state.categories[categoryId].activities.push(activity);
+            state.categories[categoryId].activities[activity.id] = activity;
         });
     }
 
