@@ -80,8 +80,8 @@ const SideNav = (props: { categories: Category[] }) => {
 export default function App() {
 
     const [collapsed, setCollapsed] = useState(false);
-    const categories = useDataStore(state => Object.values(state.categories));
-    const store = useDataStore();
+    const categories = useDataStore(state => state.categories);
+    const addEvent = useDataStore(state => state.addEvent);
     
     return (
         <BrowserRouter>
@@ -100,13 +100,13 @@ export default function App() {
                     >
                         {React.createElement(collapsed ? DoubleRightOutlined : DoubleLeftOutlined)}
                     </Button>
-                    <SideNav categories={categories} />
+                    <SideNav categories={Object.values(categories)} />
                 </Sider>
                 <Layout>
                     <EventAdderTopbar 
-                        categories={store.categories}
+                        categories={categories}
                         onAddEntry={data => {
-                            store.addEvent(
+                            addEvent(
                                 data.categoryId,
                                 data.activityId,
                                 { 

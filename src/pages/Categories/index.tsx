@@ -4,6 +4,7 @@ import { Space, Card, Tabs, Layout, FormInstance } from "antd";
 import { EditableTabs, PageHeading } from "../../components";
 import { useDataStore } from "../../stores/DataStore";
 import AddActivityPanel from "./AddActivityPanel";
+import DurationTable from "./DurationTable";
 
 
 type CategoriesProps = {
@@ -24,11 +25,28 @@ export default function Categories(props: CategoriesProps) {
         return <Layout>Could not load</Layout>
     }
 
-    const initialTabs = store.categories[categoryId].activities.map(activity => ({
-        title: activity.name,
-        content: <div>Contributions</div>,
-        key: activity.id.toString(),
-    }));
+    // const initialTabs = store.categories[categoryId].activities.map(activity => ({
+    //     title: activity.name,
+    //     content: <DurationTable data={store.eventsByActivity[new String([categoryId, activity.id])]} />,
+    //     key: activity.id.toString(),
+    // }));
+
+    let initialTabs = store.categories[categoryId].activities.map(activity => {
+
+        const key = new String([categoryId, activity.id]) as string;
+        const tableData = (store.eventsByActivity[key] || []).map(event => ({
+            key: event.id.toString(),
+            activity: activity.name,
+            timeStart: event.duration.timeStart,
+            timeEnd: event.duration.timeEnd,
+        }));
+        return {
+            title: activity.name,
+            content: <DurationTable data={tableData} />,
+            key: activity.id.toString(),
+        }
+    });
+
 
     const onAddTab = () => {
         setAddActivityPanelVisible(true);

@@ -19,11 +19,6 @@ export default function EditableTabs(props: EditableTabsProps) {
     
     const initialTab = props.initialTab || 0;
     const [activeKey, setActiveKey] = useState<string>(props.tabs[initialTab].key);
-    // const [tabs, setTabs] = useState<TabContent[]>(props.initialTabs);
-
-    const onChange = (key: string) => {
-        setActiveKey(key);
-    };
 
     const onEdit = (targetKey: any, action: 'add' | 'remove') => {
         if (action === 'remove') {
@@ -35,8 +30,8 @@ export default function EditableTabs(props: EditableTabsProps) {
     return (
         <Tabs
             type="editable-card"
-            onChange={onChange}
-            activeKey={activeKey}
+            onChange={(key: string) => setActiveKey(key)}
+            activeKey={(activeKey)}
             onEdit={onEdit}
         >
             {props.tabs.map(tab => (
