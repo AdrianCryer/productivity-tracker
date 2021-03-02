@@ -1,4 +1,5 @@
 import { Popconfirm } from "antd";
+import moment from "moment";
 import React, { useEffect, useState } from "react";
 import EditableTable, { DataColumn, DataRow } from "../../components/EditableTable";
 import { formatDuration } from "../../core/helpers";
@@ -19,12 +20,14 @@ const getColumns = (isEmpty: boolean, onDelete: (row: DataRow) => void): DataCol
         dataIndex: 'timeStart',
         editable: true,
         width: '30%',
+        cellType: 'timePicker'
     },
     {
         title: 'Time End',
         dataIndex: 'timeEnd',
         editable: true,
         width: '30%',
+        cellType: 'timePicker'
     },
     {
         title: 'Modify',
@@ -58,16 +61,20 @@ function DurationTable({ categoryId, activityId }: DurationTableProps) {
             new Date(event.duration.timeStart), 
             new Date(event.duration.timeEnd)
         ),
-        timeStart: event.duration.timeStart,
-        timeEnd: event.duration.timeEnd,
+        timeStart: moment(event.duration.timeStart),
+        timeEnd: moment(event.duration.timeEnd),
     }));
 
     const onUpdate = (row: DataRow) => {
-        const nextData = [...tableData];
-        const index = nextData.findIndex(item => row.key === item.key);
-        const item = nextData[index];
-        // nextData.splice(index, 1, { ...item, ...row });
-        // setTableData(nextData);
+        updateEvent({
+            id: row.id,
+            activityId: activity.id,
+            categoryId: categoryId,
+            duration: {
+                timeStart: row.timeStart.toDate().toISOString(),
+                timeEnd: row.timeEnd.toDate().toISOString()
+            }
+        })
     };
 
     const onDelete = (row: DataRow) => {

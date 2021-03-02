@@ -133,7 +133,7 @@ export default function App() {
                             exact
                             component={() => (
                                 <Page title="Settings">
-                                    <SettingsPage/>
+                                    <SettingsPage />
                                 </Page>
                             )}
                         />
@@ -142,7 +142,7 @@ export default function App() {
                             exact
                             component={() => (
                                 <Page title="Categories">
-                                    <CategoriesPage/>
+                                    <CategoriesPage />
                                 </Page>
                             )}
                         />

@@ -86,8 +86,8 @@ export default function EventAdderTopbar(props: EventAdderTopbarProps) {
         console.log("Submitted ", payload)
         props.onAddEntry({
             ...optionsReverseMap[payload.activity],
-            timeStart: payload.timeStart.toDate(),
-            timeEnd: payload.timeEnd.toDate(),
+            timeStart: payload.timeStart.toDate().toISOString(),
+            timeEnd: payload.timeEnd.toDate().toISOString(),
         });
         form.resetFields(['timeStart', 'timeEnd']);
         setButtonStatus(getButtonStatus())
@@ -174,8 +174,6 @@ export default function EventAdderTopbar(props: EventAdderTopbarProps) {
                                     style={{ width: '100%', height: '100%' }} 
                                     placeholder="Start time"
                                     onChange={() => setButtonStatus(getButtonStatus())}
-                                    // value={startTime && moment(startTime)}
-                                    // onChange={value => setStartTime(value?.toDate())}
                                 />
                             </Form.Item>
                         </Col>
@@ -190,8 +188,6 @@ export default function EventAdderTopbar(props: EventAdderTopbarProps) {
                                     style={{ width: '100%', height: '100%' }} 
                                     placeholder="End time"
                                     onChange={() => setButtonStatus(getButtonStatus())}
-                                    // value={endTime && moment(endTime)}
-                                    // onChange={value => setEndTime(value?.toDate())}
                                 />
                             </Form.Item>
                         </Col>

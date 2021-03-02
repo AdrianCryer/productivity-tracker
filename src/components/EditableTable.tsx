@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useRef, useState } from "react";
-import { Form, FormInstance, Input, Table } from "antd";
+import { Form, FormInstance, Input, Table, TimePicker } from "antd";
 
 const EditableContext = createContext<FormInstance<any> | null>(null);
 
@@ -11,7 +11,12 @@ export type DataRow = {
     key: React.Key; 
     [other: string]: any 
 };
-export type DataColumn = (ColumnTypes[number] & { editable?: boolean; dataIndex: string });
+export type CellType =  'input' | 'timePicker';
+export type DataColumn = (ColumnTypes[number] & { 
+    dataIndex: string; 
+    editable?: boolean; 
+    cellType?: CellType;
+});
 
 interface EditableTableProps extends Omit<TableProps, 'columns'> {
     columns: DataColumn[];
@@ -25,6 +30,7 @@ type EditableRowProps = { index: number };
 interface EditableCellProps {
     title: React.ReactNode;
     editable: boolean;
+    cellType: CellType;
     children: React.ReactNode;
     dataIndex: string;
     record: any;
@@ -46,6 +52,7 @@ export default function EditableTable(props: EditableTableProps) {
             onCell: (record: any) => ({
                 record,
                 editable: col.editable,
+                cellType: col.cellType,
                 dataIndex: col.dataIndex,
                 title: col.title, 
                 handleSave: props.onUpdate,
@@ -78,6 +85,7 @@ const EditableRow: React.FC<EditableRowProps> = ({ index, ...props }) => {
 const EditableCell: React.FC<EditableCellProps> = ({
     title,
     editable,
+    cellType,
     children,
     dataIndex,
     record,
@@ -122,11 +130,20 @@ const EditableCell: React.FC<EditableCellProps> = ({
                     },
                 ]}
             >
-                <Input ref={inputRef} onPressEnter={save} onBlur={save} />
+                {cellType  === 'timePicker' ? (
+                    <TimePicker ref={inputRef} onChange={save} onBlur={save} />
+                ): (
+                    <Input ref={inputRef} onPressEnter={save} onBlur={save} />
+                )}
             </Form.Item>
         ) : (
-            <div style={{ paddingRight: 24 }} onClick={toggleEdit}>
-                {children}
+            <div 
+                style={{ paddingRight: 24, padding: '5px 12px', cursor: 'pointer' }} 
+                onClick={toggleEdit}
+            >
+                {cellType === 'timePicker' ? (
+                    (new Date(record[dataIndex])).toLocaleTimeString()
+                ) : children}
             </div>
         ));
     }

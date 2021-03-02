@@ -8,21 +8,16 @@ import DurationTable from "./DurationTable";
 import { Activity } from "../../core";
 
 
-type CategoriesProps = {
-
-};
 type CategoriesParams = { categoryId: string };
 
-export default function Categories(props: CategoriesProps) {
+export default function Categories() {
 
     const [addActivityPanelVisible, setAddActivityPanelVisible] = useState(false);
 
     const params = useParams<CategoriesParams>();
     const categoryId = parseInt(params.categoryId);
-
-    // Have to be careful here because the store loads asynchronously.
     const category = useDataStore(state => state.categories[categoryId]);
-    const addActivity = useDataStore(state => state.addActivity);
+    const addActivity = useDataStore.getState().addActivity;
 
     if (!params.categoryId || !category) {
         return <Layout>Could not load</Layout>
