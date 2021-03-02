@@ -5,6 +5,7 @@ import { EditableTabs, PageHeading } from "../../components";
 import { useDataStore } from "../../stores/DataStore";
 import AddActivityPanel from "./AddActivityPanel";
 import DurationTable from "./DurationTable";
+import { formatDuration } from "../../core/helpers";
 
 
 type CategoriesProps = {
@@ -37,6 +38,7 @@ export default function Categories(props: CategoriesProps) {
         const tableData = (store.eventsByActivity[key] || []).map(event => ({
             key: event.id.toString(),
             activity: activity.name,
+            duration: formatDuration(new Date(event.duration.timeStart), new Date(event.duration.timeEnd)),
             timeStart: event.duration.timeStart,
             timeEnd: event.duration.timeEnd,
         }));

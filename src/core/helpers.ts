@@ -9,7 +9,7 @@ export function formatAMPM(date: Date): string {
 }
 
 export function formatDuration(start: Date, end: Date): string {
-    let hours = Math.floor((+end - +start) / 3600000);
+    let hours = Math.round((+end - +start) / 3600000);
     let minutes = Math.round((+end - +start) / 60000 - hours * 60);
     return `${hours}h ${minutes}m`;
 }
