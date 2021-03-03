@@ -6,6 +6,7 @@ import { useDataStore } from "../../stores/DataStore";
 import AddActivityPanel from "./AddActivityPanel";
 import DurationTable from "./DurationTable";
 import { Activity } from "../../core";
+import DateSelector from "../../components/DateSelector";
 
 
 type CategoriesParams = { categoryId: string };
@@ -45,6 +46,13 @@ export default function Categories() {
             <Space direction="vertical">
                 <PageHeading title={category.name} />
                 <Card>
+                    <div style={{ display: 'flex', }}>
+                        <DateSelector 
+                            style={{ marginLeft: 'auto' }}
+                            currentDate={new Date()} 
+                            onChangeDate={() => {}}
+                        />
+                    </div>
                     <EditableTabs 
                         tabs={initialTabs}
                         onAddTab={onAddTab}
