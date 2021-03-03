@@ -22,6 +22,7 @@ export interface IDataStore extends State {
     removeEvent: (eventId: number) => void;
     updateEvent: (partial: Pick<DurationEvent, 'id'> & Partial<DurationEvent>) => void;
     addActivity: (categoryId: number, activity: Activity) => void;
+    addCategory: (category: Category) => void;
 };
 
 
@@ -130,6 +131,18 @@ const useDataStore = createStore<IDataStore>((set, get) => ({
     addActivity(categoryId: number, activity: Activity) {
         set(state => {
             state.categories[categoryId].activities[activity.id] = activity;
+        });
+    },
+
+    addCategory(category: Category) {
+        if (category.id in get().categories) {
+            throw new Error("Category already exists");
+        }
+        if (Object.values(get().categories).find(c => c.name === category.name)) {
+            throw new Error(`Category name '${category.name}' already exists`);
+        }
+        set(state => {
+            state.categories[category.id] = category;
         });
     }
 

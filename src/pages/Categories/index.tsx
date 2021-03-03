@@ -23,7 +23,6 @@ export default function Categories() {
     if (!params.categoryId || !category) {
         return <Layout>Could not load</Layout>
     }
-    console.log("rerendered categories page")
 
     const activities: Activity[] = Object.values(category.activities);
     let tabs = activities.map(activity => {
