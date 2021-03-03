@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { Card, Popover } from 'antd';
 import { blue } from '@ant-design/colors';
 import { Duration } from '../core';
-import { formatAMPM, formatDuration } from '../core/helpers';
+import { formatAMPM, getFormmattedDuration } from '../core/helpers';
 
 type TimelineProps = {
     day: Date;
@@ -132,7 +132,7 @@ export default function TimelineBar(props: TimelineProps) {
 
                         popoverContent = (
                             <div>
-                                <h3>{formatDuration(startDate, endDate)}</h3>
+                                <h3>{getFormmattedDuration(startDate, endDate)}</h3>
                                 <div>{startTime} - {endTime}</div>
                             </div>
                         );

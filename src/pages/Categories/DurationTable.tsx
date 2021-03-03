@@ -2,8 +2,8 @@ import { Popconfirm } from "antd";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
 import EditableTable, { DataColumn, DataRow } from "../../components/EditableTable";
-import { formatDuration } from "../../core/helpers";
-import { useDataStore } from "../../stores/DataStore";
+import { getDateString, getFormmattedDuration } from "../../core/helpers";
+import { IDataStore, useDataStore } from "../../stores/DataStore";
 
 
 const getColumns = (isEmpty: boolean, onDelete: (row: DataRow) => void): DataColumn[] => ([
@@ -16,17 +16,21 @@ const getColumns = (isEmpty: boolean, onDelete: (row: DataRow) => void): DataCol
         dataIndex: 'duration'
     },
     {
+        title: 'Date',
+        dataIndex: 'date'
+    },
+    {
         title: 'Time Start',
         dataIndex: 'timeStart',
         editable: true,
-        width: '30%',
+        width: '20%',
         cellType: 'timePicker'
     },
     {
         title: 'Time End',
         dataIndex: 'timeEnd',
         editable: true,
-        width: '30%',
+        width: '20%',
         cellType: 'timePicker'
     },
     {
@@ -43,21 +47,26 @@ const getColumns = (isEmpty: boolean, onDelete: (row: DataRow) => void): DataCol
     },
 ]);
 
-type DurationTableProps = { categoryId: number; activityId: number };
+type DurationTableProps = { categoryId: number; activityId?: number, date: Date };
 
-function DurationTable({ categoryId, activityId }: DurationTableProps) {
+function DurationTable({ categoryId, activityId, date }: DurationTableProps) {
 
     const { updateEvent, removeEvent } = useDataStore.getState();
 
-    const key = new String([categoryId, activityId]) as string;
-    const eventsByActivity = useDataStore(state => state.eventsByActivity[key] || []);
-    const activity = useDataStore(state => state.categories[categoryId].activities[activityId]);
-
-    const tableData = eventsByActivity.map(event => ({
+    const key = date.toLocaleDateString();
+    const eventsByDate = useDataStore(state => state.eventsByDate[key] || []);
+    const activities = useDataStore(state => state.categories[categoryId].activities);
+    
+    let filteredEvents = activityId !== undefined ? 
+        eventsByDate.filter(event => event.activityId === activityId) : 
+        eventsByDate;
+    
+    const tableData = filteredEvents.map(event => ({
         id: event.id,
         key: event.id,
-        activity: activity.name,
-        duration: formatDuration(
+        activity: activities[event.activityId].name,
+        date: getDateString(event.duration.timeStart),
+        duration: getFormmattedDuration(
             new Date(event.duration.timeStart), 
             new Date(event.duration.timeEnd)
         ),
@@ -68,8 +77,6 @@ function DurationTable({ categoryId, activityId }: DurationTableProps) {
     const onUpdate = (row: DataRow) => {
         updateEvent({
             id: row.id,
-            activityId: activity.id,
-            categoryId: categoryId,
             duration: {
                 timeStart: row.timeStart.toDate().toISOString(),
                 timeEnd: row.timeEnd.toDate().toISOString()

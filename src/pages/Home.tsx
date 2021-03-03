@@ -4,6 +4,7 @@ import { Space } from 'antd';
 import { TimelineBar, EventAdder, SummaryHeader, PageHeading } from '../components';
 import { CategoryDurations } from '../core';
 import { useDataStore } from '../stores/DataStore';
+import { getDurationFromDiff } from '../core/helpers';
 
 
 type HomeProps = {
@@ -43,10 +44,7 @@ export default function Home(props: HomeProps) {
                 return total + diff;
             }, 0);
 
-            return [
-                Math.floor(totalMs / 3600000), 
-                Math.floor((totalMs % 3600000) / 60000)
-            ];
+            return getDurationFromDiff(totalMs);
         },  
         [store.events, currentDate]
     );
@@ -58,22 +56,6 @@ export default function Home(props: HomeProps) {
     return (
         <Space direction="vertical">
             <PageHeading title="Dashboard" />
-            {/* <EventAdder
-                categories={store.categories}
-                onAddEntry={data => {
-                    const day = data.date.get("date");
-                    const timeStart = data.timeStart.set("date", day).toDate();
-                    const timeEnd = data.timeEnd.set("date", day).toDate();
-                    store.addEvent(
-                        data.category,
-                        data.activity,
-                        { 
-                            timeStart: timeStart.toString(), 
-                            timeEnd: timeEnd.toString() 
-                        }
-                    );
-                }}
-            /> */}
             <SummaryHeader 
                 currentDate={currentDate}
                 totalMinutes={minutes}

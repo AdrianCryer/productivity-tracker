@@ -8,10 +8,25 @@ export function formatAMPM(date: Date): string {
     return strTime;
 }
 
-export function formatDuration(start: Date, end: Date): string {
-    let hours = Math.round((+end - +start) / 3600000);
-    let minutes = Math.round((+end - +start) / 60000 - hours * 60);
+type HourMinuteDuration = [hours: number, minutes: number];
+
+export function getDurationFromDiff(diffMs: number): HourMinuteDuration {
+    let hours = Math.floor((diffMs % 86400000) / 3600000);
+    let minutes = Math.round(((diffMs % 86400000) % 3600000) / 60000) % 60;
+    return [hours, minutes];
+}
+
+export function getDuration(start: Date, end: Date): HourMinuteDuration {
+    return getDurationFromDiff((+end - +start));
+}
+
+export function getFormmattedDuration(start: Date, end: Date) {
+    const [hours, minutes] = getDuration(start, end);
     return `${hours}h ${minutes}m`;
+}
+
+export function getDateString(dateString: string) {
+    return (new Date(dateString)).toLocaleDateString();
 }
 
 export function getNumberOfWeek(date: Date) {

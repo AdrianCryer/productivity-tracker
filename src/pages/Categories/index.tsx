@@ -14,7 +14,7 @@ type CategoriesParams = { categoryId: string };
 export default function Categories() {
 
     const [addActivityPanelVisible, setAddActivityPanelVisible] = useState(false);
-
+    const [date, setDate] = useState(new Date());
     const params = useParams<CategoriesParams>();
     const categoryId = parseInt(params.categoryId);
     const category = useDataStore(state => state.categories[categoryId]);
@@ -23,15 +23,27 @@ export default function Categories() {
     if (!params.categoryId || !category) {
         return <Layout>Could not load</Layout>
     }
+    console.log("rerendered categories page")
 
     const activities: Activity[] = Object.values(category.activities);
-    let initialTabs = activities.map(activity => {
+    let tabs = activities.map(activity => {
         return {
             title: activity.name,
-            content: <DurationTable categoryId={categoryId} activityId={activity.id} />,
+            content: (
+                <DurationTable 
+                    categoryId={categoryId} 
+                    activityId={activity.id} 
+                    date={date} 
+                />
+            ),
             key: activity.id.toString(),
         }
     });
+    tabs.unshift({
+        title: 'All',
+        content: <DurationTable categoryId={categoryId} date={date} />,
+        key: 'all',
+    })
 
     const onAddTab = () => {
         setAddActivityPanelVisible(true);
@@ -41,6 +53,10 @@ export default function Categories() {
         return activities.find(activity => activity.name === name);
     };
 
+    const onChangeDate = (date: Date) => {
+        setDate(date);
+    }
+
     return (
         <>
             <Space direction="vertical">
@@ -49,12 +65,12 @@ export default function Categories() {
                     <div style={{ display: 'flex', }}>
                         <DateSelector 
                             style={{ marginLeft: 'auto' }}
-                            currentDate={new Date()} 
-                            onChangeDate={() => {}}
+                            currentDate={date} 
+                            onChangeDate={onChangeDate}
                         />
                     </div>
                     <EditableTabs 
-                        tabs={initialTabs}
+                        tabs={tabs}
                         onAddTab={onAddTab}
                     />
                 </Card>

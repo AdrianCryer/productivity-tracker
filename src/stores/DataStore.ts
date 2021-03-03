@@ -20,7 +20,7 @@ export interface IDataStore extends State {
     /** ACTIONS */
     addEvent: (categoryId: number, activityId: number, duration: Duration) => void;
     removeEvent: (eventId: number) => void;
-    updateEvent: (event: DurationEvent) => void;
+    updateEvent: (partial: Pick<DurationEvent, 'id'> & Partial<DurationEvent>) => void;
     addActivity: (categoryId: number, activity: Activity) => void;
 };
 
@@ -111,9 +111,10 @@ const useDataStore = createStore<IDataStore>((set, get) => ({
         });
     },
 
-    updateEvent(event: DurationEvent) {
+    updateEvent(partial: Pick<DurationEvent, 'id'> & Partial<DurationEvent>) {
         set(state => { 
-            state.events[event.id] = event 
+            const event: DurationEvent = { ...state.events[partial.id], ...partial };
+            state.events[partial.id] = event; 
 
             // Need to update indexes
             let key = new String([event.categoryId, event.activityId]) as string;
