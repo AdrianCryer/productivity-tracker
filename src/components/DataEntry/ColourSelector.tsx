@@ -25,10 +25,7 @@ const Egg = (props: { gradient: Gradient, size: number | string }) => (
             ...getEggStyle(props.gradient),
             width: props.size || 30,
             paddingBottom: props.size || 30,
-            // padding: 4,
             borderRadius: '50%',
-            textAlign: 'center',
-            verticalAlign: 'middle'
         }} 
     />
 )
@@ -49,11 +46,11 @@ export default function ColourSelector(props: ColourSelectorProps) {
         <Select
             {...selectProps}
             placeholder="Select a colour"
-            style={{ height: 50 }}
             size="large"
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 1, alignSelf: 'center', position: 'relative' }}
         >   
             {items.map((item, i) => (
-                <Option key={i} value={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Option key={i} value={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 1 }}>
                     <Egg size={30} gradient={item} />
                 </Option>
             ))}

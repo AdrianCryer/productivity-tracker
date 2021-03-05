@@ -45,3 +45,9 @@
 .content {
   padding: 20px
 }
+
+.category-settings-menu-item-group {
+  max-height: 300px;
+  overflow: auto;
+  overflow-x: hidden;
+}
