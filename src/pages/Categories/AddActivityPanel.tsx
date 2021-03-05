@@ -33,5 +33,5 @@ export default function AddActivityPanel(props: AddActivityPanelProps) {
                 </Form.Item>
             </Form>
         </Modal>
-    )
+    );
 };

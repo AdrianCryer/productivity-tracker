@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { useParams } from "react-router-dom";
-import { Space, Card, Tabs, Layout, FormInstance } from "antd";
+import { Space, Card, Tabs, Layout, FormInstance, Button } from "antd";
+import { EditOutlined } from '@ant-design/icons';
 import { EditableTabs, PageHeading } from "../../components";
 import { useDataStore } from "../../stores/DataStore";
 import AddActivityPanel from "./AddActivityPanel";
 import DurationTable from "./DurationTable";
 import { Activity } from "../../core";
 import DateSelector from "../../components/DateSelector";
+import SettingsModal from "./SettingsModal";
 
 
 type CategoriesParams = { categoryId: string };
@@ -14,6 +16,7 @@ type CategoriesParams = { categoryId: string };
 export default function Categories() {
 
     const [addActivityPanelVisible, setAddActivityPanelVisible] = useState(false);
+    const [settingsModalVisible, setSettingsModalVisible] = useState(false);
     const [date, setDate] = useState(new Date());
     const params = useParams<CategoriesParams>();
     const categoryId = parseInt(params.categoryId);
@@ -59,7 +62,18 @@ export default function Categories() {
     return (
         <>
             <Space direction="vertical">
-                <PageHeading title={category.name} />
+                <PageHeading 
+                    title={category.name} 
+                    // subTitle="Your collection of projects to track"
+                    extra={
+                        <Button 
+                            type="text" 
+                            shape="circle" 
+                            icon={<EditOutlined />}
+                            onClick={() => setSettingsModalVisible(true)}
+                        />
+                    }
+                />
                 <Card>
                     <div style={{ display: 'flex', }}>
                         <DateSelector 
@@ -93,6 +107,12 @@ export default function Categories() {
                     }
                 }}
                 handleCancel={() => setAddActivityPanelVisible(false)}
+            />
+            <SettingsModal 
+                category={category}
+                visible={settingsModalVisible}
+                handleOk={() => {}}
+                handleCancel={() => setSettingsModalVisible(false)}
             />
         </>
     );
