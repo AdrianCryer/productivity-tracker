@@ -55,7 +55,7 @@ const SideNav = (props: SideNavProps) => {
             <SubMenu key="categories" icon={<DesktopOutlined />} title="Categories">
                 {props.categories.map(c => (
                     <Menu.Item 
-                        key={`cat=${c.name}`}
+                        key={c.id}
                         onClick={() => handleClick("categories/" + c.id)}
                     >
                         {c.name}
@@ -63,7 +63,8 @@ const SideNav = (props: SideNavProps) => {
                 ))}
                 <Menu.Item 
                     onClick={props.onAddActivity}
-                    key="add" icon={<PlusOutlined />} 
+                    key="add" 
+                    icon={<PlusOutlined />} 
                 >
                     Add
                 </Menu.Item>
