@@ -1,38 +1,58 @@
 import { Form, Input } from "antd";
+import { useState } from "react";
 import { Category } from "../../../core";
 import { useModalButton } from "../../../hooks/useModalButton";
 import { useResetFormOnHide } from "../../../hooks/useResetFormOnHide";
 import { useDataStore } from "../../../stores/DataStore";
+import { validateCategory } from "../../../validation";
 
 type GeneralProps = {
     visible: boolean;
-    onRequiresUpdate?: () => void;
+    onRequiresUpdate: (val: boolean) => void;
     onUpdated?: (update?: () => void) => void;
     category: Category;
 };
 
 const General: React.FC<GeneralProps> = (props) => {
 
-    const { modifyCategory } = useDataStore.getState();
+    const { editCategory } = useDataStore.getState();
     const [form] = Form.useForm();
+    const [partial, setPartial] = useState<any>({});
     
     useResetFormOnHide({ 
         form, 
         visible: props.visible, 
         defaultValues: {
-            name: props.category.name,
-            // colour: COLOUR
+            name: props.category.name
         }
     });
     useModalButton({
         visible: props.visible,
         onUpdate: () => {
             console.log("Updated from general!")
+            editCategory(props.category, partial);
         }
     })
 
-    const onUpdateField = (fieldName: string) => {
+    const onUpdateField = (fieldName: 'name') => {
+        const newValue = form.getFieldValue(fieldName);
+        if (newValue === props.category[fieldName]) {
+            return;
+        }
 
+        const errors = validateCategory(props.category, {
+            name: newValue
+        }, []);
+        if (Object.keys(errors).length === 0) {
+            props.onRequiresUpdate(true);
+            setPartial({ ...partial, name: newValue });
+        } else {
+            form.setFields(Object.keys(errors).map(field => ({
+                name: field,
+                error: [errors[field]]
+            })));
+        }
+        console.log(errors, partial);
     };
 
     return (
@@ -54,7 +74,7 @@ const General: React.FC<GeneralProps> = (props) => {
                 rules={[{ message: 'Please input a colour!' }]}
             >
                 <Input
-                    onChange={() => onUpdateField('colour')}
+                    // onChange={() => onUpdateField('colour')}
                     type="color"
                 />
             </Form.Item>

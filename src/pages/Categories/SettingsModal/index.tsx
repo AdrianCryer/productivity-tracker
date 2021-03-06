@@ -22,24 +22,6 @@ export default function SettingsModal(props: SettingsModalProps) {
     const [requiresUpdate, setRequiresUpdate] = useState(false);
     const updateFunctionRef = useRef<() => void>(() => {});
 
-    const { editCategory } = useDataStore.getState();
-    console.log("rerender", updateFunctionRef);
-    
-    // Because of the position of the update / ok buttons, must do validation
-    // in parent. This is actually quite awkward when adding additional pages.
-    // const updatePage = (pageName: string, payload: any) => {
-    //     if (pageName === "General") {
-    //         // Update category
-    //         editCategory(props.category, payload);
-    //     }
-
-    //     setRequiresUpdate(false);
-    // }
-
-    // const scanForUpdate = () => {
-
-    // }
-
     const handleUpdates = (callBack: () => void) => {
         setRequiresUpdate(false);
         callBack();
@@ -67,7 +49,13 @@ export default function SettingsModal(props: SettingsModalProps) {
     const pages = [
         {
             name: "General",
-            component: <General visible={currentPage === "General"} category={props.category}/>
+            component: (
+                <General 
+                    visible={currentPage === "General"} 
+                    category={props.category}
+                    onRequiresUpdate={val => setRequiresUpdate(val)}
+                />
+            )
         },
         {
             name: "Integrations",

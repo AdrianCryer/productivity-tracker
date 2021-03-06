@@ -1,9 +1,7 @@
 import { Category } from "../core";
-import { useDataStore } from "../stores/DataStore";
 
 
-export function useCategoryValidator(category: Category, payload: Partial<Category>, categories: Category[]) {
-
+export function validateCategory(category: Category, payload: Partial<Category>, categories: Category[]) {
     let errors: any = {};
     if (payload.name !== undefined) {
         if (payload.name === "") {
@@ -12,4 +10,5 @@ export function useCategoryValidator(category: Category, payload: Partial<Catego
             errors.name = "Category with same name already exists";
         }
     }
+    return errors;
 }

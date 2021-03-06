@@ -148,7 +148,7 @@ const useDataStore = createStore<IDataStore>((set, get) => ({
     },
 
     editCategory(category: Category, props: { id: never; [key: string]: any}) {
-        set(state => { state.categories[category.id] = { ...category, ...props } });
+        set(state => { state.categories[category.id] = { ...props, ...category } });
     }
 
 
