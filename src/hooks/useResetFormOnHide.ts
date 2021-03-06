@@ -1,7 +1,11 @@
 import { FormInstance } from "antd";
 import { useEffect, useRef } from "react";
 
-export const useResetFormOnHide = ({ form, visible }: { form: FormInstance, visible: boolean }) => {
+export const useResetFormOnHide = ({ form, visible, defaultValues }: { 
+    form: FormInstance, 
+    visible: boolean; 
+    defaultValues?: any 
+}) => {
     const prevVisibleRef = useRef<boolean>();
     useEffect(() => {
         prevVisibleRef.current = visible;
@@ -10,7 +14,11 @@ export const useResetFormOnHide = ({ form, visible }: { form: FormInstance, visi
 
     useEffect(() => {
         if (!visible && prevVisible) {
-            form.resetFields();
+            if (defaultValues) {
+                form.setFieldsValue(defaultValues);
+            } else {
+                form.resetFields();
+            }
         }
     }, [visible]);
 }
