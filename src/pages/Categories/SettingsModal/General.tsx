@@ -1,5 +1,5 @@
 import { Form, Input } from "antd";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { Category } from "../../../core";
 import { useModalButton } from "../../../hooks/useModalButton";
 import { useResetFormOnHide } from "../../../hooks/useResetFormOnHide";
@@ -17,7 +17,7 @@ const General: React.FC<GeneralProps> = (props) => {
 
     const { editCategory } = useDataStore.getState();
     const [form] = Form.useForm();
-    const [partial, setPartial] = useState<any>({});
+    const [partial, setPartial] = useState<{ name?: string; }>({});
     
     useResetFormOnHide({ 
         form, 
@@ -25,14 +25,15 @@ const General: React.FC<GeneralProps> = (props) => {
         defaultValues: {
             name: props.category.name
         }
-    });
-    useModalButton({
+    }, [props.category]);
+
+    const [setOnClick] = useModalButton({
         visible: props.visible,
-        onUpdate: () => {
-            console.log("Updated from general!")
-            editCategory(props.category, partial);
-        }
-    })
+    });
+
+    const onUpdate = (data: any) => {
+        editCategory(props.category, data);
+    }
 
     const onUpdateField = (fieldName: 'name') => {
         const newValue = form.getFieldValue(fieldName);
@@ -45,14 +46,16 @@ const General: React.FC<GeneralProps> = (props) => {
         }, []);
         if (Object.keys(errors).length === 0) {
             props.onRequiresUpdate(true);
-            setPartial({ ...partial, name: newValue });
+            // console.log("Setting partial ", { ...partial, name: newValue });
+            setPartial(prevPartial => ({...prevPartial, name: newValue }));
+            setOnClick(() => onUpdate({ ...partial, name: newValue }));
         } else {
             form.setFields(Object.keys(errors).map(field => ({
                 name: field,
                 error: [errors[field]]
             })));
         }
-        console.log(errors, partial);
+        
     };
 
     return (

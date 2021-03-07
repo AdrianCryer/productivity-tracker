@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Col, FormInstance, Menu, Modal, Row, Typography } from "antd";
 import { Category } from "../../../core";
 import { useDataStore } from "../../../stores/DataStore";
+import { ExclamationCircleOutlined } from "@ant-design/icons";
 import { ModalButtonContext } from "../../../hooks/useModalButton";
 import General from "./General";
 import Integrations from "./Integrations";
@@ -20,38 +21,42 @@ export default function SettingsModal(props: SettingsModalProps) {
 
     const [currentPage, setCurrentPage] = useState("General");
     const [requiresUpdate, setRequiresUpdate] = useState(false);
-    const updateFunctionRef = useRef<() => void>(() => {});
-
-    const handleUpdates = (callBack: () => void) => {
-        setRequiresUpdate(false);
-        callBack();
-    }
+    const updateFunctionRef = useRef<() => void>(() => { });
 
     const changePage = (pageName: string) => {
         if (pageName === currentPage)
             return;
-        setCurrentPage(pageName);
-        // if (itemChanged) {
-        //     Modal.confirm({
-        //         title: 'Update Changes',
-        //         centered: true,
-        //         icon: <ExclamationCircleOutlined />,
-        //         content: 'Do you want to update your changes?',
-        //         okText: 'Update!',
-        //         cancelText: 'Cancel',
-        //         onOk: () => handleUpdates(() => setCurrentPage(pageName)),
-        //         onCancel: () => {
-        //             setItemChanged(false);
-        //         }
-        //     });
-        // }
+
+        if (requiresUpdate) {
+            Modal.confirm({
+                title: 'Update Changes',
+                centered: true,
+                icon: <ExclamationCircleOutlined />,
+                content: 'Do you want to update your changes?',
+                okText: 'Update!',
+                cancelText: 'Cancel',
+                onOk: () => {
+                    updateFunctionRef.current();
+                    setCurrentPage(pageName);
+                },
+                onCancel: () => {
+                    setRequiresUpdate(false);
+                    setCurrentPage(pageName);
+                }
+            });
+        } else {
+            setCurrentPage(pageName);
+        }
     }
+
+    // console.log("rerendered menu")
+
     const pages = [
         {
             name: "General",
             component: (
-                <General 
-                    visible={currentPage === "General"} 
+                <General
+                    visible={currentPage === "General"}
                     category={props.category}
                     onRequiresUpdate={val => setRequiresUpdate(val)}
                 />
@@ -69,7 +74,7 @@ export default function SettingsModal(props: SettingsModalProps) {
             visible={props.visible}
             okText={!requiresUpdate ? "OK" : "Update"}
             onOk={() => updateFunctionRef.current()}  // Weird that I have to bind this
-            onCancel={props.handleCancel}
+            // onCancel={props.handleCancel}
             confirmLoading={props.confirmLoading || undefined}
             width="80%"
             centered
@@ -102,7 +107,7 @@ export default function SettingsModal(props: SettingsModalProps) {
                 <Col span={16}>
                     <ModalButtonContext.Provider value={updateFunctionRef}>
                         {pages.map(page => (
-                            <div hidden={page.name !== currentPage}>
+                            <div key={page.name} hidden={page.name !== currentPage}>
                                 {page.component}
                             </div>
                         ))}

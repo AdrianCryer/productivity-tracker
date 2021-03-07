@@ -11,9 +11,8 @@ export const ModalButtonContext = createContext<UpdateFunctionRef>({} as UpdateF
  * This workaround was needed because the modal 'ok' and 'cancel' buttons
  * are located in the parent. 
  */
-export const useModalButton = ({ visible, onUpdate }: {
+export const useModalButton = ({ visible }: {
     visible: boolean;
-    onUpdate: () => void;
 }) => {
     const updateFunctionRef = useContext(ModalButtonContext);
     const prevVisibleRef = useRef<boolean>();
@@ -22,9 +21,14 @@ export const useModalButton = ({ visible, onUpdate }: {
     }, [visible]);
     const prevVisible = prevVisibleRef.current;
 
-    useEffect(() => {
-        if (visible && !prevVisible) {
-            updateFunctionRef.current = onUpdate;
-        }
-    }, [visible]);
+    // useEffect(() => {
+    //     if (visible && !prevVisible) {
+    //         updateFunctionRef.current = onUpdate;
+    //     }
+    // }, [visible]);
+
+    const flush = (updateFunction: () => void) => {
+        updateFunctionRef.current = updateFunction;
+    };
+    return [flush];
 }

@@ -24,9 +24,6 @@ const Integrations: React.FC<IntegrationsProps> = (props) => {
     });
     useModalButton({
         visible: props.visible,
-        onUpdate: () => {
-            console.log("Updated from integrations!")
-        }
     })
 
     const onUpdateField = (fieldName: string) => {};

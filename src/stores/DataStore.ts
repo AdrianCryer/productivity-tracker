@@ -7,6 +7,8 @@ import { createStore } from "./Store";
  * Primary data store of the application.
  */
 type Indexed<T> = { [id: number]: T }
+type PartialCategory = Partial<Omit<Category, 'id'>>
+
 export interface IDataStore extends State {
 
     /** PERSISTED STATE */
@@ -23,7 +25,7 @@ export interface IDataStore extends State {
     updateEvent: (partial: Pick<DurationEvent, 'id'> & Partial<DurationEvent>) => void;
     addActivity: (categoryId: number, activity: Activity) => void;
     addCategory: (category: Category) => void;
-    editCategory: (category: Category, props: { id: never; [key: string]: any}) => void;
+    editCategory: (category: Category, props: PartialCategory) => void;
 };
 
 
@@ -147,8 +149,8 @@ const useDataStore = createStore<IDataStore>((set, get) => ({
         });
     },
 
-    editCategory(category: Category, props: { id: never; [key: string]: any}) {
-        set(state => { state.categories[category.id] = { ...props, ...category } });
+    editCategory(category: Category, partial: PartialCategory) {
+        set(state => { state.categories[category.id] = { ...category, ...partial } });
     }
 
 
