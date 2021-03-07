@@ -7,7 +7,6 @@ import { useDataStore } from "../../../stores/DataStore";
 type IntegrationsProps = {
     visible: boolean;
     onRequiresUpdate?: () => void;
-    onUpdated?: (update?: () => void) => void;
 };
 
 const Integrations: React.FC<IntegrationsProps> = (props) => {

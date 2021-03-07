@@ -41,10 +41,7 @@ const SideNav = (props: SideNavProps) => {
     }
 
     return (
-        <Menu
-            defaultSelectedKeys={['1']}
-            mode="inline"
-        >
+        <Menu mode="inline">
             <Menu.Item 
                 key="1" 
                 icon={<PieChartOutlined />} 
@@ -55,7 +52,7 @@ const SideNav = (props: SideNavProps) => {
             <SubMenu key="categories" icon={<DesktopOutlined />} title="Categories">
                 {props.categories.map(c => (
                     <Menu.Item 
-                        key={c.id}
+                        key={"category " + c.id}
                         onClick={() => handleClick("categories/" + c.id)}
                     >
                         {c.name}

@@ -24,8 +24,10 @@ export interface IDataStore extends State {
     removeEvent: (eventId: number) => void;
     updateEvent: (partial: Pick<DurationEvent, 'id'> & Partial<DurationEvent>) => void;
     addActivity: (categoryId: number, activity: Activity) => void;
+
     addCategory: (category: Category) => void;
     editCategory: (category: Category, props: PartialCategory) => void;
+    deleteCategory: (category: Category) => void;
 };
 
 
@@ -151,9 +153,11 @@ const useDataStore = createStore<IDataStore>((set, get) => ({
 
     editCategory(category: Category, partial: PartialCategory) {
         set(state => { state.categories[category.id] = { ...category, ...partial } });
+    },
+
+    deleteCategory(category: Category) {
+        set(state => { delete state.categories[category.id] });
     }
-
-
 }), persistOptions);
 
 export { useDataStore };

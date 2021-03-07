@@ -27,8 +27,6 @@ export default function Categories() {
         return <Layout>Could not load</Layout>;
     }
 
-    console.log("Rendering categories page", settingsModalVisible, date.toISOString());
-
     const activities: Activity[] = Object.values(category.activities);
     let tabs = activities.map(activity => {
         return {
@@ -113,7 +111,7 @@ export default function Categories() {
             <SettingsModal 
                 category={category}
                 visible={settingsModalVisible}
-                handleOk={() => {}}
+                handleOk={() => setSettingsModalVisible(false)}
                 handleCancel={() => setSettingsModalVisible(false)}
             />
         </>

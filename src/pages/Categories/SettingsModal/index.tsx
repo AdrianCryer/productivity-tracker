@@ -6,17 +6,18 @@ import { ExclamationCircleOutlined } from "@ant-design/icons";
 import { ModalButtonContext, UpdateFunctionRef } from "../../../hooks/useModalButton";
 import General from "./General";
 import Integrations from "./Integrations";
+import Activity from "./Activity";
+import { act } from "react-dom/test-utils";
 
 const { Text } = Typography;
 
 type SettingsModalProps = {
     category: Category;
     visible: boolean;
-    handleOk: (form: FormInstance) => void;
+    handleOk: () => void;
     handleCancel: () => void;
     confirmLoading?: boolean;
 };
-
 
 export default function SettingsModal(props: SettingsModalProps) {
 
@@ -39,6 +40,7 @@ export default function SettingsModal(props: SettingsModalProps) {
                 onOk: () => {
                     onOk();
                     setCurrentPage(pageName);
+
                 },
                 onCancel: () => {
                     setRequiresUpdate(false);
@@ -53,10 +55,11 @@ export default function SettingsModal(props: SettingsModalProps) {
     const onOk = () => {
         if (updateFunction) {
             updateFunction.current();
+            setRequiresUpdate(false);
         }
     }
 
-    const pages = [
+    const pages: { name: string; component: JSX.Element; noMenu?: boolean }[] = [
         {
             name: "General",
             component: (
@@ -70,7 +73,18 @@ export default function SettingsModal(props: SettingsModalProps) {
         {
             name: "Integrations",
             component: <Integrations visible={currentPage === "Integrations"} />
-        }
+        },
+        ...Object.values(props.category.activities).map(activity => ({
+            name: "Activity " + activity.id,
+            component: (
+                <Activity
+                    visible={currentPage === "Activity " + activity.id}
+                    activity={activity}
+                    onRequiresUpdate={val => setRequiresUpdate(val)}
+                />
+            ),
+            noMenu: true
+        }))
     ];
 
     return (
@@ -78,10 +92,13 @@ export default function SettingsModal(props: SettingsModalProps) {
             title={`Edit "${props.category.name}"`}
             visible={props.visible}
             okText={!requiresUpdate ? "OK" : "Update"}
-            onOk={onOk}
+            onOk={() => {
+                onOk();
+                props.handleOk();
+            }}
             onCancel={props.handleCancel}
             confirmLoading={props.confirmLoading || undefined}
-            width="80%"
+            width="85%"
             centered
         >
             <Row>
@@ -91,7 +108,7 @@ export default function SettingsModal(props: SettingsModalProps) {
                         defaultSelectedKeys={['0']}
                         mode="inline"
                     >
-                        {pages.map(({ name }, id) => (
+                        {pages.filter(p => !p.noMenu).map(({ name }, id) => (
                             <Menu.Item key={id} onClick={() => changePage(name)}>
                                 {name}
                             </Menu.Item>
@@ -99,7 +116,7 @@ export default function SettingsModal(props: SettingsModalProps) {
                         <Menu.Divider />
                         <Menu.ItemGroup key="activities" title="Activities" className="category-settings-menu-item-group">
                             {Object.values(props.category.activities).map(activity => (
-                                <Menu.Item key={activity.name} >
+                                <Menu.Item key={activity.name} onClick={() => changePage("Activity " + activity.id)}>
                                     {activity.name}
                                 </Menu.Item>
                             ))}
@@ -109,7 +126,7 @@ export default function SettingsModal(props: SettingsModalProps) {
                         </Menu.ItemGroup>
                     </Menu>
                 </Col>
-                <Col span={16}>
+                <Col span={16} style={ { paddingLeft: 16, paddingRight: 16 }}>
                     <ModalButtonContext.Provider value={setUpdateFunction}>
                         {pages.map(page => (
                             <div key={page.name} hidden={page.name !== currentPage}>

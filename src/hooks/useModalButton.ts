@@ -29,9 +29,7 @@ export const useModalButton = ({ visible, onUpdate }: {
 
     useEffect(() => {
         if (visible && !prevVisible) {
-            if (!!setUpdateFunction) {
-                setUpdateFunction(onUpdateRef);
-            }
+            setUpdateFunction(onUpdateRef);
         }
     }, refreshDeps);
 
