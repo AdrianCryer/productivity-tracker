@@ -135,7 +135,7 @@ export default function App() {
                         <Route
                             path="/"
                             exact
-                            component={() => (
+                            render={() => (
                                 <Page title="Home">
                                     <HomePage initialDate={new Date()} />
                                 </Page>
@@ -144,7 +144,7 @@ export default function App() {
                         <Route
                             path="/settings"
                             exact
-                            component={() => (
+                            render={() => (
                                 <Page title="Settings">
                                     <SettingsPage />
                                 </Page>
@@ -153,8 +153,8 @@ export default function App() {
                         <Route
                             path="/categories/:categoryId"
                             exact
-                            component={() => (
-                                <Page title="Categories">
+                            render={(props) => (
+                                <Page {...props} title="Categories">
                                     <CategoriesPage />
                                 </Page>
                             )}
