@@ -1,9 +1,9 @@
-import { useEffect, useRef, useState } from "react";
+import { MutableRefObject, useEffect, useRef, useState } from "react";
 import { Col, FormInstance, Menu, Modal, Row, Typography } from "antd";
 import { Category } from "../../../core";
 import { useDataStore } from "../../../stores/DataStore";
 import { ExclamationCircleOutlined } from "@ant-design/icons";
-import { ModalButtonContext } from "../../../hooks/useModalButton";
+import { ModalButtonContext, UpdateFunctionRef } from "../../../hooks/useModalButton";
 import General from "./General";
 import Integrations from "./Integrations";
 
@@ -17,11 +17,12 @@ type SettingsModalProps = {
     confirmLoading?: boolean;
 };
 
+
 export default function SettingsModal(props: SettingsModalProps) {
 
     const [currentPage, setCurrentPage] = useState("General");
     const [requiresUpdate, setRequiresUpdate] = useState(false);
-    const updateFunctionRef = useRef<() => void>(() => { });
+    const [updateFunction, setUpdateFunction] = useState<UpdateFunctionRef>();
 
     const changePage = (pageName: string) => {
         if (pageName === currentPage)
@@ -36,7 +37,7 @@ export default function SettingsModal(props: SettingsModalProps) {
                 okText: 'Update!',
                 cancelText: 'Cancel',
                 onOk: () => {
-                    updateFunctionRef.current();
+                    onOk();
                     setCurrentPage(pageName);
                 },
                 onCancel: () => {
@@ -49,7 +50,11 @@ export default function SettingsModal(props: SettingsModalProps) {
         }
     }
 
-    // console.log("rerendered menu")
+    const onOk = () => {
+        if (updateFunction) {
+            updateFunction.current();
+        }
+    }
 
     const pages = [
         {
@@ -73,8 +78,8 @@ export default function SettingsModal(props: SettingsModalProps) {
             title={`Edit "${props.category.name}"`}
             visible={props.visible}
             okText={!requiresUpdate ? "OK" : "Update"}
-            onOk={() => updateFunctionRef.current()}  // Weird that I have to bind this
-            // onCancel={props.handleCancel}
+            onOk={onOk}
+            onCancel={props.handleCancel}
             confirmLoading={props.confirmLoading || undefined}
             width="80%"
             centered
@@ -105,7 +110,7 @@ export default function SettingsModal(props: SettingsModalProps) {
                     </Menu>
                 </Col>
                 <Col span={16}>
-                    <ModalButtonContext.Provider value={updateFunctionRef}>
+                    <ModalButtonContext.Provider value={setUpdateFunction}>
                         {pages.map(page => (
                             <div key={page.name} hidden={page.name !== currentPage}>
                                 {page.component}

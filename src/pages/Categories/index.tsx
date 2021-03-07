@@ -24,8 +24,10 @@ export default function Categories() {
     const addActivity = useDataStore.getState().addActivity;
 
     if (!params.categoryId || !category) {
-        return <Layout>Could not load</Layout>
+        return <Layout>Could not load</Layout>;
     }
+
+    console.log("Rendering categories page", settingsModalVisible);
 
     const activities: Activity[] = Object.values(category.activities);
     let tabs = activities.map(activity => {

@@ -1,7 +1,7 @@
 import { Form, Input } from "antd";
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { Category } from "../../../core";
-import { useModalButton } from "../../../hooks/useModalButton";
+import { UpdateFunctionRef, useModalButton } from "../../../hooks/useModalButton";
 import { useResetFormOnHide } from "../../../hooks/useResetFormOnHide";
 import { useDataStore } from "../../../stores/DataStore";
 import { validateCategory } from "../../../validation";
@@ -27,13 +27,15 @@ const General: React.FC<GeneralProps> = (props) => {
         }
     }, [props.category]);
 
-    const [setOnClick] = useModalButton({
-        visible: props.visible,
-    });
-
-    const onUpdate = (data: any) => {
-        editCategory(props.category, data);
+    const onUpdate = () => {
+        console.log("updating ", partial)
+        editCategory(props.category, partial);
     }
+
+    useModalButton({
+        visible: props.visible,
+        onUpdate
+    }, [partial]);
 
     const onUpdateField = (fieldName: 'name') => {
         const newValue = form.getFieldValue(fieldName);
@@ -46,9 +48,7 @@ const General: React.FC<GeneralProps> = (props) => {
         }, []);
         if (Object.keys(errors).length === 0) {
             props.onRequiresUpdate(true);
-            // console.log("Setting partial ", { ...partial, name: newValue });
             setPartial(prevPartial => ({...prevPartial, name: newValue }));
-            setOnClick(() => onUpdate({ ...partial, name: newValue }));
         } else {
             form.setFields(Object.keys(errors).map(field => ({
                 name: field,

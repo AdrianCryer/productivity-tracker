@@ -1,7 +1,10 @@
-import { createContext, MutableRefObject, useContext, useEffect, useRef } from "react";
+import React, { createContext, MutableRefObject, useContext, useEffect, useRef } from "react";
 
 export type UpdateFunctionRef = MutableRefObject<() => void>;
-export const ModalButtonContext = createContext<UpdateFunctionRef>({} as UpdateFunctionRef);
+export type SetUpdateFunction = React.Dispatch<React.SetStateAction<UpdateFunctionRef | undefined>>
+export type SetUpdateFunctionRef = MutableRefObject<SetUpdateFunction>;
+
+export const ModalButtonContext = createContext<SetUpdateFunction>({} as SetUpdateFunction);
 
 /**
  * This might not be the best practices but was believed to be the cleanest
@@ -11,24 +14,26 @@ export const ModalButtonContext = createContext<UpdateFunctionRef>({} as UpdateF
  * This workaround was needed because the modal 'ok' and 'cancel' buttons
  * are located in the parent. 
  */
-export const useModalButton = ({ visible }: {
+export const useModalButton = ({ visible, onUpdate }: {
     visible: boolean;
-}) => {
-    const updateFunctionRef = useContext(ModalButtonContext);
+    onUpdate: () => void
+}, refreshDeps?: React.DependencyList) => {
+    const setUpdateFunction = useContext(ModalButtonContext);
+    const onUpdateRef = useRef<() => void>(() => {});
     const prevVisibleRef = useRef<boolean>();
+
     useEffect(() => {
         prevVisibleRef.current = visible;
     }, [visible]);
     const prevVisible = prevVisibleRef.current;
 
-    // useEffect(() => {
-    //     if (visible && !prevVisible) {
-    //         updateFunctionRef.current = onUpdate;
-    //     }
-    // }, [visible]);
+    useEffect(() => {
+        if (visible && !prevVisible) {
+            if (!!setUpdateFunction) {
+                setUpdateFunction(onUpdateRef);
+            }
+        }
+    }, refreshDeps);
 
-    const flush = (updateFunction: () => void) => {
-        updateFunctionRef.current = updateFunction;
-    };
-    return [flush];
+    onUpdateRef.current = onUpdate;
 }

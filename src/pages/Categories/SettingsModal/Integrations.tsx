@@ -22,16 +22,18 @@ const Integrations: React.FC<IntegrationsProps> = (props) => {
             integrations: "Some dummy data!",
         }
     });
+
     useModalButton({
         visible: props.visible,
-    })
+        onUpdate: () => {
+            console.log("Called form integrations")
+        }
+    });
 
     const onUpdateField = (fieldName: string) => {};
 
     return (
-        <Form
-            form={form}
-        >
+        <Form form={form}>
             <Form.Item
                 label="Integrations"
                 name="integrations"
