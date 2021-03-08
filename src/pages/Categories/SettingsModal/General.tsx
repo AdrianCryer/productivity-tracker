@@ -10,12 +10,6 @@ import { validateCategory } from "../../../validation";
 
 const { Title, Text } = Typography;
 
-type GeneralProps = {
-    visible: boolean;
-    onRequiresUpdate: (val: boolean) => void;
-    category: Category;
-};
-
 const styles = {
     section: {
         paddingBottom: 32, 
@@ -25,6 +19,11 @@ const styles = {
     }
 }
 
+type GeneralProps = {
+    visible: boolean;
+    onRequiresUpdate: (val: boolean) => void;
+    category: Category;
+};
 
 const General: React.FC<GeneralProps> = (props) => {
 
@@ -49,32 +48,30 @@ const General: React.FC<GeneralProps> = (props) => {
     });
 
     useEffect(() => {
-        props.onRequiresUpdate(Object.keys(partial).length !== 0);
-    }, [partial])
+        let errors = validateCategory(props.category, {
+            name: partial.name
+        }, []);
 
-    const onUpdateField = (fieldName: 'name') => {
-        const newValue = form.getFieldValue(fieldName);
-        if (newValue === props.category[fieldName]) {
+        if (partial.name === props.category.name) {
             props.onRequiresUpdate(false);
             return;
         }
 
-        const errors = validateCategory(props.category, {
-            name: newValue
-        }, []);
         if (Object.keys(errors).length === 0) {
-            setPartial(prevPartial => ({...prevPartial, name: newValue }));
-        } else {
             form.setFields(Object.keys(errors).map(field => ({
                 name: field,
                 errors: [errors[field]]
             })));
-            setPartial({});
         }
+
+        props.onRequiresUpdate(Object.keys(partial).length !== 0);
+    }, [partial]);
+
+    const onUpdateField = (fieldName: 'name') => {
+        setPartial(prevPartial => ({...prevPartial, name: form.getFieldValue(fieldName) }));
     };
 
     const handleDeleteCategory = () => {
-        console.log("deleting category");
         history.push('');
         deleteCategory(props.category);
     }

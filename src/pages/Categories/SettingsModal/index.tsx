@@ -81,6 +81,7 @@ export default function SettingsModal(props: SettingsModalProps) {
                     visible={currentPage === "Activity " + activity.id}
                     activity={activity}
                     onRequiresUpdate={val => setRequiresUpdate(val)}
+                    categoryId={props.category.id}
                 />
             ),
             noMenu: true

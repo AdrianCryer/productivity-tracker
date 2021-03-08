@@ -8,6 +8,7 @@ import { createStore } from "./Store";
  */
 type Indexed<T> = { [id: number]: T }
 type PartialCategory = Partial<Omit<Category, 'id'>>
+type PartialActivity = Partial<Omit<Activity, 'id'>>
 
 export interface IDataStore extends State {
 
@@ -23,7 +24,9 @@ export interface IDataStore extends State {
     addEvent: (categoryId: number, activityId: number, duration: Duration) => void;
     removeEvent: (eventId: number) => void;
     updateEvent: (partial: Pick<DurationEvent, 'id'> & Partial<DurationEvent>) => void;
+
     addActivity: (categoryId: number, activity: Activity) => void;
+    editActivity: (categoryId: number, activityId: number, partial: PartialActivity) => void;
 
     addCategory: (category: Category) => void;
     editCategory: (category: Category, props: PartialCategory) => void;
@@ -136,6 +139,24 @@ const useDataStore = createStore<IDataStore>((set, get) => ({
     addActivity(categoryId: number, activity: Activity) {
         set(state => {
             state.categories[categoryId].activities[activity.id] = activity;
+        });
+    },
+
+    editActivity(categoryId: number, activityId: number, partial: PartialActivity) {
+        if (!(categoryId in get().categories)) {
+            throw new Error("Cannot edit activity in an unknown activity " + categoryId);
+        }
+        let category = get().categories[categoryId]; 
+        let activity = category.activities[activityId];
+
+        if (Object.values(category.activities).find(a => a.name === partial.name)) {
+            throw new Error(`Activity name '${activity.name}' already exists in category ${category.name}`);
+        }
+        set(state => {
+            state.categories[category.id].activities[activityId] = {
+                ...activity,
+                ...partial
+            };
         });
     },
 
