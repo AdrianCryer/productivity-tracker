@@ -78,6 +78,7 @@ export default function SettingsModal(props: SettingsModalProps) {
             name: "Activity " + activity.id,
             component: (
                 <Activity
+                    key={activity.id}
                     visible={currentPage === "Activity " + activity.id}
                     activity={activity}
                     onRequiresUpdate={val => setRequiresUpdate(val)}

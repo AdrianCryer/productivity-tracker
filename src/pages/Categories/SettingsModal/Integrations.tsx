@@ -57,7 +57,7 @@ const Integrations: React.FC<IntegrationsProps> = (props) => {
                 <UnderlinedHeader title="Integrations" />
                 <Row>
                     {integrations.map(integration => (
-                        <Col span={6}>
+                        <Col span={6} key={integration.name}>
                             <Button icon={integration.icon} type="ghost" size="large"/>
                         </Col>
                     ))}

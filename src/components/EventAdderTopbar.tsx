@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"; 
+import { useState, useEffect, useMemo } from "react"; 
 import { Input, AutoComplete, Row, Col, Card, Button, TimePicker, Form } from 'antd';
 import { PlayCircleFilled, PauseCircleFilled, CheckCircleFilled } from '@ant-design/icons'
 import { blue } from '@ant-design/colors';
@@ -38,6 +38,7 @@ export default function EventAdderTopbar(props: EventAdderTopbarProps) {
     const [, forceUpdate] = useState({});
     const [buttonStatus, setButtonStatus] = useState<ButtonStatus>('Startable');
     const [activityValid, setActivityValid] = useState(false);
+    const [activityError, setActivityError] = useState(false);
     
     // Disable submit button at the beginning.
     useEffect(() => {
@@ -54,7 +55,11 @@ export default function EventAdderTopbar(props: EventAdderTopbarProps) {
         } else if (!formValues.timeEnd) {
             form.setFields([{ name: 'timeEnd', value: moment() }]);
         } else if (formValues.timeStart && formValues.timeEnd) {
-            form.submit();
+            if (activityValid) {
+                form.submit();
+            } else {
+                setActivityError(true);
+            }
         }
         setButtonStatus(getButtonStatus())
     }
@@ -94,21 +99,27 @@ export default function EventAdderTopbar(props: EventAdderTopbarProps) {
     }
 
     // Map to reverse the values => category.id, activity.id pair
-    let optionsReverseMap: any = [];
-    let options: any = [];
+    const [options, optionsReverseMap] = useMemo(() => {
+        let reverseMap: any = [];
+        let options: any = [];
 
-    for (let category of Object.values(props.categories)) {
-        let group = [];
-        for (let activity of Object.values(category.activities)) {
-            const key = `${category.name}  |  ${activity.name}`;
-            group.push({
-                value: key,
-                label: activity.name
-            });
-            optionsReverseMap[key] = { activityId: activity.id, categoryId: category.id };
+        for (let category of Object.values(props.categories)) {
+            let group = [];
+            for (let activity of Object.values(category.activities)) {
+                const key = `${category.name}  |  ${activity.name}`;
+                group.push({
+                    value: key,
+                    label: activity.name
+                });
+                reverseMap[key] = { activityId: activity.id, categoryId: category.id };
+            }
+            options.push({ label: category.name, options: group });
         }
-        options.push({ label: category.name, options: group });
-    }
+
+        return [options, reverseMap];
+
+    }, [props.categories])
+
 
     return (
         <>
@@ -133,8 +144,7 @@ export default function EventAdderTopbar(props: EventAdderTopbarProps) {
                                 style={styles.formItem}
                                 name="activity"
                                 help={false}
-                                rules={[{ required: true }]}
-                                validateStatus={activityValid ? "success" : ""}
+                                validateStatus={activityValid ? "success" : (activityError ? "error" : "")}
                                 hasFeedback
                             >
                                 <AutoComplete
@@ -144,9 +154,10 @@ export default function EventAdderTopbar(props: EventAdderTopbarProps) {
                                     <Input 
                                         size="large" 
                                         placeholder="What are you working on..." 
-                                        bordered={false}
+                                        bordered={activityError}
                                         onSelect={(e: any) => {
-                                            setActivityValid((e.target.value in optionsReverseMap))
+                                            setActivityValid((e.target.value in optionsReverseMap));
+                                            setActivityError(false);
                                         }}
                                     />
                                 </AutoComplete>
@@ -158,7 +169,7 @@ export default function EventAdderTopbar(props: EventAdderTopbarProps) {
                                 style={styles.formItem}
                                 name="timeStart"
                                 help={false}
-                                rules={[{ required: true }]}
+                                // rules={[{ required: true }]}
                             >
                                 <TimePicker 
                                     style={{ width: '100%', height: '100%' }} 
@@ -172,7 +183,7 @@ export default function EventAdderTopbar(props: EventAdderTopbarProps) {
                                 style={styles.formItem}
                                 name="timeEnd"
                                 help={false}
-                                rules={[{ required: true }]}
+                                // rules={[{ required: true }]}
                             >
                                 <TimePicker 
                                     style={{ width: '100%', height: '100%' }} 
