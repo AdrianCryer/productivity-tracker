@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"; 
-import { Input, AutoComplete, Row, Col, Card, Button, TimePicker, Progress, Form } from 'antd';
+import { Input, AutoComplete, Row, Col, Card, Button, TimePicker, Form } from 'antd';
 import { PlayCircleFilled, PauseCircleFilled, CheckCircleFilled } from '@ant-design/icons'
 import { blue } from '@ant-design/colors';
 import moment from "moment";
@@ -113,17 +113,7 @@ export default function EventAdderTopbar(props: EventAdderTopbarProps) {
     return (
         <>
             {buttonStatus === 'Stoppable' && (
-                <Progress
-                    strokeLinecap="square"
-                    strokeColor={{
-                        from: blue[3],
-                        to: blue[6],
-                    }}
-                    percent={100}
-                    status="active"
-                    showInfo={false}
-                    style={{ backgroundColor: 'white'}}
-                />
+                <div className="animated-blue-gradient" style={{ height: 8 }}/>
             )}
             <Card bodyStyle={{ padding: 8 }} >
                 <Form

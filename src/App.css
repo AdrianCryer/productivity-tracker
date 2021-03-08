@@ -51,3 +51,18 @@
   overflow: auto;
   overflow-x: hidden;
 }
+
+.animated-blue-gradient {
+  background: repeating-linear-gradient(to right, #1890ff 0%, #91d5ff 50%, #1890ff 100%);
+  width: 100%;
+  background-size: 200% auto;
+  background-position: 0 100%;
+  animation: gradient 2s infinite;
+  animation-fill-mode: forwards;
+  animation-timing-function: linear;
+}
+
+@keyframes gradient { 
+  0%   { background-position: 0 0; }
+  100% { background-position: -200% 0; }
+}
