@@ -1,6 +1,7 @@
-import { Button, Divider, Form, Input, Popconfirm, Space, Typography } from "antd";
+import { Button, Col, Divider, Form, Input, Popconfirm, Row, Space, Typography } from "antd";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useHistory } from "react-router";
+import { UnderlinedHeader } from "../../../components/Display";
 import { Category } from "../../../core";
 import { UpdateFunctionRef, useModalButton } from "../../../hooks/useModalButton";
 import { useResetFormOnHide } from "../../../hooks/useResetFormOnHide";
@@ -14,6 +15,16 @@ type GeneralProps = {
     onRequiresUpdate: (val: boolean) => void;
     category: Category;
 };
+
+const styles = {
+    section: {
+        paddingBottom: 32, 
+        // borderWidth: 1, 
+        // borderColor: 'black',
+        // borderStyle: 'solid'
+    }
+}
+
 
 const General: React.FC<GeneralProps> = (props) => {
 
@@ -70,31 +81,25 @@ const General: React.FC<GeneralProps> = (props) => {
 
     return (
         <Form form={form} layout="vertical">
-            <Title level={5}>General</Title>
-            <Form.Item
-                label="Name"
-                name="name"
-            >
-                <Input
-                    onChange={() => onUpdateField('name')}
-                />
-            </Form.Item>
-            <Form.Item
-                label="Colour"
-                name="colour"
-            >
-                <Input
-                    // onChange={() => onUpdateField('colour')}
-                    type="color"
-                />
-            </Form.Item>
-            <Divider />
-            <Space direction="vertical">
-                <Title level={5} >Delete Category</Title>
-                <Text type="secondary">
-                    This action will delete this category permanently, removing 
-                    any data stored data. Proceed with caution!
-                </Text>
+            <div style={styles.section}>
+                <UnderlinedHeader title="General" />
+                <Space>
+                    <Form.Item
+                        label="Name"
+                        name="name"
+                    >
+                        <Input onChange={() => onUpdateField('name')}/>
+                    </Form.Item>
+                    <Form.Item
+                        label="Colour"
+                        name="colour"
+                    >
+                        <Input type="color"/>
+                    </Form.Item>
+                </Space>
+            </div>
+            <div style={styles.section}>
+                <UnderlinedHeader title="Delete category" />
                 <Form.Item name="delete">
                     <Button type="primary" danger>
                         <Popconfirm 
@@ -105,8 +110,12 @@ const General: React.FC<GeneralProps> = (props) => {
                         </Popconfirm>
                     </Button>
                 </Form.Item>
-                
-            </Space>
+                <Text type="danger">WARNING: </Text>
+                <Text type="secondary">
+                    Deleting this category will permanently remove all activities 
+                    and any stored data. Make sure you know what you are doing!
+                </Text>
+            </div>
         </Form>
     )
 };

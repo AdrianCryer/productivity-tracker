@@ -126,10 +126,10 @@ export default function SettingsModal(props: SettingsModalProps) {
                         </Menu.ItemGroup>
                     </Menu>
                 </Col>
-                <Col span={16} style={ { paddingLeft: 16, paddingRight: 16 }}>
+                <Col span={16} style={ { paddingLeft: 32, paddingRight: 32 }}>
                     <ModalButtonContext.Provider value={setUpdateFunction}>
                         {pages.map(page => (
-                            <div key={page.name} hidden={page.name !== currentPage}>
+                            <div key={page.name} style={{ overflow: 'auto' }} hidden={page.name !== currentPage}>
                                 {page.component}
                             </div>
                         ))}
