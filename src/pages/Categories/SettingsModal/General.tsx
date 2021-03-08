@@ -57,7 +57,7 @@ const General: React.FC<GeneralProps> = (props) => {
             return;
         }
 
-        if (Object.keys(errors).length === 0) {
+        if (Object.keys(errors).length !== 0) {
             form.setFields(Object.keys(errors).map(field => ({
                 name: field,
                 errors: [errors[field]]

@@ -27,6 +27,7 @@ export interface IDataStore extends State {
 
     addActivity: (categoryId: number, activity: Activity) => void;
     editActivity: (categoryId: number, activityId: number, partial: PartialActivity) => void;
+    deleteActivity: (categoryId: number, activity: Activity) => void;
 
     addCategory: (category: Category) => void;
     editCategory: (category: Category, props: PartialCategory) => void;
@@ -158,6 +159,11 @@ const useDataStore = createStore<IDataStore>((set, get) => ({
                 ...partial
             };
         });
+    },
+
+    deleteActivity(categoryId: number, activity: Activity) {
+        // Need to check events / merge to another activity.
+        set(state => { delete state.categories[categoryId].activities[activity.id] });
     },
 
     addCategory(category: Category) {

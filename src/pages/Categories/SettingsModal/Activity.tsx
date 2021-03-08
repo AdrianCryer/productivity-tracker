@@ -27,7 +27,7 @@ type ActivitySettingsProps = {
 
 const ActivitySettings: React.FC<ActivitySettingsProps> = (props) => {
 
-    const { editActivity } = useDataStore.getState();
+    const { editActivity, deleteActivity } = useDataStore.getState();
     const [partial, setPartial] = useState<{ name?: string; }>({});
     const [form] = Form.useForm();
     
@@ -58,7 +58,7 @@ const ActivitySettings: React.FC<ActivitySettingsProps> = (props) => {
             return;
         }
 
-        if (Object.keys(errors).length === 0) {
+        if (Object.keys(errors).length !== 0) {
             form.setFields(Object.keys(errors).map(field => ({
                 name: field,
                 errors: [errors[field]]
@@ -73,7 +73,7 @@ const ActivitySettings: React.FC<ActivitySettingsProps> = (props) => {
     };
 
     const handleDeleteActivity = () => {
-
+        deleteActivity(props.categoryId, props.activity);
     };
 
     return (
