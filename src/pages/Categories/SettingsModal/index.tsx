@@ -101,10 +101,11 @@ export default function SettingsModal(props: SettingsModalProps) {
             onCancel={props.handleCancel}
             confirmLoading={props.confirmLoading || undefined}
             width="85%"
+            bodyStyle={{ overflow: 'auto', height: '60vh' }}
             centered
         >
             <Row>
-                <Col span={8}>
+                <Col span={6}>
                     <Menu
                         style={{ width: "90%" }}
                         defaultSelectedKeys={['0']}
@@ -128,7 +129,7 @@ export default function SettingsModal(props: SettingsModalProps) {
                         </Menu.ItemGroup>
                     </Menu>
                 </Col>
-                <Col span={16} style={ { paddingLeft: 32, paddingRight: 32 }}>
+                <Col span={18} style={ { paddingLeft: 32, paddingRight: 32, overflow: 'auto' }}>
                     <ModalButtonContext.Provider value={setUpdateFunction}>
                         {pages.map(page => (
                             <div key={page.name} style={{ overflow: 'auto' }} hidden={page.name !== currentPage}>
