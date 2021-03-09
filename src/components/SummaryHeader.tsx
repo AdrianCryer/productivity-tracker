@@ -20,7 +20,7 @@ export default function SummaryHeader(props: SummaryHeaderProps) {
             tags={dateString === todaysDateString ? <Tag color="blue">Today</Tag> : <></>}
             style={{ backgroundColor: 'white' }}
             extra={<DateSelector currentDate={props.currentDate} onChangeDate={props.onChangeDate} />}
-            >
+        >
             <Row>
                 <Statistic title="Week" value={getNumberOfWeek(props.currentDate)} />
                 <Statistic

@@ -24,7 +24,7 @@ import { useDataStore } from './stores/DataStore';
 import AddCategoryModal from './pages/AddCategory';
 
 const { SubMenu } = Menu;
-const { Sider } = Layout;
+const { Sider, Content } = Layout;
 
 /**
  * Set initial data for testing
@@ -82,6 +82,8 @@ const SideNav = (props: SideNavProps) => {
     );
 }
 
+const MENU_WIDTH = 256;
+
 export default function App() {
 
     const [collapsed, setCollapsed] = useState(false);
@@ -93,10 +95,10 @@ export default function App() {
     console.log('rerenderd app')
     return (
         <BrowserRouter>
-            <Layout className="layout-background" style={{ minHeight: '100vh', overflow: "auto" }}>
+            <Layout className="layout-background">
                 <Sider
-                    className="layout-menu-background"
-                    width={256}
+                    className="layout-sider"
+                    width={MENU_WIDTH}
                     collapsible
                     collapsed={collapsed}
                     trigger={null}
@@ -113,7 +115,7 @@ export default function App() {
                         onAddActivity={() => setAddCategoryVisible(true)} 
                     />
                 </Sider>
-                <Layout>
+                <Layout> 
                     <EventAdderTopbar 
                         categories={categories}
                         onAddEntry={data => {
@@ -128,7 +130,7 @@ export default function App() {
                         }}
                     
                     />
-                    <Layout  className="content">
+                    <Layout className="content">
                         <Route
                             path="/"
                             exact

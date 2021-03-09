@@ -34,16 +34,20 @@
 
 .layout-background {
   background-color: #fff;
-  height: '100vh';
-  position: 'fixed';
 }
 
-.layout-menu-background {
+.layout-sider {
   background-color: #fff;
+  height: 100vh;
+  position: sticky;
+  overflow: auto;
+  left: 0;
+  top: 0;
 }
 
 .content {
-  padding: 20px
+  padding: 30px;
+  overflow: initial;
 }
 
 .category-settings-menu-item-group {
