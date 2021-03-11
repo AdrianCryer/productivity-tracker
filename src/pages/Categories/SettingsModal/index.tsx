@@ -1,4 +1,4 @@
-import { MutableRefObject, useEffect, useRef, useState } from "react";
+import { CSSProperties, MutableRefObject, useEffect, useRef, useState } from "react";
 import { Col, FormInstance, Menu, Modal, Row, Typography } from "antd";
 import { Category } from "../../../core";
 import { useDataStore } from "../../../stores/DataStore";
@@ -10,6 +10,16 @@ import Activity from "./Activity";
 import { act } from "react-dom/test-utils";
 
 const { Text } = Typography;
+
+const styles: {[key: string]: CSSProperties} = {
+    menu: {
+        position: 'fixed', 
+        overflow: 'auto',
+        width: 200,
+        maxHeight: 'calc(60vh - 30px) ',
+        zIndex: 200
+    }
+};
 
 type SettingsModalProps = {
     category: Category;
@@ -105,9 +115,9 @@ export default function SettingsModal(props: SettingsModalProps) {
             centered
         >
             <Row>
-                <Col span={6}>
+                <Col style={styles.menu}>
                     <Menu
-                        style={{ width: "90%" }}
+                        style={{ height: "100%" }}
                         defaultSelectedKeys={['0']}
                         mode="inline"
                     >
@@ -117,7 +127,7 @@ export default function SettingsModal(props: SettingsModalProps) {
                             </Menu.Item>
                         ))}
                         <Menu.Divider />
-                        <Menu.ItemGroup key="activities" title="Activities" className="category-settings-menu-item-group">
+                        <Menu.ItemGroup key="activities" title="Activities">
                             {Object.values(props.category.activities).map(activity => (
                                 <Menu.Item key={activity.name} onClick={() => changePage("Activity " + activity.id)}>
                                     {activity.name}
@@ -129,7 +139,7 @@ export default function SettingsModal(props: SettingsModalProps) {
                         </Menu.ItemGroup>
                     </Menu>
                 </Col>
-                <Col span={18} style={ { paddingLeft: 32, paddingRight: 32, overflow: 'auto' }}>
+                <Col style={ { paddingLeft: 232, paddingRight: 32, overflow: 'auto' }}>
                     <ModalButtonContext.Provider value={setUpdateFunction}>
                         {pages.map(page => (
                             <div key={page.name} style={{ overflow: 'auto' }} hidden={page.name !== currentPage}>
