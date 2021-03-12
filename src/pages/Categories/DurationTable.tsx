@@ -55,12 +55,10 @@ function DurationTable({ categoryId, activityId, date }: DurationTableProps) {
     const eventsByDate = useDataStore(state => state.getEventsByDate(date));
     const activities = useDataStore(state => state.categories[categoryId].activities);
     
-    
     let filteredEvents = activityId !== undefined ? 
         eventsByDate.filter(event => event.activityId === activityId) : 
         eventsByDate;
     filteredEvents = filteredEvents.filter(event => event.categoryId === categoryId);
-    console.log(filteredEvents)
 
     const tableData = filteredEvents.map(event => ({
         id: event.id,

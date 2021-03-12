@@ -58,7 +58,6 @@ export default function Categories() {
     const onChangeDate = (date: Date) => {
         setDate(date);
     }
-    console.log(tabs);
 
     return (
         <>

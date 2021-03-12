@@ -27,15 +27,13 @@ export default function EditableTabs(props: EditableTabsProps) {
         props.onAddTab();
     };
 
-    const isActiveKeyValid = () => {
-        return props.tabs.findIndex(tab => tab.key === activeKey) > -1;
-    }
+    const isActiveKeyValid = props.tabs.findIndex(tab => tab.key === activeKey) > -1;
 
     return (
         <Tabs
             type="editable-card"
             onChange={(key: string) => setActiveKey(key)}
-            activeKey={isActiveKeyValid() ? activeKey : props.tabs[initialTab].key}
+            activeKey={isActiveKeyValid ? activeKey : props.tabs[initialTab].key}
             onEdit={onEdit}
         >
             {props.tabs.map(tab => (

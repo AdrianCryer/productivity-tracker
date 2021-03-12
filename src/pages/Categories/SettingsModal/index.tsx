@@ -36,9 +36,18 @@ type SettingsModalProps = {
 
 export default function SettingsModal(props: SettingsModalProps) {
 
-    const [currentPage, setCurrentPage] = useState("General");
+    const DEFAULT_PAGE = "General";
+
+    const [currentPage, setCurrentPage] = useState(DEFAULT_PAGE);
     const [requiresUpdate, setRequiresUpdate] = useState(false);
     const [updateFunction, setUpdateFunction] = useState<UpdateFunctionRef>();
+
+    // If the current page is no longer valid, set to default page
+    useEffect(() => {
+        if (pages.findIndex(page => page.name === currentPage) < 0) {
+            setCurrentPage(DEFAULT_PAGE);
+        }
+    }, [props.category])
 
     const changePage = (pageName: string) => {
         if (pageName === currentPage)
@@ -68,7 +77,7 @@ export default function SettingsModal(props: SettingsModalProps) {
     }
 
     const onOk = () => {
-        if (updateFunction) {
+        if (requiresUpdate && updateFunction) {
             updateFunction.current();
             setRequiresUpdate(false);
         }
@@ -125,16 +134,20 @@ export default function SettingsModal(props: SettingsModalProps) {
                         style={{ height: "100%" }}
                         defaultSelectedKeys={['0']}
                         mode="inline"
+                        selectedKeys={[currentPage]}
                     >
-                        {pages.filter(p => !p.noMenu).map(({ name }, id) => (
-                            <Menu.Item key={id} onClick={() => changePage(name)}>
+                        {pages.filter(p => !p.noMenu).map(({ name }) => (
+                            <Menu.Item key={name} onClick={() => changePage(name)}>
                                 {name}
                             </Menu.Item>
                         ))}
                         <Menu.Divider />
                         <Menu.ItemGroup key="activities" title="Activities">
                             {Object.values(props.category.activities).map(activity => (
-                                <Menu.Item key={activity.name} onClick={() => changePage("Activity " + activity.id)}>
+                                <Menu.Item 
+                                    key={"Activity " + activity.id} 
+                                    onClick={() => changePage("Activity " + activity.id)}
+                                >
                                     {activity.name}
                                 </Menu.Item>
                             ))}
@@ -147,7 +160,11 @@ export default function SettingsModal(props: SettingsModalProps) {
                 <Col style={styles.content}>
                     <ModalButtonContext.Provider value={setUpdateFunction}>
                         {pages.map(page => (
-                            <div key={page.name} style={{ overflow: 'auto' }} hidden={page.name !== currentPage}>
+                            <div 
+                                key={page.name} 
+                                style={{ overflow: 'auto' }} 
+                                hidden={page.name !== currentPage}
+                            >
                                 {page.component}
                             </div>
                         ))}
