@@ -1,4 +1,4 @@
-import { Button, Divider, Form, Input, Popconfirm, Typography } from "antd";
+import { Button, Divider, Form, Input, Modal, Popconfirm, Statistic, Typography } from "antd";
 import { useState, useEffect } from "react";
 import { UnderlinedHeader } from "../../../components/Display";
 import { Activity, Category } from "../../../core";
@@ -6,15 +6,13 @@ import { useModalButton } from "../../../hooks/useModalButton";
 import { useResetFormOnHide } from "../../../hooks/useResetFormOnHide";
 import { useDataStore } from "../../../stores/DataStore";
 import { validateActivity } from "../../../validation";
+import SafeDeleteModal from "./SafeDeleteModal";
 
 const { Title, Text } = Typography;
 
 const styles = {
     section: {
-        paddingBottom: 32, 
-        // borderWidth: 1, 
-        // borderColor: 'black',
-        // borderStyle: 'solid'
+        paddingBottom: 32,
     }
 }
 
@@ -28,9 +26,16 @@ type ActivitySettingsProps = {
 const ActivitySettings: React.FC<ActivitySettingsProps> = (props) => {
 
     const { editActivity, deleteActivity } = useDataStore.getState();
+    const key = new String([props.categoryId, props.activity.id]) as string
+    const eventsByActivity = useDataStore(state => state.eventsByActivity[key]);
+    const [showSafeDeleteModal, setShowSafeDeleteModal] = useState(false);
     const [partial, setPartial] = useState<{ name?: string; }>({});
+
     const [form] = Form.useForm();
     
+    const activityEventCount = Object.keys(eventsByActivity).length;
+    console.log(eventsByActivity, activityEventCount)
+
     useResetFormOnHide({ 
         form, 
         visible: props.visible, 
@@ -43,7 +48,6 @@ const ActivitySettings: React.FC<ActivitySettingsProps> = (props) => {
         visible: props.visible,
         onUpdate: () => {
             editActivity(props.categoryId, props.activity.id, partial);
-            console.log("Called from activity " + props.activity.name)
         }
     });
 
@@ -73,8 +77,17 @@ const ActivitySettings: React.FC<ActivitySettingsProps> = (props) => {
     };
 
     const handleDeleteActivity = () => {
-        deleteActivity(props.categoryId, props.activity);
+        // Check events.
+        if (activityEventCount !== 0) {
+            setShowSafeDeleteModal(true);
+        }
+
+        // deleteActivity(props.categoryId, props.activity);
     };
+
+    const handleMergeAndDelete = (mergeToId: number) => {
+        setShowSafeDeleteModal(false);
+    }
 
     return (
         <Form form={form} layout="vertical">
@@ -90,14 +103,20 @@ const ActivitySettings: React.FC<ActivitySettingsProps> = (props) => {
             <div style={styles.section}>
                 <UnderlinedHeader title="Delete activity" />
                 <Form.Item name="delete">
-                    <Button type="primary" danger>
-                        <Popconfirm 
-                            title="Confirm delete?" 
-                            onConfirm={() => handleDeleteActivity()}
-                        >
+                    {activityEventCount !== 0 ? (
+                        <Button type="primary" danger onClick={() => handleDeleteActivity()}>
                             <a>Delete</a>
-                        </Popconfirm>
-                    </Button>
+                        </Button>
+                    ) : (
+                        <Button type="primary" danger>
+                            <Popconfirm 
+                                title="Confirm delete?" 
+                                onConfirm={() => handleDeleteActivity()}
+                            >
+                                <a>Delete</a>
+                            </Popconfirm>
+                        </Button>
+                    )}
                 </Form.Item>
                 <Text type="danger">WARNING: </Text>
                 <Text type="secondary">
@@ -105,6 +124,14 @@ const ActivitySettings: React.FC<ActivitySettingsProps> = (props) => {
                     data. Make sure you know what you are doing!
                 </Text>
             </div>
+            <SafeDeleteModal 
+                visible={showSafeDeleteModal}
+                categoryId={props.categoryId}
+                activity={props.activity}
+                events={eventsByActivity}
+                onCancel={() => setShowSafeDeleteModal(false)}
+                onMerge={handleMergeAndDelete}
+            />
         </Form>
     )
 };

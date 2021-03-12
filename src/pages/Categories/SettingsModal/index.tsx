@@ -18,6 +18,11 @@ const styles: {[key: string]: CSSProperties} = {
         width: 200,
         maxHeight: 'calc(60vh - 30px) ',
         zIndex: 200
+    },
+    content: {
+        paddingLeft: 232, 
+        paddingRight: 32, 
+        overflow: 'auto'
     }
 };
 
@@ -34,6 +39,7 @@ export default function SettingsModal(props: SettingsModalProps) {
     const [currentPage, setCurrentPage] = useState("General");
     const [requiresUpdate, setRequiresUpdate] = useState(false);
     const [updateFunction, setUpdateFunction] = useState<UpdateFunctionRef>();
+    console.log("rendered settings modal")
 
     const changePage = (pageName: string) => {
         if (pageName === currentPage)
@@ -139,7 +145,7 @@ export default function SettingsModal(props: SettingsModalProps) {
                         </Menu.ItemGroup>
                     </Menu>
                 </Col>
-                <Col style={ { paddingLeft: 232, paddingRight: 32, overflow: 'auto' }}>
+                <Col style={styles.content}>
                     <ModalButtonContext.Provider value={setUpdateFunction}>
                         {pages.map(page => (
                             <div key={page.name} style={{ overflow: 'auto' }} hidden={page.name !== currentPage}>
