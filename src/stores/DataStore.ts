@@ -1,4 +1,5 @@
 import ElectronStore from 'electron-store';
+import { Draft } from 'immer';
 import { State } from 'zustand';
 import { Activity, Category, Duration, DurationEvent } from '../core';
 import { createStore } from "./Store";
@@ -27,7 +28,7 @@ export interface IDataStore extends State {
     
     /** ACTIONS */
     addEvent: (categoryId: number, activityId: number, duration: Duration) => void;
-    removeEvent: (eventId: number) => void;
+    deleteEvent: (eventId: number) => void;
     updateEvent: (partial: Pick<DurationEvent, 'id'> & Partial<DurationEvent>) => void;
 
     addActivity: (categoryId: number, activity: Activity) => void;
@@ -107,23 +108,12 @@ const useDataStore = createStore<IDataStore>((set, get) => ({
         });
     },
 
-    removeEvent(eventId: number) {
+    deleteEvent(eventId: number) {
         set(state => {
             if (!state.events[eventId]) {
                 return;
             }
-            const event = state.events[eventId];
-            
-            // Need to search in indexes...
-            let key = new String([event.categoryId, event.activityId]) as string;
-            let index = state.eventsByActivity[key].findIndex(e => index === eventId);
-            state.eventsByActivity[key].splice(index, 1);
-            
-            key = (new Date(event.duration.timeStart)).toLocaleDateString();
-            index = state.eventsByDate[key].findIndex(e => index === eventId);
-            state.eventsByDate[key].splice(index, 1);
-
-            delete state.events[eventId];
+            handleDeleteEvent(state, eventId);
         });
     },
 
@@ -159,13 +149,17 @@ const useDataStore = createStore<IDataStore>((set, get) => ({
     },
 
     deleteActivity(categoryId: number, activity: Activity) {
-        // Need to check events / merge to another activity.
-        set(state => { delete state.categories[categoryId].activities[activity.id] });
+        set(state => { 
+            for (let event of Object.values(state.events)) {
+                if (event.categoryId === categoryId && event.activityId === activity.id) {
+                    handleDeleteEvent(state, event.id);
+                }
+            }
+            delete state.categories[categoryId].activities[activity.id];
+        });
     },
 
     deleteAndMergeActivity(categoryId: number, activity: Activity, mergeToActivityId: number) {
-
-        console.log(categoryId, activity, mergeToActivityId)
 
         // Check activity exists
         if (!(categoryId in get().categories)) {
@@ -209,7 +203,15 @@ const useDataStore = createStore<IDataStore>((set, get) => ({
     },
 
     deleteCategory(category: Category) {
-        set(state => { delete state.categories[category.id] });
+        set(state => { 
+            // Remove all events.
+            for (let event of Object.values(state.events)) {
+                if (event.categoryId === category.id) {
+                    handleDeleteEvent(state, event.id);
+                }
+            }
+            delete state.categories[category.id] ;
+        });
     },
 
     // INDEXES
@@ -240,5 +242,22 @@ const useDataStore = createStore<IDataStore>((set, get) => ({
     }
 
 }), persistOptions);
+
+/** Atomic Helpers */
+
+function handleDeleteEvent(state: Draft<IDataStore>, eventId: number) {
+    const event = state.events[eventId];
+    
+    let key = new String([event.categoryId, event.activityId]) as string;
+    let index = state.eventsByActivity[key].findIndex(e => e === eventId);
+    state.eventsByActivity[key].splice(index, 1);
+    
+    key = (new Date(event.duration.timeStart)).toLocaleDateString();
+    index = state.eventsByDate[key].findIndex(e => e === eventId);
+    state.eventsByDate[key].splice(index, 1);
+
+    delete state.events[eventId];
+}
+
 
 export { useDataStore };

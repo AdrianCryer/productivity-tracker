@@ -45,7 +45,7 @@ export default function Categories() {
         title: 'All',
         content: <DurationTable categoryId={categoryId} date={date} />,
         key: 'all',
-    })
+    });
 
     const onAddTab = () => {
         setAddActivityPanelVisible(true);
@@ -58,6 +58,7 @@ export default function Categories() {
     const onChangeDate = (date: Date) => {
         setDate(date);
     }
+    console.log(tabs);
 
     return (
         <>
@@ -92,7 +93,6 @@ export default function Categories() {
                 visible={addActivityPanelVisible}
                 handleOk={(form: FormInstance) => {
                     const name = form.getFieldValue('name');
-                    console.log(category.activities);
                     if (nameAlreadyExists(name)) {
                         form.setFields([{
                             name: 'name',

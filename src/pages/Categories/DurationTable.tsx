@@ -3,7 +3,7 @@ import moment from "moment";
 import React, { useEffect, useState } from "react";
 import EditableTable, { DataColumn, DataRow } from "../../components/EditableTable";
 import { getDateString, getFormmattedDuration } from "../../core/helpers";
-import { IDataStore, useDataStore } from "../../stores/DataStore";
+import {  useDataStore } from "../../stores/DataStore";
 
 
 const getColumns = (isEmpty: boolean, onDelete: (row: DataRow) => void): DataColumn[] => ([
@@ -51,15 +51,17 @@ type DurationTableProps = { categoryId: number; activityId?: number, date: Date 
 
 function DurationTable({ categoryId, activityId, date }: DurationTableProps) {
 
-    const { updateEvent, removeEvent } = useDataStore.getState();
+    const { updateEvent, deleteEvent } = useDataStore.getState();
     const eventsByDate = useDataStore(state => state.getEventsByDate(date));
     const activities = useDataStore(state => state.categories[categoryId].activities);
+    
     
     let filteredEvents = activityId !== undefined ? 
         eventsByDate.filter(event => event.activityId === activityId) : 
         eventsByDate;
     filteredEvents = filteredEvents.filter(event => event.categoryId === categoryId);
-    
+    console.log(filteredEvents)
+
     const tableData = filteredEvents.map(event => ({
         id: event.id,
         key: event.id,
@@ -84,7 +86,7 @@ function DurationTable({ categoryId, activityId, date }: DurationTableProps) {
     };
 
     const onDelete = (row: DataRow) => {
-        removeEvent(row.id);
+        deleteEvent(row.id);
     };
 
     return (

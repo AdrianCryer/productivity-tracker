@@ -25,13 +25,17 @@ export default function EditableTabs(props: EditableTabsProps) {
             throw new Error("Operation 'remove' currently not supported on component 'EditableTabs'");
         }
         props.onAddTab();
+    };
+
+    const isActiveKeyValid = () => {
+        return props.tabs.findIndex(tab => tab.key === activeKey) > -1;
     }
 
     return (
         <Tabs
             type="editable-card"
             onChange={(key: string) => setActiveKey(key)}
-            activeKey={(activeKey)}
+            activeKey={isActiveKeyValid() ? activeKey : props.tabs[initialTab].key}
             onEdit={onEdit}
         >
             {props.tabs.map(tab => (
