@@ -15,15 +15,12 @@ export default function Home(props: HomeProps) {
 
     const store = useDataStore();
     const [currentDate, setCurrentDate] = useState(props.initialDate);
+    const eventsByDate = useDataStore(state => state.getEventsByDate(currentDate))
 
     const categoryDurations: CategoryDurations = useMemo(
         () => {
-
-            const dateString = currentDate.toLocaleDateString();
-            const events = store.eventsByDate[dateString] || [];
             const categoryDurations: CategoryDurations = {};
-
-            for (let e of events) {
+            for (let e of eventsByDate) {
                 if (!categoryDurations[e.categoryId]) {
                     categoryDurations[e.categoryId] = [];
                 }
@@ -36,10 +33,7 @@ export default function Home(props: HomeProps) {
 
     const [hours, minutes] = useMemo(
         () => {
-            const dateString = currentDate.toLocaleDateString();
-            const events = store.eventsByDate[dateString] || [];
-
-            const totalMs = events.reduce((total, e) => {
+            const totalMs = eventsByDate.reduce((total, e) => {
                 const diff = +(new Date(e.duration.timeEnd)) - +(new Date(e.duration.timeStart));
                 return total + diff;
             }, 0);

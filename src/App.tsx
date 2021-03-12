@@ -89,8 +89,7 @@ export default function App() {
     const [collapsed, setCollapsed] = useState(false);
     const [addCategoryVisible, setAddCategoryVisible] = useState(false);
     const categories = useDataStore(state => state.categories);
-    const addEvent = useDataStore.getState().addEvent;
-    const addCategory = useDataStore.getState().addCategory;
+    const { addEvent, addCategory } = useDataStore.getState();
     
     console.log('rerenderd app')
     return (

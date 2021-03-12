@@ -17,9 +17,14 @@ export interface IDataStore extends State {
     events: Indexed<DurationEvent>;
 
     /** DERIVED STATE */
-    eventsByActivity: { [key: string]: DurationEvent[] };
-    eventsByDate: { [key: string]: DurationEvent[] };
+    eventsByActivity: { [key: string]: number[] };
+    eventsByDate: { [key: string]: number[] };
 
+    /** INDEXES */
+    getEventsByDate: (date: Date) => DurationEvent[];
+    getEventsByDateString: (dateString: string) => DurationEvent[];
+    getEventsByActivity: (categoryId: number, activityId: number) => DurationEvent[];
+    
     /** ACTIONS */
     addEvent: (categoryId: number, activityId: number, duration: Duration) => void;
     removeEvent: (eventId: number) => void;
@@ -28,6 +33,7 @@ export interface IDataStore extends State {
     addActivity: (categoryId: number, activity: Activity) => void;
     editActivity: (categoryId: number, activityId: number, partial: PartialActivity) => void;
     deleteActivity: (categoryId: number, activity: Activity) => void;
+    deleteAndMergeActivity: (categoryId: number, activity: Activity, mergeToActivityId: number) => void;
 
     addCategory: (category: Category) => void;
     editCategory: (category: Category, props: PartialCategory) => void;
@@ -90,14 +96,14 @@ const useDataStore = createStore<IDataStore>((set, get) => ({
             if (!state.eventsByActivity[key]) {
                 state.eventsByActivity[key] = [];
             }
-            state.eventsByActivity[key].push(event);
+            state.eventsByActivity[key].push(id);
 
             // By Date
             const dateString = (new Date(duration.timeStart)).toLocaleDateString();
             if (!state.eventsByDate[dateString]) {
                 state.eventsByDate[dateString] = [];
             }
-            state.eventsByDate[dateString].push(event);
+            state.eventsByDate[dateString].push(id);
         });
     },
 
@@ -110,11 +116,11 @@ const useDataStore = createStore<IDataStore>((set, get) => ({
             
             // Need to search in indexes...
             let key = new String([event.categoryId, event.activityId]) as string;
-            let index = state.eventsByActivity[key].findIndex(e => e.id === eventId);
+            let index = state.eventsByActivity[key].findIndex(e => index === eventId);
             state.eventsByActivity[key].splice(index, 1);
             
             key = (new Date(event.duration.timeStart)).toLocaleDateString();
-            index = state.eventsByDate[key].findIndex(e => e.id === eventId);
+            index = state.eventsByDate[key].findIndex(e => index === eventId);
             state.eventsByDate[key].splice(index, 1);
 
             delete state.events[eventId];
@@ -127,13 +133,13 @@ const useDataStore = createStore<IDataStore>((set, get) => ({
             state.events[partial.id] = event; 
 
             // Need to update indexes
-            let key = new String([event.categoryId, event.activityId]) as string;
-            let index = state.eventsByActivity[key].findIndex(e => e.id === event.id);
-            state.eventsByActivity[key].splice(index, 1, event);
+            // let key = new String([event.categoryId, event.activityId]) as string;
+            // let index = state.eventsByActivity[key].findIndex(e => e.id === event.id);
+            // state.eventsByActivity[key].splice(index, 1, event);
 
-            key = (new Date(event.duration.timeStart)).toLocaleDateString();
-            index = state.eventsByDate[key].findIndex(e => e.id === event.id);
-            state.eventsByDate[key].splice(index, 1, event);
+            // key = (new Date(event.duration.timeStart)).toLocaleDateString();
+            // index = state.eventsByDate[key].findIndex(e => e.id === event.id);
+            // state.eventsByDate[key].splice(index, 1, event);
         });
     },
 
@@ -166,6 +172,35 @@ const useDataStore = createStore<IDataStore>((set, get) => ({
         set(state => { delete state.categories[categoryId].activities[activity.id] });
     },
 
+    deleteAndMergeActivity(categoryId: number, activity: Activity, mergeToActivityId: number) {
+
+        console.log(categoryId, activity, mergeToActivityId)
+
+        // Check activity exists
+        if (!(categoryId in get().categories)) {
+            throw new Error("Category does not exist");
+        }
+
+        if (!(mergeToActivityId in get().categories[categoryId].activities)) {
+            throw new Error("Activity does not exist in category");
+        }
+
+        set(state => {
+
+            const key = new String([categoryId, activity.id]) as string; 
+            const newKey = new String([categoryId, mergeToActivityId]) as string;
+            const events = state.eventsByActivity[key];
+
+            state.eventsByActivity[newKey] = events;
+            events.forEach(eventId => {
+                state.events[eventId].activityId = mergeToActivityId;
+            });
+
+            delete state.eventsByActivity[key];
+            delete state.categories[categoryId].activities[activity.id];
+        });
+    },
+
     addCategory(category: Category) {
         if (category.id in get().categories) {
             throw new Error("Category already exists");
@@ -184,7 +219,35 @@ const useDataStore = createStore<IDataStore>((set, get) => ({
 
     deleteCategory(category: Category) {
         set(state => { delete state.categories[category.id] });
+    },
+
+    // INDEXES
+    getEventsByDate(date: Date) {
+        const dateString = date.toLocaleDateString();
+        if (!(dateString in get().eventsByDate)) {
+            return [];
+        }
+        return get().eventsByDate[dateString]
+                    .map((id: number) => get().events[id]);
+    },
+
+    getEventsByDateString(dateString: string) {
+        if (!(dateString in get().eventsByDate)) {
+            return [];
+        }
+        return get().eventsByDate[dateString]
+                    .map((id: number) => get().events[id]);
+    },
+
+    getEventsByActivity(categoryId: number, activityId: number) {
+        const key = new String([categoryId, activityId]) as string;
+        if (!(key in get().eventsByActivity)) {
+            return [];
+        }
+        return get().eventsByActivity[key]
+                    .map((id: number) => get().events[id]);
     }
+
 }), persistOptions);
 
 export { useDataStore };

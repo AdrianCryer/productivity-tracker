@@ -25,16 +25,18 @@ type ActivitySettingsProps = {
 
 const ActivitySettings: React.FC<ActivitySettingsProps> = (props) => {
 
-    const { editActivity, deleteActivity } = useDataStore.getState();
-    const key = new String([props.categoryId, props.activity.id]) as string
-    const eventsByActivity = useDataStore(state => state.eventsByActivity[key]);
+    const { 
+        editActivity, 
+        deleteActivity, 
+        deleteAndMergeActivity 
+    } = useDataStore.getState();
+    const eventsByActivity = useDataStore(state => state.getEventsByActivity(props.categoryId, props.activity.id));
     const [showSafeDeleteModal, setShowSafeDeleteModal] = useState(false);
     const [partial, setPartial] = useState<{ name?: string; }>({});
 
     const [form] = Form.useForm();
     
     const activityEventCount = Object.keys(eventsByActivity).length;
-    console.log(eventsByActivity, activityEventCount)
 
     useResetFormOnHide({ 
         form, 
@@ -80,12 +82,19 @@ const ActivitySettings: React.FC<ActivitySettingsProps> = (props) => {
         // Check events.
         if (activityEventCount !== 0) {
             setShowSafeDeleteModal(true);
+        } else {
+            deleteActivity(props.categoryId, props.activity);
         }
-
-        // deleteActivity(props.categoryId, props.activity);
     };
 
     const handleMergeAndDelete = (mergeToId: number) => {
+        // Regular delete
+        console.log(mergeToId);
+        if (mergeToId === -1) {
+            deleteActivity(props.categoryId, props.activity);
+        } else {
+            deleteAndMergeActivity(props.categoryId, props.activity, mergeToId);
+        }
         setShowSafeDeleteModal(false);
     }
 

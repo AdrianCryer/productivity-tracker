@@ -52,9 +52,7 @@ type DurationTableProps = { categoryId: number; activityId?: number, date: Date 
 function DurationTable({ categoryId, activityId, date }: DurationTableProps) {
 
     const { updateEvent, removeEvent } = useDataStore.getState();
-
-    const key = date.toLocaleDateString();
-    const eventsByDate = useDataStore(state => state.eventsByDate[key] || []);
+    const eventsByDate = useDataStore(state => state.getEventsByDate(date));
     const activities = useDataStore(state => state.categories[categoryId].activities);
     
     let filteredEvents = activityId !== undefined ? 
