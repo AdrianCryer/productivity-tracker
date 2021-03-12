@@ -39,7 +39,6 @@ export default function SettingsModal(props: SettingsModalProps) {
     const [currentPage, setCurrentPage] = useState("General");
     const [requiresUpdate, setRequiresUpdate] = useState(false);
     const [updateFunction, setUpdateFunction] = useState<UpdateFunctionRef>();
-    console.log("rendered settings modal")
 
     const changePage = (pageName: string) => {
         if (pageName === currentPage)

@@ -92,14 +92,19 @@ export default function Categories() {
                 visible={addActivityPanelVisible}
                 handleOk={(form: FormInstance) => {
                     const name = form.getFieldValue('name');
+                    console.log(category.activities);
                     if (nameAlreadyExists(name)) {
                         form.setFields([{
                             name: 'name',
                             errors: ['Activity name already exists']
                         }]);
                     } else {
+                        let insertId = Object.keys(category.activities).length;
+                        while (insertId in category.activities) {
+                            insertId++;
+                        }
                         addActivity(categoryId, {
-                            id: Object.keys(category.activities).length,
+                            id: insertId,
                             dateAdded: (new Date()).toISOString(),
                             name: name
                         });

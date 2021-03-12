@@ -170,8 +170,12 @@ export default function App() {
                                 errors: ['Category name already exists']
                             }]);
                         } else {
+                            let insertId = Object.keys(categories).length;
+                            while (insertId in categories) {
+                                insertId++;
+                            }
                             addCategory({
-                                id: Object.keys(categories).length,
+                                id: insertId,
                                 dateAdded: (new Date()).toISOString(),
                                 name: name,
                                 activities: {}

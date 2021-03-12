@@ -131,15 +131,6 @@ const useDataStore = createStore<IDataStore>((set, get) => ({
         set(state => { 
             const event: DurationEvent = { ...state.events[partial.id], ...partial };
             state.events[partial.id] = event; 
-
-            // Need to update indexes
-            // let key = new String([event.categoryId, event.activityId]) as string;
-            // let index = state.eventsByActivity[key].findIndex(e => e.id === event.id);
-            // state.eventsByActivity[key].splice(index, 1, event);
-
-            // key = (new Date(event.duration.timeStart)).toLocaleDateString();
-            // index = state.eventsByDate[key].findIndex(e => e.id === event.id);
-            // state.eventsByDate[key].splice(index, 1, event);
         });
     },
 
