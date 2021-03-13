@@ -1,6 +1,7 @@
-import { Button, Space } from "antd";
+import { Button, Space, DatePicker } from "antd";
 import { LeftOutlined, RightOutlined } from '@ant-design/icons';
 import { CSSProperties } from "react";
+import moment from "moment";
 
 const styles = {
     paginationIcon: {
@@ -23,6 +24,7 @@ export default function DateSelector(props: DateSelectorProps) {
         nextDate.setDate(nextDate.getDate() + delta);
         props.onChangeDate(new Date(nextDate));
     }
+    const DATE_FORMAT = "DD/MM/YYYY"
 
     return (
         <Space style={props.style}>
@@ -31,7 +33,21 @@ export default function DateSelector(props: DateSelectorProps) {
                 icon={<LeftOutlined style={styles.paginationIcon} />}
                 onClick={() => changeDate(-1)}
             />
-            <Button key="2">{dateString}</Button>
+            {/* <Button key="2">{dateString}</Button> */}
+            <DatePicker 
+                defaultValue={moment(dateString, DATE_FORMAT)} 
+                format={DATE_FORMAT} 
+                inputReadOnly
+                suffixIcon={null}
+                allowClear={false}
+                value={moment(dateString, DATE_FORMAT)}
+                style={{ paddingRight: 0, marginRight: 0 }}
+                onChange={date => {
+                    if (date) {
+                        props.onChangeDate(date.toDate())
+                    }
+                }}
+            />
             <Button 
                 key="1" 
                 icon={<RightOutlined style={styles.paginationIcon} />}
