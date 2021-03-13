@@ -12,6 +12,7 @@ export interface Category {
     name: string;
     dateAdded: string;
     activities: { [id: string]: Activity };
+    colour: string;
 };
 
 export interface DurationEvent {

@@ -178,7 +178,8 @@ export default function App() {
                                 id: insertId,
                                 dateAdded: (new Date()).toISOString(),
                                 name: name,
-                                activities: {}
+                                activities: {},
+                                colour: "#000019"
                             });
                             setAddCategoryVisible(false);
                         }

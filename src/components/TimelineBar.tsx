@@ -15,7 +15,7 @@ type TimelineProps = {
     tickerSpacing: number;
     height?: number;
     hoverable?: boolean;
-    title: string;
+    title: React.ReactNode;
 };
 
 const getTimeStartArray = (durations: Duration[]): [Date[], Date[]] => {

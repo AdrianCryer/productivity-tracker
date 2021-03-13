@@ -11,7 +11,7 @@ const Page = (props: { title: string; children: any }) => {
 }
 
 type PageHeadingProps = {
-    title: string; 
+    title: React.ReactNode; 
     subText?: string;
     subTitle?: string;
     extra?: React.ReactNode;

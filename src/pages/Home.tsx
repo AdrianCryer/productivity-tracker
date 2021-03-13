@@ -1,11 +1,20 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Space } from 'antd';
+import { Avatar, Space, Typography } from 'antd';
 import { TimelineBar, EventAdder, SummaryHeader, PageHeading } from '../components';
 import { CategoryDurations } from '../core';
 import { useDataStore } from '../stores/DataStore';
 import { getDurationFromDiff } from '../core/helpers';
 
+const { Text } = Typography;
+const styles = {
+    colourIcon: { 
+        width: 10, 
+        height: 10, 
+        verticalAlign: 'middle', 
+        marginRight: 6 
+    }
+}
 
 type HomeProps = {
     initialDate: Date,
@@ -62,7 +71,17 @@ export default function Home(props: HomeProps) {
                     day={currentDate}
                     durations={categoryDurations[category.id] || []}
                     tickerSpacing={4}
-                    title={category.name}
+                    title={
+                        <div>
+                            <Avatar 
+                                style={{
+                                    ...styles.colourIcon, 
+                                    backgroundColor: category.colour
+                                }}
+                            />
+                            <Text>{category.name}</Text>
+                        </div>
+                    }
                 />
             ))}
         </Space>

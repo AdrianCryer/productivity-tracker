@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useParams } from "react-router-dom";
-import { Space, Card, Tabs, Layout, FormInstance, Button } from "antd";
+import { Space, Card, Layout, FormInstance, Button, Avatar, Typography } from "antd";
 import { EditOutlined } from '@ant-design/icons';
 import { EditableTabs, PageHeading } from "../../components";
 import { useDataStore } from "../../stores/DataStore";
@@ -10,6 +10,7 @@ import { Activity } from "../../core";
 import DateSelector from "../../components/DateSelector";
 import SettingsModal from "./SettingsModal";
 
+const { Text } = Typography;
 
 type CategoriesParams = { categoryId: string };
 
@@ -63,7 +64,18 @@ export default function Categories() {
         <>
             <Space direction="vertical">
                 <PageHeading 
-                    title={category.name} 
+                    title={<div>
+                        <Avatar 
+                            style={{
+                                width: 12, 
+                                height: 12, 
+                                verticalAlign: 'middle', 
+                                marginRight: 10, 
+                                backgroundColor: category.colour,
+                            }}
+                        />
+                        <Text>{category.name}</Text>
+                    </div>} 
                     // subTitle="Your collection of projects to track"
                     extra={
                         <Button 

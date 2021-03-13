@@ -5,7 +5,7 @@ import { UnderlinedHeader } from "../../../components/Display";
 import { Category } from "../../../core";
 import { UpdateFunctionRef, useModalButton } from "../../../hooks/useModalButton";
 import { useResetFormOnHide } from "../../../hooks/useResetFormOnHide";
-import { useDataStore } from "../../../stores/DataStore";
+import { PartialCategory, useDataStore } from "../../../stores/DataStore";
 import { validateCategory } from "../../../validation";
 
 const { Title, Text } = Typography;
@@ -29,14 +29,15 @@ const General: React.FC<GeneralProps> = (props) => {
 
     const { editCategory, deleteCategory } = useDataStore.getState();
     const [form] = Form.useForm();
-    const [partial, setPartial] = useState<{ name?: string; }>({});
+    const [partial, setPartial] = useState<PartialCategory>({});
     const history = useHistory();
     
     useResetFormOnHide({ 
         form, 
         visible: props.visible, 
         defaultValues: {
-            name: props.category.name
+            name: props.category.name,
+            colour: props.category.colour
         }
     }, [props.category]);
 
@@ -49,7 +50,8 @@ const General: React.FC<GeneralProps> = (props) => {
 
     useEffect(() => {
         let errors = validateCategory(props.category, {
-            name: partial.name
+            name: partial.name,
+            colour: partial.colour
         }, []);
 
         if (partial.name === props.category.name) {
@@ -67,8 +69,8 @@ const General: React.FC<GeneralProps> = (props) => {
         props.onRequiresUpdate(Object.keys(partial).length !== 0);
     }, [partial]);
 
-    const onUpdateField = (fieldName: 'name') => {
-        setPartial(prevPartial => ({...prevPartial, name: form.getFieldValue(fieldName) }));
+    const onUpdateField = (fieldName: 'name' | 'colour') => {
+        setPartial(prevPartial => ({...prevPartial, [fieldName]: form.getFieldValue(fieldName) }));
     };
 
     const handleDeleteCategory = () => {
@@ -91,7 +93,7 @@ const General: React.FC<GeneralProps> = (props) => {
                         label="Colour"
                         name="colour"
                     >
-                        <Input type="color"/>
+                        <Input type="color" onChange={() => onUpdateField('colour')}/>
                     </Form.Item>
                 </Space>
             </div>

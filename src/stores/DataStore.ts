@@ -7,9 +7,9 @@ import { createStore } from "./Store";
 /**
  * Primary data store of the application.
  */
-type Indexed<T> = { [id: number]: T }
-type PartialCategory = Partial<Omit<Category, 'id'>>
-type PartialActivity = Partial<Omit<Activity, 'id'>>
+type Indexed<T> = { [id: number]: T };
+export type PartialCategory = Partial<Omit<Category, 'id'>>
+export type PartialActivity = Partial<Omit<Activity, 'id'>>
 
 export interface IDataStore extends State {
 
@@ -78,7 +78,8 @@ const useDataStore = createStore<IDataStore>((set, get) => ({
                     name: "Voxel Game",
                     dateAdded: (new Date("2021-02-27")).toISOString()
                 }
-            }
+            },
+            colour: '#0000FF'
         }
     },
     events: {},
