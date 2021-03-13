@@ -1,8 +1,11 @@
 import { useState, useMemo } from 'react';
-import { Card, Popover } from 'antd';
+import { Card, Popover, Typography } from 'antd';
 import { blue } from '@ant-design/colors';
 import { Duration } from '../core';
-import { formatAMPM, getFormmattedDuration } from '../core/helpers';
+import { formatAMPM, getDurationFromDiff, getFormmattedDuration } from '../core/helpers';
+import { act } from 'react-dom/test-utils';
+
+const { Text } = Typography;
 
 type TimelineProps = {
     day: Date;
@@ -41,7 +44,7 @@ export default function TimelineBar(props: TimelineProps) {
     endTime.setDate(endTime.getDate() + 1);
     endTime.setHours(endTime.getHours() - 4);
 
-    let segments: TimelineSegment = useMemo(
+    const segments: TimelineSegment = useMemo(
         () => {
             // Convert to an ordered array for ease of use.
             const durations = (props.durations || []).sort((a, b) => +a.timeEnd - +b.timeEnd);
@@ -60,9 +63,20 @@ export default function TimelineBar(props: TimelineProps) {
         },
         [props.durations]
     );
+    
+    const [hours, minutes] = useMemo(
+        () => {
+            let totalDurationMs = 0;
+            for (let { timeEnd, timeStart } of props.durations) {
+                totalDurationMs += +(new Date(timeEnd)) - +(new Date(timeStart));
+            }
+            return getDurationFromDiff(totalDurationMs)
+        },
+        [props.durations]
+    );
 
     const totalMs = (+endTime - +startTime);
-    let tickers = useMemo(
+    const tickers = useMemo(
         () => {
             let spacing = props.tickerSpacing;
             while (Math.floor(totalMs / 3600000) % spacing !== 0) {
@@ -83,6 +97,7 @@ export default function TimelineBar(props: TimelineProps) {
             title={props.title} 
             bordered={false} 
             style={{ height: 60 + 3 * height, overflowX: 'hidden' }}
+            extra={<Text strong>{`${hours}h ${minutes}m`}</Text>}
         >
             <div style={{ position: 'absolute', width: '100%' }}>
                 {/* Tick markers */}

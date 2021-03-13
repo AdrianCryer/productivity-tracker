@@ -60,7 +60,7 @@ export default function Home(props: HomeProps) {
                 <TimelineBar
                     key={category.id}
                     day={currentDate}
-                    durations={categoryDurations[category.id]}
+                    durations={categoryDurations[category.id] || []}
                     tickerSpacing={4}
                     title={category.name}
                 />
