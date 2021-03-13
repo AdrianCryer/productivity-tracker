@@ -28,7 +28,7 @@ export default function Main({ match }: RouteComponentProps<{}>) {
     const categories = useDataStore(state => state.categories);
     const { addEvent, addCategory } = useDataStore.getState();
     
-    console.log('rerenderd app')
+    console.log('rerenderd app', match.path)
     return (
         <Layout className="layout-background">
             <Sider
@@ -46,7 +46,7 @@ export default function Main({ match }: RouteComponentProps<{}>) {
                     {React.createElement(collapsed ? DoubleRightOutlined : DoubleLeftOutlined)}
                 </Button>
                 <SideNav 
-                    url={match.url}
+                    mountPath={match.path}
                     categories={Object.values(categories)}
                     onAddActivity={() => setAddCategoryVisible(true)} 
                 />
@@ -68,7 +68,7 @@ export default function Main({ match }: RouteComponentProps<{}>) {
                 />
                 <Layout className="content">
                     <Route
-                        path={match.url}
+                        path={match.path}
                         exact
                         render={() => (
                             <Page title="Home">
@@ -77,7 +77,7 @@ export default function Main({ match }: RouteComponentProps<{}>) {
                         )}
                     />
                     <Route
-                        path={`${match.url}/settings`}
+                        path={`${match.path}/settings`}
                         exact
                         render={() => (
                             <Page title="Settings">
@@ -86,7 +86,7 @@ export default function Main({ match }: RouteComponentProps<{}>) {
                         )}
                     />
                     <Route
-                        path={`${match.url}/categories/:categoryId`}
+                        path={`${match.path}/categories/:categoryId`}
                         exact
                         render={(props) => (
                             <Page {...props} title="Categories">

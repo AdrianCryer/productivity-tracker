@@ -24,6 +24,8 @@ export default function Categories() {
     const category = useDataStore(state => state.categories[categoryId]);
     const addActivity = useDataStore.getState().addActivity;
 
+    console.log(params)
+
     if (!params.categoryId || !category) {
         return <Layout>Could not load</Layout>;
     }

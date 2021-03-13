@@ -12,7 +12,7 @@ import {
 const { SubMenu } = Menu;
 
 type SideNavProps = { 
-    url: string;
+    mountPath: string;
     categories: Category[]; 
     onAddActivity: () => void; 
 };
@@ -20,7 +20,8 @@ type SideNavProps = {
 const SideNav = (props: SideNavProps) => {
     const history = useHistory();
     const handleClick = (loc: string) => {
-        history.push(props.url + "/" + loc);
+        console.log(props.mountPath + "/" + loc)
+        history.push(props.mountPath + "/" + loc);
     }
 
     return (

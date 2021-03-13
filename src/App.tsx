@@ -23,7 +23,7 @@ export default function App() {
     return (
         <BrowserRouter>
             <Route exact path="/" component={TestRoot}/>
-            <Route exact path="/user" component={Main}/>
+            <Route path="/user" component={Main}/>
         </BrowserRouter>
     )
 }
