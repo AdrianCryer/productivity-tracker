@@ -11,7 +11,8 @@ function createWindow() {
     height: 900,
     show: false,
     webPreferences: {
-      nodeIntegration: true
+      nodeIntegration: true,
+      nativeWindowOpen: true,
     }
   });
   const startURL = isDev ? 'http://localhost:3000' : `file://${path.join(__dirname, '../build/index.html')}`;

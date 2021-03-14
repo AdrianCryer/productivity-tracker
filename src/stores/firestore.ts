@@ -1,6 +1,7 @@
 import firebase from "firebase/app";
 import "firebase/auth";
 import "firebase/firestore";
+import { createContext } from "react";
 
 // Setup firebase
 const firebaseConfig = {
@@ -12,8 +13,26 @@ const firebaseConfig = {
     appId:              "1:679387791069:web:c16ea34ee597193ada6534",
     measurementId:      "G-1XJ4DSXYDQ"
 };
-firebase.initializeApp(firebaseConfig);
-firebase.analytics();
 
-export const auth = firebase.auth();
-export const firestore = firebase.firestore();
+
+class Firebase {
+    auth: firebase.auth.Auth;
+    store: firebase.firestore.Firestore;
+
+    constructor() {
+        firebase.initializeApp(firebaseConfig);
+        firebase.analytics();
+        
+        this.store = firebase.firestore();
+        this.auth = firebase.auth();
+    }
+
+    signInWithGoogle = () => {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        this.auth.signInWithRedirect(provider);
+    }
+}
+
+export const FirebaseContext = createContext<Firebase>({} as Firebase);
+export default Firebase;
+    

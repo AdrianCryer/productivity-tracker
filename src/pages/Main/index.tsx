@@ -28,7 +28,7 @@ export default function Main({ match }: RouteComponentProps<{}>) {
     const categories = useDataStore(state => state.categories);
     const { addEvent, addCategory } = useDataStore.getState();
     
-    console.log('rerenderd app', match.path)
+    console.log('rerenderd app')
     return (
         <Layout className="layout-background">
             <Sider
