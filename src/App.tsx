@@ -5,47 +5,46 @@ import Main from './pages/Main';
 import firebase from 'firebase';
 import { v4 as uuidv4 } from 'uuid';
 import { FirebaseContext } from './stores/firestore';
-import GoogleLogin from 'react-google-login';
 const { shell } = require('electron')
 
-const GoogleLoginPage = () => {
-    // const fb = useContext(FirebaseContext);
+// const GoogleLoginPage = () => {
+//     // const fb = useContext(FirebaseContext);
 
-    useEffect(() => {
+//     useEffect(() => {
 
         
-        // const provider = new firebase.auth.GoogleAuthProvider();
-        // firebase.auth().signInWithRedirect(provider);
-        const provider = new firebase.auth.GoogleAuthProvider()
+//         // const provider = new firebase.auth.GoogleAuthProvider();
+//         // firebase.auth().signInWithRedirect(provider);
+//         const provider = new firebase.auth.GoogleAuthProvider()
 
-        async function getUser() {
-            const result = await firebase.auth().getRedirectResult();
-            console.log(result)
-            if (!result || !result.user) {
-                // fb.signInWithGoogle();
-                firebase.auth().signInWithRedirect(provider)
-            } else {
-                console.log("Grabbed the user", result.user)
+//         async function getUser() {
+//             const result = await firebase.auth().getRedirectResult();
+//             console.log(result)
+//             if (!result || !result.user) {
+//                 // fb.signInWithGoogle();
+//                 firebase.auth().signInWithRedirect(provider)
+//             } else {
+//                 console.log("Grabbed the user", result.user)
     
-                if (!result.user) {
-                    return;
-                }
+//                 if (!result.user) {
+//                     return;
+//                 }
                     
-                const params = new URLSearchParams(window.location.search)
+//                 const params = new URLSearchParams(window.location.search)
     
-                const token = await result.user.getIdToken()
-                const code = params.get("ot-auth-code")
+//                 const token = await result.user.getIdToken()
+//                 const code = params.get("ot-auth-code")
     
-                const response = await fetch(`${process.env.REACT_APP_FIREBASE_AUTH_DOMAIN}/create-auth-token?ot-auth-code=${code}&id-token=${token}`)
-                await response.json()
-            }
-        }
+//                 const response = await fetch(`${process.env.REACT_APP_FIREBASE_AUTH_DOMAIN}/create-auth-token?ot-auth-code=${code}&id-token=${token}`)
+//                 await response.json()
+//             }
+//         }
 
-        getUser();
-    }, []);
+//         getUser();
+//     }, []);
 
-    return <div>Could not load.</div>;
-}
+//     return <div>Could not load.</div>;
+// }
 
 
 const TestRoot = () => {
@@ -61,10 +60,10 @@ const TestRoot = () => {
             console.log("SUCCESS!", credential);
         });
 
-        const googleLink = `/desktop-sign-in?ot-auth-code=${id}`;
+        const googleLink = `/desktop-google-sign-in?ot-auth-code=${id}`;
         // Only if I could do the thing here and redirect.
 
-        shell.openExternal(process.env.REACT_APP_FIREBASE_AUTH_DOMAIN + googleLink)
+        shell.openExternal('http://localhost:3007' + googleLink)
         // history.push(googleLink);
         // window.open(googleLink, '_blank');
 
@@ -84,14 +83,6 @@ const TestRoot = () => {
             <Button onClick={onSignin} type="primary" danger>
                 Sign in with Google
             </Button>
-            <GoogleLogin
-                uxMode="redirect"
-                clientId="679387791069-rdgi0a99sp8cn434o6rkrjjtlvn26jh9.apps.googleusercontent.com"
-                buttonText="Login"
-                onSuccess={responseGoogle}
-                onFailure={responseGoogle}
-                cookiePolicy={'single_host_origin'}
-            />
         </Space>
     )
 }
@@ -104,7 +95,7 @@ export default function App() {
         <BrowserRouter>
             <Route exact path="/" component={TestRoot}/>
             <Route path="/user" component={Main}/>
-            <Route path="/desktop-sign-in" component={GoogleLoginPage}/>
+            {/* <Route path="/desktop-sign-in" component={GoogleLoginPage}/> */}
         </BrowserRouter>
     )
 }

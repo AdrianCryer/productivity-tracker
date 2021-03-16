@@ -3,6 +3,8 @@ const isDev = require('electron-is-dev');
 const path = require('path');
 const Store = require('electron-store');
 
+require('./auth_server');
+
 let mainWindow;
 
 function createWindow() {
@@ -16,6 +18,7 @@ function createWindow() {
     }
   });
   const startURL = isDev ? 'http://localhost:3000' : `file://${path.join(__dirname, '../build/index.html')}`;
+  // const authServerURL = 
 
   mainWindow.loadURL(startURL);
   mainWindow.once('ready-to-show', () => mainWindow.show());
