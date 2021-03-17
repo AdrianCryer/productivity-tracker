@@ -7,44 +7,44 @@ import { v4 as uuidv4 } from 'uuid';
 import { FirebaseContext } from './stores/firestore';
 const { shell } = require('electron')
 
-// const GoogleLoginPage = () => {
-//     // const fb = useContext(FirebaseContext);
+const GoogleLoginPage = () => {
+    // const fb = useContext(FirebaseContext);
 
-//     useEffect(() => {
+    useEffect(() => {
 
         
-//         // const provider = new firebase.auth.GoogleAuthProvider();
-//         // firebase.auth().signInWithRedirect(provider);
-//         const provider = new firebase.auth.GoogleAuthProvider()
+        // const provider = new firebase.auth.GoogleAuthProvider();
+        // firebase.auth().signInWithRedirect(provider);
+        const provider = new firebase.auth.GoogleAuthProvider()
 
-//         async function getUser() {
-//             const result = await firebase.auth().getRedirectResult();
-//             console.log(result)
-//             if (!result || !result.user) {
-//                 // fb.signInWithGoogle();
-//                 firebase.auth().signInWithRedirect(provider)
-//             } else {
-//                 console.log("Grabbed the user", result.user)
+        async function getUser() {
+            const result = await firebase.auth().getRedirectResult();
+            console.log(result)
+            if (!result || !result.user) {
+                // fb.signInWithGoogle();
+                firebase.auth().signInWithRedirect(provider)
+            } else {
+                console.log("Grabbed the user", result.user)
     
-//                 if (!result.user) {
-//                     return;
-//                 }
+                if (!result.user) {
+                    return;
+                }
                     
-//                 const params = new URLSearchParams(window.location.search)
+                const params = new URLSearchParams(window.location.search)
     
-//                 const token = await result.user.getIdToken()
-//                 const code = params.get("ot-auth-code")
+                const token = await result.user.getIdToken()
+                const code = params.get("ot-auth-code")
     
-//                 const response = await fetch(`${process.env.REACT_APP_FIREBASE_AUTH_DOMAIN}/create-auth-token?ot-auth-code=${code}&id-token=${token}`)
-//                 await response.json()
-//             }
-//         }
+                const response = await fetch(`${process.env.REACT_APP_FIREBASE_AUTH_DOMAIN}/create-auth-token?ot-auth-code=${code}&id-token=${token}`)
+                await response.json()
+            }
+        }
 
-//         getUser();
-//     }, []);
+        getUser();
+    }, []);
 
-//     return <div>Could not load.</div>;
-// }
+    return <div>Could not load.</div>;
+}
 
 
 const TestRoot = () => {
@@ -63,7 +63,7 @@ const TestRoot = () => {
         const googleLink = `/desktop-google-sign-in?ot-auth-code=${id}`;
         // Only if I could do the thing here and redirect.
 
-        shell.openExternal('http://localhost:3007' + googleLink)
+        shell.openExternal('http://localhost:50022' + googleLink)
         // history.push(googleLink);
         // window.open(googleLink, '_blank');
 

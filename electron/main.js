@@ -18,6 +18,7 @@ function createWindow() {
     }
   });
   const startURL = isDev ? 'http://localhost:3000' : `file://${path.join(__dirname, '../build/index.html')}`;
+  console.log(startURL)
   // const authServerURL = 
 
   mainWindow.loadURL(startURL);

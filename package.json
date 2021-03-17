@@ -38,6 +38,7 @@
   "scripts": {
     "start": "craco start",
     "build": "craco build",
+    "buildAuth": "craco build --config ./craco.auth.config.js",
     "test": "craco test",
     "eject": "craco eject",
     "ebuild": "npm run build && node_modules/.bin/build",

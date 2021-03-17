@@ -1,6 +1,6 @@
 import firebase from "firebase/app";
-import "firebase/auth";
-import "firebase/firestore";
+import 'firebase/firestore';
+import 'firebase/auth';
 import { createContext } from "react";
 
 // Setup firebase
@@ -14,14 +14,13 @@ const firebaseConfig = {
     measurementId:      "G-1XJ4DSXYDQ"
 };
 
-
 class Firebase {
     auth: firebase.auth.Auth;
     store: firebase.firestore.Firestore;
 
     constructor() {
         firebase.initializeApp(firebaseConfig);
-        firebase.analytics();
+        // firebase.analytics();
         
         this.store = firebase.firestore();
         this.auth = firebase.auth();
