@@ -7,10 +7,10 @@ const getPort = require('get-port');
     const port = await getPort();
     
     let authServer = express();
-    authServer.use(express.static(path.join(__dirname, '../build-auth')));
+    authServer.use(express.static(path.join(__dirname, '../../auth-client/build')));
 
     authServer.get('*', async (req, res) => {
-        const root =  path.join(__dirname, '../build-auth/index.html');
+        const root =  path.join(__dirname, '../../auth-client/build/index.html');
         res.sendFile(root);
     });
 

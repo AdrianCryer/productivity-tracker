@@ -1,7 +1,7 @@
 
 import React, { useContext, useEffect } from "react";
 import ReactDOM from "react-dom";
-import Firebase, { FirebaseContext } from '../stores/firestore';
+import Firebase, { FirebaseContext } from '@productivity-tracker/common/lib/firestore';
 
 const GoogleLoginPage = () => {
 
