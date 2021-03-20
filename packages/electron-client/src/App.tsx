@@ -4,7 +4,6 @@ import { Button, Space } from 'antd';
 import Main from './pages/Main';
 import { v4 as uuidv4 } from 'uuid';
 import { FirebaseContext } from '@productivity-tracker/common/lib/firestore';
-import firebase from 'firebase';
 const { shell } = require('electron')
 
 
@@ -15,23 +14,16 @@ const TestRoot = () => {
     const onSignin = () => {
         const id = uuidv4()
 
-        // const oneTimeCodeRef = firebase.database().ref(`ot-auth-codes/${id}`);
-        // oneTimeCodeRef.on('value', async snapshot => {
-        //     const authToken = snapshot.val()
-        //     const credential = await firebaseProvider.auth.signInWithCustomToken(authToken);
-        //     console.log("SUCCESS!", credential);
-        // });
+        const oneTimeCodeRef = firebaseProvider.db.ref(`ot-auth-codes/${id}`);
+        oneTimeCodeRef.on('value', async snapshot => {
+            const authToken = snapshot.val()
+            const credential = await firebaseProvider.auth.signInWithCustomToken(authToken);
+            console.log("SUCCESS!", credential);
+        });
 
         const googleLink = `/desktop-google-sign-in?ot-auth-code=${id}`;
-        // Only if I could do the thing here and redirect.
-
         shell.openExternal('http://localhost:50022' + googleLink)
-        // history.push(googleLink);
-        // window.open(googleLink, '_blank');
 
-        // require("shell").openExternal(googleLink);
-        
-        // signInWithGoogle();
         // history.push("/user");
     };
 

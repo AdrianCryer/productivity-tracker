@@ -3,6 +3,7 @@
   "compilerOptions": {
     "rootDir": "src",
     "outDir": "lib",
-    "noEmit": false
+    "noEmit": false,
+    "composite": true
   }
 }

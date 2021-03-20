@@ -1,30 +1,36 @@
 import firebase from "firebase/app";
 import 'firebase/firestore';
 import 'firebase/auth';
+import 'firebase/database';
 import { createContext } from "react";
-
-// Setup firebase
-const firebaseConfig = {
-    apiKey:             process.env.REACT_APP_FIREBASE_API_KEY,
-    authDomain:         process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
-    projectId:          process.env.REACT_APP_FIREBASE_PROJECT_ID,
-    storageBucket:      "productivity-tracker-bf103.appspot.com",
-    messagingSenderId:  "679387791069",
-    appId:              "1:679387791069:web:c16ea34ee597193ada6534",
-    measurementId:      "G-1XJ4DSXYDQ"
-};
-console.log(firebaseConfig)
 
 class Firebase {
     auth: firebase.auth.Auth;
     store: firebase.firestore.Firestore;
+    db: firebase.database.Database;
 
-    constructor() {
-        firebase.initializeApp(firebaseConfig);
-        // firebase.analytics();
+    constructor(config?: any) {
+        if (!config) {
+            config = Firebase.getDefaultConfigFromEnv(process.env);    
+        }
+        const fb = firebase.initializeApp(config);
+        // fb.analytics();
         
-        this.store = firebase.firestore();
-        this.auth = firebase.auth();
+        this.store = fb.firestore();
+        this.auth = fb.auth();
+        this.db = fb.database();
+    }
+
+    static getDefaultConfigFromEnv(env: NodeJS.ProcessEnv) {
+        return {
+            apiKey:             env.REACT_APP_FIREBASE_API_KEY,
+            authDomain:         env.REACT_APP_FIREBASE_AUTH_DOMAIN,
+            projectId:          env.REACT_APP_FIREBASE_PROJECT_ID,
+            storageBucket:      env.REACT_APP_FIREBASE_STORAGE_BUCKET,
+            messagingSenderId:  env.REACT_APP_FIREBASE_SENDER_ID,
+            appId:              env.REACT_APP_FIREBASE_APP_ID,
+            measurementId:      env.REACT_APP_FIREBASE_MEASUREMENT_ID
+        };
     }
 
     signInWithGoogle = () => {
