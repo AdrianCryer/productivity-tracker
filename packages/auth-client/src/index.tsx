@@ -31,6 +31,8 @@ const GoogleLoginPage = () => {
     
                 const response = await fetch(firebaseAuthDomain + path);
                 await response.json();
+
+                // Open app link like notion does
             }
         }
 
