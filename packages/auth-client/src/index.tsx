@@ -1,7 +1,10 @@
 
 import React, { useContext, useEffect } from "react";
 import ReactDOM from "react-dom";
+import 'firebase/auth';
 import Firebase, { FirebaseContext } from '@productivity-tracker/common/lib/firestore';
+
+const firebaseAuthDomain = process.env.REACT_APP_FIREBASE_FUNCTIONS_URL;
 
 const GoogleLoginPage = () => {
 
@@ -10,7 +13,6 @@ const GoogleLoginPage = () => {
     useEffect(() => {
         async function getUser() {
             const result = await firebaseHandler.auth.getRedirectResult();
-            console.log(result)
             if (!result || !result.user) {
                 firebaseHandler.signInWithGoogle();
             } else {
@@ -20,12 +22,14 @@ const GoogleLoginPage = () => {
                     return;
                 }
                     
-                const params = new URLSearchParams(window.location.search)
-                const token = await result.user.getIdToken()
-                const code = params.get("ot-auth-code")
-                const path = `/create-auth-token?ot-auth-code=${code}&id-token=${token}`;
+                const params = new URLSearchParams(window.location.search);
+                const token = await result.user.getIdToken();
+                const code = params.get("ot-auth-code");
+                const path = `createAuthToken?ot-auth-code=${code}&id-token=${token}`;
+                
+                console.log(firebaseAuthDomain + path)
     
-                const response = await fetch(process.env.REACT_APP_FIREBASE_AUTH_DOMAIN + path);
+                const response = await fetch(firebaseAuthDomain + path);
                 await response.json();
             }
         }

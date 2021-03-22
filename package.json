@@ -4,7 +4,9 @@
   "scripts": {
     "bootstrap": "lerna bootstrap",
     "build-common": "tsc -b packages/common",
-    "clean": "rimraf packages/**/lib"
+    "build-auth": "npm run-script build --prefix packages/auth-client",
+    "clean": "rimraf packages/**/lib",
+    "run-deskop": "npm run-script dev --prefix packages/electron-client"
   },
   "devDependencies": {
     "lerna": "^4.0.0",

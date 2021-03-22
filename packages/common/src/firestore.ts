@@ -2,12 +2,14 @@ import firebase from "firebase/app";
 import 'firebase/firestore';
 import 'firebase/auth';
 import 'firebase/database';
+import 'firebase/functions';
 import { createContext } from "react";
 
 class Firebase {
     auth: firebase.auth.Auth;
     store: firebase.firestore.Firestore;
     db: firebase.database.Database;
+    functions: firebase.functions.Functions;
 
     constructor(config?: any) {
         if (!config) {
@@ -19,6 +21,7 @@ class Firebase {
         this.store = fb.firestore();
         this.auth = fb.auth();
         this.db = fb.database();
+        this.functions = fb.functions();
     }
 
     static getDefaultConfigFromEnv(env: NodeJS.ProcessEnv) {

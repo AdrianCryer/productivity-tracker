@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useState } from 'react';
 import { BrowserRouter, Route, useHistory } from 'react-router-dom';
 import { Button, Space } from 'antd';
 import Main from './pages/Main';

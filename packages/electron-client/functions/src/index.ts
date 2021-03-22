@@ -1,11 +1,10 @@
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
-import "firebase/auth";
 import * as cors from "cors";
 
 const createCorsRequest = cors({origin: true});
-admin.initializeApp();
 
+admin.initializeApp({databaseURL: functions.config().firebase.databaseURL});
 
 exports.createAuthToken = functions.https.onRequest((request, response) => {
   createCorsRequest(request, response, async () => {
