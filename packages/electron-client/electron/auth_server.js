@@ -5,6 +5,8 @@ const getPort = require('get-port');
 
 (async () => {
     const port = await getPort();
+
+    // Check if port in use. Else die.
     
     let authServer = express();
     authServer.use(express.static(path.join(__dirname, '../../auth-client/build')));

@@ -11,6 +11,9 @@ const protocol = 'prodtracker';
 let mainWindow;
 let deeplinkingUrl;
 
+// Remove protocol
+app.removeAsDefaultProtocolClient(protocol);
+
 // Force single application instance
 const gotTheLock = app.requestSingleInstanceLock();
 
@@ -48,6 +51,7 @@ function createWindow() {
   if (process.platform == 'win32') {
     deeplinkingUrl = process.argv.slice(1)
   }
+  logEverywhere(deeplinkingUrl);
 
   mainWindow.once('ready-to-show', () => mainWindow.show());
   mainWindow.on('closed', () => {
@@ -55,17 +59,11 @@ function createWindow() {
   });
 }
 
-
 Store.initRenderer();
 app.on('ready', createWindow);
 
 if (isDev && process.platform === 'win32') {
-  // Set the path of electron.exe and your app.
-  // These two additional parameters are only available on windows.
-  // Setting this is required to get this working in dev mode.
-  console.log(process.execPath)
-  app.setAsDefaultProtocolClient(protocol, process.execPath, process.argv.slice(1));
-  console.log(res)
+  app.setAsDefaultProtocolClient(protocol, process.execPath, [path.resolve(process.argv[1])]);
 } else {
   if (!app.isDefaultProtocolClient(protocol)) {
     app.setAsDefaultProtocolClient(protocol);
@@ -79,8 +77,9 @@ app.on('will-finish-launching', function() {
   })
 });
 
-// app.on('open-url', (event, data) => {
-//   event.preventDefault();
-//   link = data;
-//   console.log(data);
-// });
+function logEverywhere(s) {
+  console.log(s)
+  if (mainWindow && mainWindow.webContents) {
+    mainWindow.webContents.executeJavaScript(`console.log("${s}")`)
+  }
+}
