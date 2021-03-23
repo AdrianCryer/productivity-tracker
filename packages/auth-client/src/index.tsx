@@ -1,5 +1,5 @@
 
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import ReactDOM from "react-dom";
 import 'firebase/auth';
 import Firebase, { FirebaseContext } from '@productivity-tracker/common/lib/firestore';
@@ -9,6 +9,7 @@ const firebaseAuthDomain = process.env.REACT_APP_FIREBASE_FUNCTIONS_URL;
 const GoogleLoginPage = () => {
 
     const firebaseHandler = useContext(FirebaseContext);
+    const [authenticated, setAuthenticated] = useState(false); 
 
     useEffect(() => {
         async function getUser() {
@@ -30,16 +31,19 @@ const GoogleLoginPage = () => {
                 console.log(firebaseAuthDomain + path)
     
                 const response = await fetch(firebaseAuthDomain + path);
-                await response.json();
+                const data = await response.json();
 
                 // Open app link like notion does
+                setAuthenticated(true);
             }
         }
 
         getUser();
     }, []);
 
-    return <div>Could not load.</div>;
+    return authenticated ? (
+        <a href="prodtracker://abc=1">Open in App</a>
+    ) : <div>Could not load.</div>;
 }
 
 // Render root

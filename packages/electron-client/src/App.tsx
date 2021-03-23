@@ -22,7 +22,7 @@ const TestRoot = () => {
         });
 
         const googleLink = `/desktop-google-sign-in?ot-auth-code=${id}`;
-        shell.openExternal('http://localhost:50022' + googleLink)
+        shell.openExternal('http://localhost:50022' + googleLink);
 
         // history.push("/user");
     };

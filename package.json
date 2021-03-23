@@ -5,8 +5,8 @@
     "bootstrap": "lerna bootstrap",
     "build-common": "tsc -b packages/common",
     "build-auth": "npm run-script build --prefix packages/auth-client",
-    "clean": "rimraf packages/**/lib",
-    "run-deskop": "npm run-script dev --prefix packages/electron-client"
+    "run-desktop": "npm run-script dev --prefix packages/electron-client",
+    "clean": "rimraf packages/**/lib"
   },
   "devDependencies": {
     "lerna": "^4.0.0",
