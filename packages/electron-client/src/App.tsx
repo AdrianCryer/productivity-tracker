@@ -1,63 +1,7 @@
-import { useContext, useEffect, useState } from 'react';
-import { BrowserRouter, Route, useHistory } from 'react-router-dom';
-import { Button, Space } from 'antd';
+import { useState } from 'react';
+import { BrowserRouter, Route } from 'react-router-dom';
 import Main from './pages/Main';
-import { v4 as uuidv4 } from 'uuid';
-import { FirebaseContext } from '@productivity-tracker/common/lib/firestore';
-const { shell, ipcRenderer } = require('electron');
-
-
-const TestRoot = () => {
-    const history = useHistory();
-    const firebaseProvider = useContext(FirebaseContext);
-    const [authToken, setAuthToken] = useState('');
-
-    useEffect(() => {
-        ipcRenderer.on('deep-linking-params', (event: any, params: string) => {
-
-            const parsedParams = new URLSearchParams(params);
-            let token = parsedParams.get('auth-token');
-            console.log(token);
-
-            if (token) {
-                token = token.replace(/\/$/, "");
-                setAuthToken(token);
-            }
-        });
-    }, []);
-    
-
-    useEffect(() => {
-        // Update credentials / sign-in
-        async function authenticate() {
-            if (authToken) {
-                const credential = await firebaseProvider.auth.signInWithCustomToken(authToken);
-                console.log("SUCCESS!", credential);
-                // history.push('/user');
-            }
-        }
-        authenticate();
-    }, [authToken])
-
-    const onSignin = () => {
-        const id = uuidv4()
-        const googleLink = `/desktop-google-sign-in?ot-auth-code=${id}`;
-        shell.openExternal('http://localhost:50022' + googleLink);
-    };
-
-    const responseGoogle = (response: any) => {
-        console.log(response);
-    }
-
-    return (
-        <Space direction="vertical">
-            Main Page
-            <Button onClick={onSignin} type="primary" danger>
-                Sign in with Google
-            </Button>
-        </Space>
-    )
-}
+import Login from './pages/Login';
 
 export default function App() {
 
@@ -65,9 +9,8 @@ export default function App() {
     
     return (
         <BrowserRouter>
-            <Route exact path="/" component={TestRoot}/>
+            <Route exact path="/" component={Login}/>
             <Route path="/user" component={Main}/>
-            {/* <Route path="/desktop-sign-in" component={GoogleLoginPage}/> */}
         </BrowserRouter>
     )
 }

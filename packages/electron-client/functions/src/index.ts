@@ -11,15 +11,15 @@ exports.createAuthToken = functions.https.onRequest((request, response) => {
   console.log(process.env.FIREBASE_CONFIG);
   createCorsRequest(request, response, async () => {
     const query = request.query;
-    const oneTimeCode = query["ot-auth-code"];
+    // const oneTimeCode = query["ot-auth-code"];
     const idToken = query["id-token"] as string;
     const decodedToken = await admin.auth().verifyIdToken(idToken);
     const uid = decodedToken.uid;
     const authToken = await admin.auth().createCustomToken(uid);
 
-    console.log("Authentication Token", authToken);
+    // console.log("Authentication Token", authToken);
 
-    await admin.database().ref(`ot-auth-codes/${oneTimeCode}`).set(authToken);
+    // await admin.database().ref(`ot-auth-codes/${oneTimeCode}`).set(authToken);
 
     response.set('Access-Control-Allow-Origin', '*');
     return response.status(200).send({
