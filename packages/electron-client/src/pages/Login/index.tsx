@@ -41,15 +41,13 @@ export default function Login() {
 
             const parsedParams = new URLSearchParams(params);
             let token = parsedParams.get('auth-token');
-            console.log(token);
 
-            if (token) {
+            if (token && token !== authToken) {
                 token = token.replace(/\/$/, "");
                 setAuthToken(token);
             }
         });
     }, []);
-    
 
     useEffect(() => {
         // Update credentials / sign-in
@@ -64,8 +62,7 @@ export default function Login() {
     }, [authToken])
 
     const onSignin = () => {
-        const id = uuidv4()
-        const googleLink = `/desktop-google-sign-in?ot-auth-code=${id}`;
+        const googleLink = `/desktop-google-sign-in`;
         shell.openExternal('http://localhost:50022' + googleLink);
     };
 
@@ -75,13 +72,15 @@ export default function Login() {
                 <Content className="content" style={{ textAlign: 'center', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                     <div style={styles.loginContent}>
                         <Row style={{width: '100%', paddingBottom: 20}}>
-                            <Title level={5} style={{ marginBottom: 0 }}>
-                                Welcome to,
-                            </Title>
-                            <Title level={3} style={{ marginBottom: 5, marginTop: 0}}>
-                                The Productivity Tracker
-                            </Title>
-                            <Text style={{ fontSize: 16 }}>Log in to sync your content.</Text>
+                            <Space direction="vertical" align="start">
+                                <Title level={5} style={{ marginBottom: 0 }}>
+                                    Welcome to
+                                </Title>
+                                <Title level={3} style={{ marginBottom: 0, marginTop: 0}}>
+                                    The Productivity Tracker
+                                </Title>
+                                <Text style={{ fontSize: 16 }}>Log in to sync your content.</Text>
+                            </Space>
                         </Row>
                         <Row style={{ width: '100%', paddingBottom: 5 }}>
                             <Button 
