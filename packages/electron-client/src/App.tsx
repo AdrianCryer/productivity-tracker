@@ -1,30 +1,48 @@
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { BrowserRouter, Route, useHistory } from 'react-router-dom';
 import { Button, Space } from 'antd';
 import Main from './pages/Main';
 import { v4 as uuidv4 } from 'uuid';
 import { FirebaseContext } from '@productivity-tracker/common/lib/firestore';
-const { shell } = require('electron')
+const { shell, ipcRenderer } = require('electron');
 
 
 const TestRoot = () => {
     const history = useHistory();
     const firebaseProvider = useContext(FirebaseContext);
+    const [authToken, setAuthToken] = useState('');
+
+    useEffect(() => {
+        ipcRenderer.on('deep-linking-params', (event: any, params: string) => {
+
+            const parsedParams = new URLSearchParams(params);
+            let token = parsedParams.get('auth-token');
+            console.log(token);
+
+            if (token) {
+                token = token.replace(/\/$/, "");
+                setAuthToken(token);
+            }
+        });
+    }, []);
+    
+
+    useEffect(() => {
+        // Update credentials / sign-in
+        async function authenticate() {
+            if (authToken) {
+                const credential = await firebaseProvider.auth.signInWithCustomToken(authToken);
+                console.log("SUCCESS!", credential);
+                // history.push('/user');
+            }
+        }
+        authenticate();
+    }, [authToken])
 
     const onSignin = () => {
         const id = uuidv4()
-
-        const oneTimeCodeRef = firebaseProvider.db.ref(`ot-auth-codes/${id}`);
-        oneTimeCodeRef.on('value', async snapshot => {
-            const authToken = snapshot.val()
-            const credential = await firebaseProvider.auth.signInWithCustomToken(authToken);
-            console.log("SUCCESS!", credential);
-        });
-
         const googleLink = `/desktop-google-sign-in?ot-auth-code=${id}`;
         shell.openExternal('http://localhost:50022' + googleLink);
-
-        // history.push("/user");
     };
 
     const responseGoogle = (response: any) => {

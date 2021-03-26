@@ -1,11 +1,7 @@
 const { app, BrowserWindow } = require('electron');
 const isDev = require('electron-is-dev');
 const path = require('path');
-const resolve = require('resolve');
 const Store = require('electron-store');
-
-require('./auth_server');
-
 
 const protocol = 'prodtracker';
 let mainWindow;
@@ -26,6 +22,7 @@ if (!gotTheLock) {
       // Find the arg that is our custom protocol url and store it
       deeplinkingUrl = argv.find((arg) => arg.startsWith(protocol + '://'));
     }
+    handleDeepLinkUpdate(mainWindow, deeplinkingUrl)
 
     if (mainWindow) {
       if (mainWindow.isMinimized()) mainWindow.restore();
@@ -51,12 +48,13 @@ function createWindow() {
   if (process.platform == 'win32') {
     deeplinkingUrl = process.argv.slice(1)
   }
-  logEverywhere(deeplinkingUrl);
-
+  
   mainWindow.once('ready-to-show', () => mainWindow.show());
   mainWindow.on('closed', () => {
     mainWindow = null;
   });
+
+  handleDeepLinkUpdate(mainWindow, deeplinkingUrl);
 }
 
 Store.initRenderer();
@@ -74,12 +72,21 @@ app.on('will-finish-launching', function() {
   app.on('open-url', function(event, url) {
     event.preventDefault()
     deeplinkingUrl = url;
+    handleDeepLinkUpdate(app.window, deeplinkingUrl);
   })
 });
 
-function logEverywhere(s) {
-  console.log(s)
-  if (mainWindow && mainWindow.webContents) {
-    mainWindow.webContents.executeJavaScript(`console.log("${s}")`)
+function handleDeepLinkUpdate(win, deeplinkingUrl) {
+  if (!(typeof deeplinkingUrl === 'string' || deeplinkingUrl instanceof String)) {
+    return;
   }
+  const params = deeplinkingUrl.replace(protocol + '://', '');
+  win.webContents.send('deep-linking-params', params);
+  if (win && win.webContents) {
+    win.webContents.executeJavaScript(`console.log("${deeplinkingUrl}")`)
+  }
+}
+
+if (!deeplinkingUrl) {
+  require('./auth_server');
 }

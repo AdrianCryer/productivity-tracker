@@ -9,7 +9,8 @@ const firebaseAuthDomain = process.env.REACT_APP_FIREBASE_FUNCTIONS_URL;
 const GoogleLoginPage = () => {
 
     const firebaseHandler = useContext(FirebaseContext);
-    const [authenticated, setAuthenticated] = useState(false); 
+    // const [authenticated, setAuthenticated] = useState(false); 
+    const [authToken, setAuthToken] = useState('');
 
     useEffect(() => {
         async function getUser() {
@@ -32,17 +33,19 @@ const GoogleLoginPage = () => {
     
                 const response = await fetch(firebaseAuthDomain + path);
                 const data = await response.json();
+                console.log(data);
 
                 // Open app link like notion does
-                setAuthenticated(true);
+                // setAuthenticated(true);
+                setAuthToken(data.token)
             }
         }
 
         getUser();
     }, []);
 
-    return authenticated ? (
-        <a href="prodtracker://abc=1">Open in App</a>
+    return authToken !== '' ? (
+        <a href={`prodtracker://auth-token=${authToken}`}>Open in App</a>
     ) : <div>Could not load.</div>;
 }
 
