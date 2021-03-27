@@ -40,6 +40,29 @@ class Firebase {
         const provider = new firebase.auth.GoogleAuthProvider();
         this.auth.signInWithRedirect(provider);
     }
+
+    createUser = (credential: firebase.auth.UserCredential) => {
+        if (!credential.user) {
+            throw new Error("Could not create user, invalid credential given.");
+        }
+        this.store.collection('users').doc(credential.user.uid).set({
+            displayName: credential.user.displayName,
+            email: credential.user.email
+        });
+    }
+
+    getActivities = () => {
+        const currentUser = this.auth.currentUser;
+        return this.store.collection('users')
+                         .doc(currentUser?.uid)
+                         .collection('activities');
+    }
+
+    /** Listen for activity changes. */
+
+    // createActivity = (activity: Activity) => {
+    //     this.getActivities().onSnapshot(())
+    // }
 }
 
 export const FirebaseContext = createContext<Firebase>({} as Firebase);

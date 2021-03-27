@@ -1,8 +1,7 @@
-import { CSSProperties, useContext, useEffect, useState } from 'react';
-import { BrowserRouter, Route, useHistory } from 'react-router-dom';
-import { Button, Col, Divider, Input, Layout, Row, Space, Tooltip, Typography } from "antd";
-import { GoogleOutlined, AppleFilled, BulbOutlined } from "@ant-design/icons";
-import { v4 as uuidv4 } from 'uuid';
+import { useContext, useEffect, useState } from 'react';
+import { useHistory } from 'react-router-dom';
+import { Button, Divider, Input, Layout, Row, Space, Typography } from "antd";
+import { GoogleOutlined, AppleFilled } from "@ant-design/icons";
 import { FirebaseContext } from '@productivity-tracker/common/lib/firestore';
 import { Page } from "../../components";
 import { shell, ipcRenderer } from "electron";
@@ -15,25 +14,26 @@ const styles: { [name: string]: React.CSSProperties } = {
         width: '100%',
         height: 45
     },
-    loginContainer: {
-        backgroundColor: 'red',
-        height: '100%'
-    },
     loginContent: {
-        // backgroundColor: 'red',
         height: '100%',
         width: 350,
         display: 'flex', 
         flexDirection: 'column', 
         justifyContent: 'center',
         alignItems: 'center',
+    },
+    pageContent: {
+        textAlign: 'center', 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center'
     }
 }
 
 export default function Login() {
 
     const history = useHistory();
-    const firebaseProvider = useContext(FirebaseContext);
+    const firebaseConsumer = useContext(FirebaseContext);
     const [authToken, setAuthToken] = useState('');
 
     useEffect(() => {
@@ -49,12 +49,21 @@ export default function Login() {
         });
     }, []);
 
+    // Update credentials / sign-in
     useEffect(() => {
-        // Update credentials / sign-in
         async function authenticate() {
-            if (authToken) {
-                const credential = await firebaseProvider.auth.signInWithCustomToken(authToken);
-                console.log("SUCCESS!", credential);
+            if (authToken !== '') {
+                const credential = await firebaseConsumer.auth.signInWithCustomToken(authToken);
+                if (!credential.user) {
+                    throw new Error(`Authenticated but there was
+                                    an issue retrieving the user`);
+                }
+
+                if (credential.user.metadata.creationTime === 
+                    credential.user.metadata.lastSignInTime) {
+                    await firebaseConsumer.createUser(credential);
+                }
+                console.log("[Info] Authenticated correctly.", credential);
                 // history.push('/user');
             }
         }
@@ -63,13 +72,15 @@ export default function Login() {
 
     const onSignin = () => {
         const googleLink = `/desktop-google-sign-in`;
+
+        /** This link should really be retrieved on request. */
         shell.openExternal('http://localhost:50022' + googleLink);
     };
 
     return (
         <Page title="Login">
             <Layout className="layout-background" style={{ height: '100vh' }}>
-                <Content className="content" style={{ textAlign: 'center', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                <Content className="content" style={styles.pageContent}>
                     <div style={styles.loginContent}>
                         <Row style={{width: '100%', paddingBottom: 20}}>
                             <Space direction="vertical" align="start">
