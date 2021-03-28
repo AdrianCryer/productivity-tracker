@@ -2,18 +2,12 @@ import ElectronStore from 'electron-store';
 import { Draft } from 'immer';
 import { State } from 'zustand';
 import { createStore } from "./Store";
+import { Indexed, Category } from '@productivity-tracker/common/lib/schema';
 
 
-type User = {
-    
-};
-type Category = {}
-
-
-type Indexed<T> = { [id: number]: T };
 export interface IRecordStore extends State {
-     /** PERSISTED STATE */
-     categories: Indexed<Category>;
+    /** PERSISTED STATE */
+    categories: Indexed<Category>;
 };
 
 const storageKey = "productivity-tracker-storage";
@@ -33,6 +27,7 @@ const persistOptions = {
 /**
  * Store configurations
  */
-// const useRecordStore = createStore<IRecordStore>((set, get) => ({
-
-// }), persistOptions);
+const useRecordStore = createStore<IRecordStore>((set, get) => ({
+    categories: {},
+    
+}), persistOptions);

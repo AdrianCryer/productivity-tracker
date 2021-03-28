@@ -4,6 +4,7 @@ import 'firebase/auth';
 import 'firebase/database';
 import 'firebase/functions';
 import { createContext } from "react";
+import { PartialCategory } from "./schema";
 
 class Firebase {
     auth: firebase.auth.Auth;
@@ -41,6 +42,15 @@ class Firebase {
         this.auth.signInWithRedirect(provider);
     }
 
+    private validateUser = (): string => {
+        const currentUser = this.auth.currentUser;
+        if (!currentUser) {
+            throw new Error (`Could not retrieve user credentials 
+                Perhaps the user has been signed out.`);
+        }
+        return currentUser.uid;
+    }
+
     createUser = (credential: firebase.auth.UserCredential) => {
         if (!credential.user) {
             throw new Error("Could not create user, invalid credential given.");
@@ -51,14 +61,32 @@ class Firebase {
         });
     }
 
-    getActivities = () => {
-        const currentUser = this.auth.currentUser;
-        return this.store.collection('users')
-                         .doc(currentUser?.uid)
-                         .collection('activities');
+    getCategories = () => {
+        const uid = this.validateUser();
+        return this.store.collection('users').doc(uid).collection('categories');
     }
 
+    getActivities = (id: string) => {
+        return this.getCategories().doc(id).collection('activities');
+    }
+    
+    createCategory = (category: PartialCategory) => {
+        // Check category name first.
+        this.getCategories().add({
+            name: category.name,
+            dateAdded: category.dateAdded,
+            colour: category.colour
+        });
+    }
+    
     /** Listen for activity changes. */
+    listenForCategoryUpdates = (onChange: (category: PartialCategory) => void) => {
+        return this.getCategories().onSnapshot(snap => {
+            snap.forEach((doc) => {
+                console.log(doc.data())
+            });
+        });
+    }
 
     // createActivity = (activity: Activity) => {
     //     this.getActivities().onSnapshot(())

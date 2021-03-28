@@ -68,8 +68,8 @@ const GoogleLoginPage = () => {
         async function getUser() {
             const result = await firebaseHandler.auth.getRedirectResult();
             if (!result || !result.user) {
-                firebaseHandler.signInWithGoogle();
                 setGettingAuthCode(true);
+                firebaseHandler.signInWithGoogle();
             } else {
 
                 if (!result.user) {
@@ -79,7 +79,6 @@ const GoogleLoginPage = () => {
                 try {
                     const token = await result.user.getIdToken();
                     const path = `createAuthToken?id-token=${token}`;
-                
 
                     const response = await fetch(firebaseAuthDomain + path);
                     const data = await response.json();
