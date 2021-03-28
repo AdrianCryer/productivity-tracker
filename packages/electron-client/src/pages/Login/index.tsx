@@ -61,8 +61,7 @@ export default function Login() {
 
                 if (credential.user.metadata.creationTime === 
                     credential.user.metadata.lastSignInTime) {
-                    // Should wait for this somehow
-                    firebaseConsumer.createUser(credential);
+                    await firebaseConsumer.createUser(credential);
                 }
                 console.log("[Info] Authenticated correctly.", credential);
                 history.push('/user');

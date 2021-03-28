@@ -1,13 +1,15 @@
 import ElectronStore from 'electron-store';
 import { Draft } from 'immer';
 import { State } from 'zustand';
+import firebase from "firebase/app";
 import { createStore } from "./Store";
-import { Indexed, Category } from '@productivity-tracker/common/lib/schema';
+import { Indexed, Category, DataRecord, PartialCategory } from '@productivity-tracker/common/lib/schema';
 
 
 export interface IRecordStore extends State {
     /** PERSISTED STATE */
     categories: Indexed<Category>;
+    records: Indexed<DataRecord>;
 };
 
 const storageKey = "productivity-tracker-storage";
@@ -29,5 +31,25 @@ const persistOptions = {
  */
 const useRecordStore = createStore<IRecordStore>((set, get) => ({
     categories: {},
+    records: {},
+
+    updateCategory(category: Omit<Category, 'activities'>, action: firebase.firestore.DocumentChangeType) {
+        if (action === 'added') {
+            set(state => {
+                state.categories[category.id] = {
+                    ...category,
+                    activities: {}
+                };
+            });
+        } else if (action === 'removed') {
+            
+        }
+    },
+
+    addCategory(category: Category) {
+        set(state => {
+            state.categories[category.id] = category;
+        });
+    },
     
 }), persistOptions);

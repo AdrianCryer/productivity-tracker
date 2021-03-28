@@ -17,14 +17,13 @@ export interface Activity {
     id: string;
     name: string;
     dateAdded: string;
-
-    // THESE AREN'T LINKED. IS THERE A WAY IN TYPESCRIPT?
     schema: ColumnDescription[];
-    records: DataRecord[]
 };
 
 export interface DataRecord {
     id: string;
+    categoryId: string;
+    activityId: string;
     timeCreated: string;
     record: RecordType[]
 };
@@ -34,9 +33,10 @@ export type ColumnDescription = 'Duration' | 'string' | 'number';
 export type RecordType = Column[];
 
 export type Indexed<T> = { [id: string]: T };
-export type PartialCategory = Partial<Omit<Category, 'id'>>
-export type PartialActivity = Partial<Omit<Activity, 'id'>>
-export type PartialDataRecord = Partial<Omit<DataRecord, 'id'>>
+
+export type PartialCategory = Partial<Category> & Pick<Category, 'id'>;
+export type PartialActivity = Partial<Omit<Activity, 'id'>>;
+export type PartialDataRecord = Partial<Omit<DataRecord, 'id'>>;
 
 export function validateRecordType(schema: ColumnDescription[], record: RecordType[]): boolean {
     if (schema.length !== record.length) {

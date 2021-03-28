@@ -31,13 +31,10 @@ export default function Main({ match }: RouteComponentProps<{}>) {
     const { addEvent, addCategory } = useDataStore.getState();
 
     useEffect(() => {
-        firebaseHandler.listenForCategoryUpdates(() => {});
-        firebaseHandler.createCategory({
-            name: "test category",
-            dateAdded: (new Date()).toISOString(),
-            colour: 'red'
-        })
-    }, [firebaseHandler])
+        const listener = firebaseHandler.listenForCategoryUpdates(() => {});
+
+        return listener;
+    }, [firebaseHandler]);
     
     console.log('rerenderd app')
     return (

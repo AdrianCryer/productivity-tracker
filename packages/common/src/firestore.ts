@@ -4,7 +4,7 @@ import 'firebase/auth';
 import 'firebase/database';
 import 'firebase/functions';
 import { createContext } from "react";
-import { PartialCategory } from "./schema";
+import { Category, PartialCategory } from "./schema";
 
 class Firebase {
     auth: firebase.auth.Auth;
@@ -45,7 +45,7 @@ class Firebase {
     private validateUser = (): string => {
         const currentUser = this.auth.currentUser;
         if (!currentUser) {
-            throw new Error (`Could not retrieve user credentials 
+            throw new Error(`Could not retrieve user credentials 
                 Perhaps the user has been signed out.`);
         }
         return currentUser.uid;
@@ -55,7 +55,7 @@ class Firebase {
         if (!credential.user) {
             throw new Error("Could not create user, invalid credential given.");
         }
-        this.store.collection('users').doc(credential.user.uid).set({
+        return this.store.collection('users').doc(credential.user.uid).set({
             displayName: credential.user.displayName,
             email: credential.user.email
         });
@@ -66,32 +66,60 @@ class Firebase {
         return this.store.collection('users').doc(uid).collection('categories');
     }
 
-    getActivities = (id: string) => {
+    getActivity = (id: string) => {
         return this.getCategories().doc(id).collection('activities');
     }
     
-    createCategory = (category: PartialCategory) => {
+    createCategory = async (category: Omit<Category, 'id' | 'activities'>) => {
+
         // Check category name first.
-        this.getCategories().add({
+        const categories = await this.getCategories().get();
+        if (Object.values(categories).find(c => c.name === category.name)) {
+            throw new Error(`Category name '${category.name}' already exists`);
+        }
+
+        return this.getCategories().add({
             name: category.name,
             dateAdded: category.dateAdded,
             colour: category.colour
         });
     }
+
+    editCategory = async (category: Omit<PartialCategory, 'activities'>) => {
+        const { id, ...params } = category;
+        return this.getCategories().doc(category.id).update({ ...params });
+    }
+
+    removeCategory = async (category: Category | string) => {
+        const id = typeof category === 'string' ? category : category.id;
+        return this.getCategories().doc(id).delete();
+    }
     
     /** Listen for activity changes. */
-    listenForCategoryUpdates = (onChange: (category: PartialCategory) => void) => {
+    listenForCategoryUpdates = (onChange: (category: PartialCategory, action: firebase.firestore.DocumentChangeType) => void) => {
+        return this.getCategories().onSnapshot(snap => {
+            snap.docChanges().forEach(change => {
+                const data = change.doc.data() as PartialCategory;
+                onChange({
+                    ...data,
+                }, change.type);
+            })
+        });
+    }
+
+    listenForActivityUpdates = () => {
         return this.getCategories().onSnapshot(snap => {
             snap.forEach((doc) => {
                 console.log(doc.data())
             });
-        });
+        })
     }
 
-    // createActivity = (activity: Activity) => {
-    //     this.getActivities().onSnapshot(())
-    // }
+    listenForRecordUpdates = () => {
+
+    }
 }
+
 
 export const FirebaseContext = createContext<Firebase>({} as Firebase);
 export default Firebase;
