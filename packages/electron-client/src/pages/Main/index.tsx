@@ -1,18 +1,16 @@
 import React, { useContext, useEffect, useState } from 'react';
-import ReactDom from 'react-dom';
-import { Link, BrowserRouter, Route, useHistory, useParams, RouteComponentProps } from 'react-router-dom';
+import { Route, RouteComponentProps } from 'react-router-dom';
 import HomePage from '../Home';
 import SettingsPage from '../Settings';
 import CategoriesPage from '../Categories';
 import { EventAdderTopbar, Page } from '../../components';
 import { Button, Layout, FormInstance } from 'antd';
 import { DoubleLeftOutlined, DoubleRightOutlined } from '@ant-design/icons';
-import "./index.css"
-import { useDataStore } from '../../stores/DataStore';
 import { useRecordStore } from '../../stores/RecordStore';
 import AddCategoryModal from '../AddCategory';
 import SideNav from './SideNav';
 import { FirebaseContext } from '@productivity-tracker/common/lib/firestore';
+import "./index.css"
 
 const { Sider } = Layout;
 const MENU_WIDTH = 256;
@@ -23,7 +21,6 @@ export default function Main({ match }: RouteComponentProps<{}>) {
     const firebaseHandler = useContext(FirebaseContext);
     const [collapsed, setCollapsed] = useState(false);
     const [addCategoryVisible, setAddCategoryVisible] = useState(false);
-    const { addEvent, addCategory } = useDataStore.getState();
     const { 
         _modifyCategoriesBatch,
         _modifyActivitiesBatch
@@ -67,14 +64,14 @@ export default function Main({ match }: RouteComponentProps<{}>) {
                 <EventAdderTopbar 
                     categories={categories}
                     onAddEntry={data => {
-                        addEvent(
-                            data.categoryId,
-                            data.activityId,
-                            { 
-                                timeStart: data.timeStart, 
-                                timeEnd: data.timeEnd 
-                            }
-                        );
+                        // addEvent(
+                        //     data.categoryId,
+                        //     data.activityId,
+                        //     { 
+                        //         timeStart: data.timeStart, 
+                        //         timeEnd: data.timeEnd 
+                        //     }
+                        // );
                     }}
                 
                 />
@@ -111,7 +108,7 @@ export default function Main({ match }: RouteComponentProps<{}>) {
             <AddCategoryModal 
                 visible={addCategoryVisible}
                 handleCancel={() => setAddCategoryVisible(false)}
-                handleOk={(form: FormInstance) => {
+                handleOk={async (form: FormInstance) => {
                     const name = form.getFieldValue('name');
                     if (Object.values(categories).find(c => c.name === name)) {
                         form.setFields([{
@@ -119,15 +116,9 @@ export default function Main({ match }: RouteComponentProps<{}>) {
                             errors: ['Category name already exists']
                         }]);
                     } else {
-                        let insertId = Object.keys(categories).length;
-                        while (insertId in categories) {
-                            insertId++;
-                        }
-                        addCategory({
-                            id: insertId,
+                        await firebaseHandler.createCategory({
                             dateAdded: (new Date()).toISOString(),
                             name: name,
-                            activities: {},
                             colour: "#000019"
                         });
                         setAddCategoryVisible(false);

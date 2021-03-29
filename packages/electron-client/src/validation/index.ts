@@ -1,5 +1,4 @@
-import { Activity, Category } from "../core";
-
+import { Activity, Category } from "@productivity-tracker/common/lib/schema";
 
 export function validateCategory(category: Category, payload: Partial<Category>, categories: Category[]) {
     let errors: any = {};

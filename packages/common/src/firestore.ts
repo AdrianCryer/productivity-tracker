@@ -4,7 +4,7 @@ import 'firebase/auth';
 import 'firebase/database';
 import 'firebase/functions';
 import { createContext } from "react";
-import { Activity, Category, OnBatchActivitiesChange, OnBatchCategoryChange, PartialCategory } from "./schema";
+import { Activity, Category, OnBatchActivitiesChange, OnBatchCategoryChange, PartialActivity, PartialCategory } from "./schema";
 
 class Firebase {
     auth: firebase.auth.Auth;
@@ -95,7 +95,7 @@ class Firebase {
 
     editCategory = async (category: Omit<PartialCategory, 'activities'>) => {
         const { id, ...params } = category;
-        return this.getCategories().doc(category.id).update({ ...params });
+        return this.getCategories().doc(id).update({ ...params });
     }
 
     /**
@@ -138,6 +138,31 @@ class Firebase {
         });
     }
 
+    editActivity = async (categoryId: string, activity: PartialActivity) => {
+        const { id, ...params } = activity;
+        return this.getActivities().doc(id).update({ ...params });
+    }
+
+    removeActivity = async (categoryId: string, activity: Activity) => {
+
+    }
+
+    mergeAndRemoveActivity = async (categoryId: string, activity: Activity, mergeToActivityId: string) => {
+        
+    }
+
+    createRecord = async () => {
+
+    }
+
+    editRecord = async () => {
+
+    }
+
+    removeRecord = async () => {
+
+    }
+
     listenForCategoryUpdates = (onChange: OnBatchCategoryChange) => {
         return this.getCategories().onSnapshot(snap => {
             const changes = snap.docChanges().map(change => ({
@@ -157,7 +182,10 @@ class Firebase {
                 const { categoryId, ...activity } = change.doc.data();
                 return {
                     categoryId, 
-                    activity: activity as Activity, 
+                    activity: {
+                        ...activity,
+                        id: change.doc.id
+                    } as Activity, 
                     action: change.type
                 };
             });

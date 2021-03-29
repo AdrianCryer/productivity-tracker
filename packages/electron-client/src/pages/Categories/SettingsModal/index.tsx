@@ -1,13 +1,11 @@
-import { CSSProperties, MutableRefObject, useEffect, useRef, useState } from "react";
-import { Col, FormInstance, Menu, Modal, Row, Typography } from "antd";
-import { Category } from "../../../core";
-import { useDataStore } from "../../../stores/DataStore";
+import { CSSProperties, useEffect, useState } from "react";
+import { Col, Menu, Modal, Row, Typography } from "antd";
 import { ExclamationCircleOutlined } from "@ant-design/icons";
 import { ModalButtonContext, UpdateFunctionRef } from "../../../hooks/useModalButton";
+import { Category } from "@productivity-tracker/common/lib/schema";
 import General from "./General";
 import Integrations from "./Integrations";
 import Activity from "./Activity";
-import { act } from "react-dom/test-utils";
 
 const { Text } = Typography;
 
@@ -113,6 +111,21 @@ export default function SettingsModal(props: SettingsModalProps) {
         }))
     ];
 
+    const menuPages = pages.filter(p => !p.noMenu).map(({ name }) => (
+        <Menu.Item key={name} onClick={() => changePage(name)}>
+            {name}
+        </Menu.Item>
+    ));
+
+    const menuActivities = Object.values(props.category.activities).map(activity => (
+        <Menu.Item 
+            key={"Activity " + activity.id} 
+            onClick={() => changePage("Activity " + activity.id)}
+        >
+            {activity.name}
+        </Menu.Item>
+    ));
+
     return (
         <Modal
             title={`Edit "${props.category.name}"`}
@@ -136,21 +149,10 @@ export default function SettingsModal(props: SettingsModalProps) {
                         mode="inline"
                         selectedKeys={[currentPage]}
                     >
-                        {pages.filter(p => !p.noMenu).map(({ name }) => (
-                            <Menu.Item key={name} onClick={() => changePage(name)}>
-                                {name}
-                            </Menu.Item>
-                        ))}
+                        {menuPages}
                         <Menu.Divider />
                         <Menu.ItemGroup key="activities" title="Activities">
-                            {Object.values(props.category.activities).map(activity => (
-                                <Menu.Item 
-                                    key={"Activity " + activity.id} 
-                                    onClick={() => changePage("Activity " + activity.id)}
-                                >
-                                    {activity.name}
-                                </Menu.Item>
-                            ))}
+                            {menuActivities}
                             <Menu.Item key="archived">
                                 <Text type="secondary">Archived</Text>
                             </Menu.Item>

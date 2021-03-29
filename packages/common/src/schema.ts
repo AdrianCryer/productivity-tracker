@@ -39,9 +39,9 @@ export type RecordSchema = {
 
 export type Indexed<T> = { [id: string]: T };
 
-export type PartialCategory = Partial<Category> & Pick<Category, 'id'>;
-export type PartialActivity = Partial<Omit<Activity, 'id'>>;
-export type PartialDataRecord = Partial<Omit<DataRecord, 'id'>>;
+export type PartialCategory = Partial<Omit<Category, 'activities'>> & Pick<Category, 'id'>;
+export type PartialActivity = Partial<Activity> & Pick<Activity, 'id'>;
+export type PartialDataRecord = Partial<DataRecord> & Pick<DataRecord, 'id'>;
 
 export type OnBatchCategoryChange = (
     updates: {
@@ -68,7 +68,6 @@ export type OnBatchActivitiesChange = (
 //     }
 //     return true;
 // }
-
 
 /**
  * Primitive Data Types

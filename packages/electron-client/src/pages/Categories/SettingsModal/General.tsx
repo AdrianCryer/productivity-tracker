@@ -1,21 +1,18 @@
-import { Button, Col, Divider, Form, Input, Popconfirm, Row, Space, Typography } from "antd";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { Button, Form, Input, Popconfirm, Space, Typography } from "antd";
+import { useContext, useEffect, useState } from "react";
 import { useHistory } from "react-router";
 import { UnderlinedHeader } from "../../../components/Display";
-import { Category } from "../../../core";
-import { UpdateFunctionRef, useModalButton } from "../../../hooks/useModalButton";
+import { useModalButton } from "../../../hooks/useModalButton";
 import { useResetFormOnHide } from "../../../hooks/useResetFormOnHide";
-import { PartialCategory, useDataStore } from "../../../stores/DataStore";
 import { validateCategory } from "../../../validation";
+import { FirebaseContext } from "@productivity-tracker/common/lib/firestore";
+import { Category, PartialCategory } from "@productivity-tracker/common/lib/schema";
 
-const { Title, Text } = Typography;
+const { Text } = Typography;
 
 const styles = {
     section: {
         paddingBottom: 32, 
-        // borderWidth: 1, 
-        // borderColor: 'black',
-        // borderStyle: 'solid'
     }
 }
 
@@ -27,9 +24,10 @@ type GeneralProps = {
 
 const General: React.FC<GeneralProps> = (props) => {
 
-    const { editCategory, deleteCategory } = useDataStore.getState();
+    const firebaseHandler = useContext(FirebaseContext);
+
     const [form] = Form.useForm();
-    const [partial, setPartial] = useState<PartialCategory>({});
+    const [partial, setPartial] = useState<Omit<PartialCategory, 'id'>>({});
     const history = useHistory();
     
     useResetFormOnHide({ 
@@ -43,8 +41,11 @@ const General: React.FC<GeneralProps> = (props) => {
 
     useModalButton({
         visible: props.visible,
-        onUpdate: () => {
-            editCategory(props.category, partial);
+        onUpdate: async () => {
+            await firebaseHandler.editCategory({
+                id: props.category.id,
+                ...partial
+            });
         }
     });
 
@@ -73,9 +74,9 @@ const General: React.FC<GeneralProps> = (props) => {
         setPartial(prevPartial => ({...prevPartial, [fieldName]: form.getFieldValue(fieldName) }));
     };
 
-    const handleDeleteCategory = () => {
+    const handleDeleteCategory = async () => {
+        await firebaseHandler.removeCategory(props.category);
         history.push('');
-        deleteCategory(props.category);
     }
 
     return (

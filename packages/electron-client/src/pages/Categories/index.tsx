@@ -30,7 +30,6 @@ export default function Categories() {
     }
 
     const activities: Activity[] = Object.values(category.activities);
-    console.log(activities)
     let tabs = activities.map(activity => {
         return {
             title: activity.name,
@@ -44,6 +43,7 @@ export default function Categories() {
             key: activity.id,
         }
     });
+    console.log(category.activities)
 
     const onAddTab = () => {
         setAddActivityPanelVisible(true);
@@ -118,12 +118,12 @@ export default function Categories() {
                 }}
                 handleCancel={() => setAddActivityPanelVisible(false)}
             />
-            {/* <SettingsModal 
+            <SettingsModal 
                 category={category}
                 visible={settingsModalVisible}
                 handleOk={() => setSettingsModalVisible(false)}
                 handleCancel={() => setSettingsModalVisible(false)}
-            /> */}
+            />
         </>
     );
 }

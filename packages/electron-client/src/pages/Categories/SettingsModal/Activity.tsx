@@ -1,14 +1,15 @@
-import { Button, Divider, Form, Input, Modal, Popconfirm, Statistic, Typography } from "antd";
-import { useState, useEffect } from "react";
+import { Button, Form, Input, Popconfirm, Typography } from "antd";
+import { useState, useEffect, useContext } from "react";
 import { UnderlinedHeader } from "../../../components/Display";
-import { Activity, Category } from "../../../core";
 import { useModalButton } from "../../../hooks/useModalButton";
 import { useResetFormOnHide } from "../../../hooks/useResetFormOnHide";
-import { useDataStore } from "../../../stores/DataStore";
+import { useRecordStore } from "../../../stores/RecordStore";
 import { validateActivity } from "../../../validation";
 import SafeDeleteModal from "./SafeDeleteModal";
+import { Activity, PartialActivity } from "@productivity-tracker/common/lib/schema";
+import { FirebaseContext } from "@productivity-tracker/common/lib/firestore";
 
-const { Title, Text } = Typography;
+const { Text } = Typography;
 
 const styles = {
     section: {
@@ -20,23 +21,27 @@ type ActivitySettingsProps = {
     visible: boolean;
     onRequiresUpdate: (val: boolean) => void;
     activity: Activity;
-    categoryId: number;
+    categoryId: string;
 };
 
 const ActivitySettings: React.FC<ActivitySettingsProps> = (props) => {
 
+    const firebaseHandler = useContext(FirebaseContext);
     const { 
         editActivity, 
         deleteActivity, 
         deleteAndMergeActivity 
-    } = useDataStore.getState();
-    const eventsByActivity = useDataStore(state => state.getEventsByActivity(props.categoryId, props.activity.id));
+    } = useRecordStore.getState();
+
+    const recordsByActivity = useRecordStore(state => 
+        state.getRecordsByActivity(props.categoryId, props.activity.id)
+    );
     const [showSafeDeleteModal, setShowSafeDeleteModal] = useState(false);
-    const [partial, setPartial] = useState<{ name?: string; }>({});
+    const [partial, setPartial] = useState<Omit<PartialActivity, 'id'>>({});
 
     const [form] = Form.useForm();
     
-    const activityEventCount = Object.keys(eventsByActivity).length;
+    const activityEventCount = Object.keys(recordsByActivity).length;
 
     useResetFormOnHide({ 
         form, 
@@ -48,8 +53,11 @@ const ActivitySettings: React.FC<ActivitySettingsProps> = (props) => {
 
     useModalButton({
         visible: props.visible,
-        onUpdate: () => {
-            editActivity(props.categoryId, props.activity.id, partial);
+        onUpdate: async () => {
+            await firebaseHandler.editActivity(props.categoryId, {
+                id: props.activity.id,
+                ...partial
+            });
         }
     });
 
@@ -78,22 +86,25 @@ const ActivitySettings: React.FC<ActivitySettingsProps> = (props) => {
         setPartial(prevPartial => ({...prevPartial, name: form.getFieldValue(fieldName) }));
     };
 
-    const handleDeleteActivity = () => {
+    const handleDeleteActivity = async () => {
         // Check events.
         if (activityEventCount !== 0) {
             setShowSafeDeleteModal(true);
         } else {
-            deleteActivity(props.categoryId, props.activity);
+            await firebaseHandler.removeActivity(props.categoryId, props.activity);
         }
     };
 
-    const handleMergeAndDelete = (mergeToId: number) => {
+    const handleMergeAndDelete = async (mergeToId: string) => {
         // Regular delete
         console.log(mergeToId);
-        if (mergeToId === -1) {
-            deleteActivity(props.categoryId, props.activity);
+        if (mergeToId === '') {
+            await firebaseHandler.removeActivity(props.categoryId, props.activity);
         } else {
-            deleteAndMergeActivity(props.categoryId, props.activity, mergeToId);
+            await firebaseHandler.mergeAndRemoveActivity(props.categoryId, props.activity, mergeToId);
+            // deleteAndMergeActivity(props.categoryId, props.activity, mergeToId);
+            // deleteActivity(props.categoryId, props.activity);
+
         }
         setShowSafeDeleteModal(false);
     }
@@ -137,7 +148,6 @@ const ActivitySettings: React.FC<ActivitySettingsProps> = (props) => {
                 visible={showSafeDeleteModal}
                 categoryId={props.categoryId}
                 activity={props.activity}
-                events={eventsByActivity}
                 onCancel={() => setShowSafeDeleteModal(false)}
                 onMerge={handleMergeAndDelete}
             />

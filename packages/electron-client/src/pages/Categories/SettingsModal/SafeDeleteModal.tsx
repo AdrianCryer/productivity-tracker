@@ -1,7 +1,7 @@
 import { Button, Modal, Select, Space, Statistic, Typography } from "antd";
 import { useState } from "react";
-import { Activity, DurationEvent } from "../../../core";
-import { useDataStore } from "../../../stores/DataStore";
+import { useRecordStore } from "../../../stores/RecordStore";
+import { Activity } from "@productivity-tracker/common/lib/schema";
 
 const { Text, Paragraph } = Typography;
 const { Option } = Select;
@@ -9,19 +9,22 @@ const { Option } = Select;
 type SafeDeleteModalProps = {
     visible: boolean;
     loading?: boolean;
-    categoryId: number;
+    categoryId: string;
     activity: Activity;
-    events: DurationEvent[];
     onCancel: () => void;
-    onMerge: (activityId: number) => void;
+    onMerge: (activityId: string) => void;
 };
 
 const SafeDeleteModal = (props: SafeDeleteModalProps) => {
 
-    const activities = useDataStore(state => state.categories[props.categoryId].activities);
+    const activities = useRecordStore(state => state.categories[props.categoryId].activities);
     const validActivities = Object.values(activities).filter(a => a.id !== props.activity.id);
-    const [mergeActivityId, setMergeActivityId] = useState(-1);
+    const [mergeActivityId, setMergeActivityId] = useState<string>('');
     
+    const mergeOptions = validActivities.map(activity => (
+        <Option key={activity.id} value={activity.id}>{activity.name}</Option>
+    ));
+
     return (
         <Modal
             title={"Merge events to another activity?"}
@@ -38,7 +41,7 @@ const SafeDeleteModal = (props: SafeDeleteModalProps) => {
                     loading={props.loading}
                     onClick={() => props.onMerge(mergeActivityId)}
                 >
-                  {mergeActivityId === -1 ? "Delete" : "Merge and delete"}
+                  {mergeActivityId === '' ? "Delete" : "Merge and delete"}
                 </Button>,
             ]}
             centered
@@ -50,14 +53,12 @@ const SafeDeleteModal = (props: SafeDeleteModalProps) => {
                     <Text strong> {props.activity.name}</Text> is deleted?
                 </Paragraph>
                  <Select 
-                    defaultValue={-1}
+                    defaultValue=""
                     onChange={val => setMergeActivityId(val)}
                     style={{ width: "100%" }}
                 >
-                    <Option value={-1}>Don't merge</Option>
-                    {validActivities.map(activity => (
-                        <Option key={activity.id} value={activity.id}>{activity.name}</Option>
-                    ))}
+                    <Option value="">Don't merge</Option>
+                    {mergeOptions}
                  </Select>
             </Space>
         </Modal>
