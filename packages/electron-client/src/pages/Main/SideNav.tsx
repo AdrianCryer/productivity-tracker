@@ -1,6 +1,5 @@
 import { Menu } from "antd";
 import { useHistory } from "react-router-dom";
-import { Category } from "../../core";
 import {
     PieChartOutlined,
     DesktopOutlined,
@@ -8,6 +7,7 @@ import {
     SettingOutlined,
     PlusOutlined
 } from '@ant-design/icons';
+import { Category } from "@productivity-tracker/common/lib/schema";
 
 const { SubMenu } = Menu;
 
@@ -20,9 +20,17 @@ type SideNavProps = {
 const SideNav = (props: SideNavProps) => {
     const history = useHistory();
     const handleClick = (loc: string) => {
-        console.log(props.mountPath + "/" + loc)
         history.push(props.mountPath + "/" + loc);
     }
+
+    const categoriesMenu = props.categories.map(c => (
+        <Menu.Item 
+            key={"category " + c.id}
+            onClick={() => handleClick("categories/" + c.id)}
+        >
+            {c.name}
+        </Menu.Item>
+    ));
 
     return (
         <Menu mode="inline">
@@ -34,14 +42,7 @@ const SideNav = (props: SideNavProps) => {
                 Dashboard
             </Menu.Item>
             <SubMenu key="categories" icon={<DesktopOutlined />} title="Categories">
-                {props.categories.map(c => (
-                    <Menu.Item 
-                        key={"category " + c.id}
-                        onClick={() => handleClick("categories/" + c.id)}
-                    >
-                        {c.name}
-                    </Menu.Item>
-                ))}
+                {categoriesMenu}
                 <Menu.Item 
                     onClick={props.onAddActivity}
                     key="add" 

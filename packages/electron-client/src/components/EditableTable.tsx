@@ -7,7 +7,7 @@ type TableProps = Parameters<typeof Table>[0];
 type ColumnTypes = Exclude<TableProps['columns'], undefined>;
 
 export type DataRow = {
-    id: number; 
+    id: string; 
     key: React.Key; 
     [other: string]: any 
 };

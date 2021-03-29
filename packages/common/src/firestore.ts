@@ -4,7 +4,7 @@ import 'firebase/auth';
 import 'firebase/database';
 import 'firebase/functions';
 import { createContext } from "react";
-import { Category, PartialCategory } from "./schema";
+import { Activity, Category, OnBatchActivitiesChange, OnBatchCategoryChange, PartialCategory } from "./schema";
 
 class Firebase {
     auth: firebase.auth.Auth;
@@ -61,13 +61,21 @@ class Firebase {
         });
     }
 
-    getCategories = () => {
+    getUser = () => {
         const uid = this.validateUser();
-        return this.store.collection('users').doc(uid).collection('categories');
+        return this.store.collection('users').doc(uid);
     }
 
-    getActivity = (id: string) => {
-        return this.getCategories().doc(id).collection('activities');
+    getCategories = () => {
+        return this.getUser().collection('categories');
+    }
+
+    getActivities = () => {
+        return this.getUser().collection('activities');
+    }
+
+    getRecords = () => {
+        return this.getUser().collection('records');
     }
     
     createCategory = async (category: Omit<Category, 'id' | 'activities'>) => {
@@ -90,29 +98,71 @@ class Firebase {
         return this.getCategories().doc(category.id).update({ ...params });
     }
 
+    /**
+     * Expensive operation. However, not expected to occur frequently. 
+     */
     removeCategory = async (category: Category | string) => {
         const id = typeof category === 'string' ? category : category.id;
-        return this.getCategories().doc(id).delete();
-    }
-    
-    /** Listen for activity changes. */
-    listenForCategoryUpdates = (onChange: (category: PartialCategory, action: firebase.firestore.DocumentChangeType) => void) => {
-        return this.getCategories().onSnapshot(snap => {
-            snap.docChanges().forEach(change => {
-                const data = change.doc.data() as PartialCategory;
-                onChange({
-                    ...data,
-                }, change.type);
-            })
+        await this.getCategories().doc(id).delete();
+        
+        /** Delete activities */
+        await this.getActivities().where('categoryId', '==', id).get().then(snap => {
+            let batch = this.store.batch();
+            snap.forEach(doc => {
+                batch.delete(doc.ref);
+            });
+            return batch.commit();
+        });
+
+        /** Delete records @todo check if number of records is less than 500 */
+        return this.getRecords().where('categoryId', '==', id).get().then(snap => {
+            let batch = this.store.batch();
+            snap.forEach(doc => {
+                batch.delete(doc.ref);
+            });
+            return batch.commit();
         });
     }
 
-    listenForActivityUpdates = () => {
+    createActivity = async (categoryId: string, activity: Omit<Activity, 'id'>) => {
+
+        // Check category name first.
+        const activities = await this.getActivities().where('categoryId', '==', categoryId).get();
+        if (Object.values(activities).find(a => a.name === activity.name)) {
+            throw new Error(`Activity name '${activity.name}' already exists`);
+        }
+
+        return this.getActivities().add({
+            categoryId,
+            ...activity
+        });
+    }
+
+    listenForCategoryUpdates = (onChange: OnBatchCategoryChange) => {
         return this.getCategories().onSnapshot(snap => {
-            snap.forEach((doc) => {
-                console.log(doc.data())
+            const changes = snap.docChanges().map(change => ({
+                category: {
+                    ...change.doc.data() as Omit<Category, 'activities' | 'id'>,
+                    id: change.doc.id
+                },
+                action: change.type
+            }));
+            onChange(changes);
+        });
+    }
+
+    listenForActivityUpdates = (onChange: OnBatchActivitiesChange) => {
+        return this.getActivities().onSnapshot(snap => {
+            const changes = snap.docChanges().map(change => {
+                const { categoryId, ...activity } = change.doc.data();
+                return {
+                    categoryId, 
+                    activity: activity as Activity, 
+                    action: change.type
+                };
             });
-        })
+            onChange(changes);
+        });
     }
 
     listenForRecordUpdates = () => {

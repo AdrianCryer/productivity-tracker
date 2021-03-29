@@ -1,9 +1,10 @@
 import { Popconfirm } from "antd";
 import moment from "moment";
-import React, { useEffect, useState } from "react";
+import React, { useContext } from "react";
 import EditableTable, { DataColumn, DataRow } from "../../components/EditableTable";
 import { getDateString, getFormmattedDuration } from "../../core/helpers";
 import {  useDataStore } from "../../stores/DataStore";
+import { useRecordStore } from "../../stores/RecordStore";
 
 
 const getColumns = (isEmpty: boolean, onDelete: (row: DataRow) => void): DataColumn[] => ([
@@ -47,44 +48,44 @@ const getColumns = (isEmpty: boolean, onDelete: (row: DataRow) => void): DataCol
     },
 ]);
 
-type DurationTableProps = { categoryId: number; activityId?: number, date: Date };
+type DurationTableProps = { categoryId: string; activityId?: string, date: Date };
 
 function DurationTable({ categoryId, activityId, date }: DurationTableProps) {
 
     const { updateEvent, deleteEvent } = useDataStore.getState();
-    const eventsByDate = useDataStore(state => state.getEventsByDate(date));
-    const activities = useDataStore(state => state.categories[categoryId].activities);
+    const activities = useRecordStore(state => state.categories[categoryId].activities);
+    const recordsByDate = useRecordStore(state => state.getRecordsByDate(date));
     
-    let filteredEvents = activityId !== undefined ? 
-        eventsByDate.filter(event => event.activityId === activityId) : 
-        eventsByDate;
-    filteredEvents = filteredEvents.filter(event => event.categoryId === categoryId);
+    let filteredRecords = activityId !== undefined ? 
+        recordsByDate.filter(record => record.activityId === activityId) : 
+        recordsByDate;
+    filteredRecords = filteredRecords.filter(record => record.categoryId === categoryId);
 
-    const tableData = filteredEvents.map(event => ({
-        id: event.id,
-        key: event.id,
-        activity: activities[event.activityId].name,
-        date: getDateString(event.duration.timeStart),
-        duration: getFormmattedDuration(
-            new Date(event.duration.timeStart), 
-            new Date(event.duration.timeEnd)
-        ),
-        timeStart: moment(event.duration.timeStart),
-        timeEnd: moment(event.duration.timeEnd),
+    const tableData = filteredRecords.map(record => ({
+        id: record.id,
+        key: record.id,
+        activity: activities[record.activityId].name,
+        // date: getDateString(record.duration.timeStart),
+        // duration: getFormmattedDuration(
+        //     new Date(record.duration.timeStart), 
+        //     new Date(record.duration.timeEnd)
+        // ),
+        // timeStart: moment(record.duration.timeStart),
+        // timeEnd: moment(record.duration.timeEnd),
     }));
 
     const onUpdate = (row: DataRow) => {
-        updateEvent({
-            id: row.id,
-            duration: {
-                timeStart: row.timeStart.toDate().toISOString(),
-                timeEnd: row.timeEnd.toDate().toISOString()
-            }
-        })
+        // updateEvent({
+        //     id: row.id,
+        //     duration: {
+        //         timeStart: row.timeStart.toDate().toISOString(),
+        //         timeEnd: row.timeEnd.toDate().toISOString()
+        //     }
+        // })
     };
 
     const onDelete = (row: DataRow) => {
-        deleteEvent(row.id);
+        // deleteEvent(row.id);
     };
 
     return (

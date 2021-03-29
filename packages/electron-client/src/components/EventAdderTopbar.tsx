@@ -3,7 +3,7 @@ import { Input, AutoComplete, Row, Col, Card, Button, TimePicker, Form } from 'a
 import { PlayCircleFilled, PauseCircleFilled, CheckCircleFilled } from '@ant-design/icons'
 import { blue } from '@ant-design/colors';
 import moment from "moment";
-import { Category } from "../core";
+import { Category } from "@productivity-tracker/common/lib/schema";
 
 const styles = {
     formItem: {
@@ -169,7 +169,6 @@ export default function EventAdderTopbar(props: EventAdderTopbarProps) {
                                 style={styles.formItem}
                                 name="timeStart"
                                 help={false}
-                                // rules={[{ required: true }]}
                             >
                                 <TimePicker 
                                     style={{ width: '100%', height: '100%' }} 
@@ -183,7 +182,6 @@ export default function EventAdderTopbar(props: EventAdderTopbarProps) {
                                 style={styles.formItem}
                                 name="timeEnd"
                                 help={false}
-                                // rules={[{ required: true }]}
                             >
                                 <TimePicker 
                                     style={{ width: '100%', height: '100%' }} 

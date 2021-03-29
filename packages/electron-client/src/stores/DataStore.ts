@@ -211,7 +211,7 @@ const useDataStore = createStore<IDataStore>((set, get) => ({
                     handleDeleteEvent(state, event.id);
                 }
             }
-            delete state.categories[category.id] ;
+            delete state.categories[category.id];
         });
     },
 

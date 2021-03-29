@@ -5,8 +5,8 @@ import Login from './pages/Login';
 
 export default function App() {
 
-    const [authenticated, setAuthenticated] = useState(false);
-    
+    // Check auth state here 
+
     return (
         <BrowserRouter>
             <Route exact path="/" component={Login}/>

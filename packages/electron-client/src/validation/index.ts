@@ -1,10 +1,6 @@
 import { Activity, Category } from "../core";
 
 
-function checkEmptyString() {
-    return 
-}
-
 export function validateCategory(category: Category, payload: Partial<Category>, categories: Category[]) {
     let errors: any = {};
     if (payload.name !== undefined) {

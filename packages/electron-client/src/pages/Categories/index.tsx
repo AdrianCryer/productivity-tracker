@@ -1,53 +1,48 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Space, Card, Layout, FormInstance, Button, Avatar, Typography } from "antd";
 import { EditOutlined } from '@ant-design/icons';
 import { EditableTabs, PageHeading } from "../../components";
-import { useDataStore } from "../../stores/DataStore";
+import { useRecordStore } from "../../stores/RecordStore";
 import AddActivityPanel from "./AddActivityPanel";
-import DurationTable from "./DurationTable";
-import { Activity } from "../../core";
+import RecordTable from "./RecordTable";
 import DateSelector from "../../components/DateSelector";
 import SettingsModal from "./SettingsModal";
+import { Activity } from "@productivity-tracker/common/lib/schema";
+import { FirebaseContext } from "@productivity-tracker/common/lib/firestore";
 
 const { Text } = Typography;
 
-type CategoriesParams = { categoryId: string };
-
 export default function Categories() {
+    
+    const firebaseHandler = useContext(FirebaseContext);
 
     const [addActivityPanelVisible, setAddActivityPanelVisible] = useState(false);
     const [settingsModalVisible, setSettingsModalVisible] = useState(false);
     const [date, setDate] = useState(new Date());
-    const params = useParams<CategoriesParams>();
-    const categoryId = parseInt(params.categoryId);
-    const category = useDataStore(state => state.categories[categoryId]);
-    const addActivity = useDataStore.getState().addActivity;
 
-    console.log(params)
+    const params = useParams<{ categoryId: string }>();
+    const categoryId = params.categoryId;
+    const category = useRecordStore(state => state.categories[categoryId]);
 
     if (!params.categoryId || !category) {
         return <Layout>Could not load</Layout>;
     }
 
     const activities: Activity[] = Object.values(category.activities);
+    console.log(activities)
     let tabs = activities.map(activity => {
         return {
             title: activity.name,
             content: (
-                <DurationTable 
+                <RecordTable 
                     categoryId={categoryId} 
                     activityId={activity.id} 
                     date={date} 
                 />
             ),
-            key: activity.id.toString(),
+            key: activity.id,
         }
-    });
-    tabs.unshift({
-        title: 'All',
-        content: <DurationTable categoryId={categoryId} date={date} />,
-        key: 'all',
     });
 
     const onAddTab = () => {
@@ -78,7 +73,6 @@ export default function Categories() {
                         />
                         <Text>{category.name}</Text>
                     </div>} 
-                    // subTitle="Your collection of projects to track"
                     extra={
                         <Button 
                             type="text" 
@@ -104,7 +98,7 @@ export default function Categories() {
             </Space>
             <AddActivityPanel 
                 visible={addActivityPanelVisible}
-                handleOk={(form: FormInstance) => {
+                handleOk={async (form: FormInstance) => {
                     const name = form.getFieldValue('name');
                     if (nameAlreadyExists(name)) {
                         form.setFields([{
@@ -112,26 +106,24 @@ export default function Categories() {
                             errors: ['Activity name already exists']
                         }]);
                     } else {
-                        let insertId = Object.keys(category.activities).length;
-                        while (insertId in category.activities) {
-                            insertId++;
-                        }
-                        addActivity(categoryId, {
-                            id: insertId,
+                        await firebaseHandler.createActivity(categoryId, {
+                            name,
                             dateAdded: (new Date()).toISOString(),
-                            name: name
+                            schema: {
+                                type: 'Duration'
+                            }
                         });
                         setAddActivityPanelVisible(false);
                     }
                 }}
                 handleCancel={() => setAddActivityPanelVisible(false)}
             />
-            <SettingsModal 
+            {/* <SettingsModal 
                 category={category}
                 visible={settingsModalVisible}
                 handleOk={() => setSettingsModalVisible(false)}
                 handleCancel={() => setSettingsModalVisible(false)}
-            />
+            /> */}
         </>
     );
 }

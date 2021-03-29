@@ -7,33 +7,37 @@ import CategoriesPage from '../Categories';
 import { EventAdderTopbar, Page } from '../../components';
 import { Button, Layout, FormInstance } from 'antd';
 import { DoubleLeftOutlined, DoubleRightOutlined } from '@ant-design/icons';
-import 'antd/dist/antd.css';
 import "./index.css"
 import { useDataStore } from '../../stores/DataStore';
+import { useRecordStore } from '../../stores/RecordStore';
 import AddCategoryModal from '../AddCategory';
 import SideNav from './SideNav';
 import { FirebaseContext } from '@productivity-tracker/common/lib/firestore';
 
 const { Sider } = Layout;
-
-/**
- * Set initial data for testing
- */
-
 const MENU_WIDTH = 256;
+
 
 export default function Main({ match }: RouteComponentProps<{}>) {
 
     const firebaseHandler = useContext(FirebaseContext);
     const [collapsed, setCollapsed] = useState(false);
     const [addCategoryVisible, setAddCategoryVisible] = useState(false);
-    const categories = useDataStore(state => state.categories);
     const { addEvent, addCategory } = useDataStore.getState();
+    const { 
+        _modifyCategoriesBatch,
+        _modifyActivitiesBatch
+    } = useRecordStore.getState();
+    const categories = useRecordStore(state => state.categories);
 
     useEffect(() => {
-        const listener = firebaseHandler.listenForCategoryUpdates(() => {});
+        const unsubCategories = firebaseHandler.listenForCategoryUpdates(_modifyCategoriesBatch);
+        const unsubActivities = firebaseHandler.listenForActivityUpdates(_modifyActivitiesBatch);
 
-        return listener;
+        return () => {
+            unsubCategories();
+            unsubActivities();
+        };
     }, [firebaseHandler]);
     
     console.log('rerenderd app')
