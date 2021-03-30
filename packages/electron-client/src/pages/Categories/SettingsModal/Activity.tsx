@@ -40,19 +40,20 @@ const ActivitySettings: React.FC<ActivitySettingsProps> = (props) => {
     const [form] = Form.useForm();
     
     const activityEventCount = Object.keys(recordsByActivity).length;
-
+    
     useResetFormOnHide({ 
         form, 
         visible: props.visible, 
         defaultValues: {
             name: props.activity.name,
-        }
-    });
+        },
+        currentValues: partial
+    }, [props.activity]);
 
     useModalButton({
         visible: props.visible,
         onUpdate: async () => {
-            await firebaseHandler.editActivity(props.categoryId, {
+            firebaseHandler.editActivity(props.categoryId, {
                 id: props.activity.id,
                 ...partial
             });

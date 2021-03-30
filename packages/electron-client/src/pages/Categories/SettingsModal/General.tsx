@@ -37,7 +37,8 @@ const General: React.FC<GeneralProps> = (props) => {
         defaultValues: {
             name: props.category.name,
             colour: props.category.colour
-        }
+        },
+        currentValues: partial
     }, [props.category]);
 
     useModalButton({
