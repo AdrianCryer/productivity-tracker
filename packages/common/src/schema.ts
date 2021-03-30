@@ -10,12 +10,12 @@ export interface Category {
     id: string;
     name: string;
     dateAdded: string;
-    activities: { [id: string]: Activity };
     colour: string;
 };
 
 export interface Activity {
     id: string;
+    categoryId: string;
     name: string;
     dateAdded: string;
     schema: RecordSchema;
@@ -39,20 +39,19 @@ export type RecordSchema = {
 
 export type Indexed<T> = { [id: string]: T };
 
-export type PartialCategory = Partial<Omit<Category, 'activities'>> & Pick<Category, 'id'>;
+export type PartialCategory = Partial<Category> & Pick<Category, 'id'>;
 export type PartialActivity = Partial<Activity> & Pick<Activity, 'id'>;
 export type PartialDataRecord = Partial<DataRecord> & Pick<DataRecord, 'id'>;
 
 export type OnBatchCategoryChange = (
     updates: {
-        category: Omit<Category, 'activities'>, 
+        category: Category, 
         action: firebase.firestore.DocumentChangeType
     }[]
 ) => void;
 
 export type OnBatchActivitiesChange = (
     updates: {
-        categoryId: string, 
         activity: Activity, 
         action: firebase.firestore.DocumentChangeType
     }[]

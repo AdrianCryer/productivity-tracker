@@ -11,14 +11,14 @@ type SafeDeleteModalProps = {
     loading?: boolean;
     categoryId: string;
     activity: Activity;
+    allActivities: Activity[];
     onCancel: () => void;
     onMerge: (activityId: string) => void;
 };
 
 const SafeDeleteModal = (props: SafeDeleteModalProps) => {
 
-    const activities = useRecordStore(state => state.categories[props.categoryId].activities);
-    const validActivities = Object.values(activities).filter(a => a.id !== props.activity.id);
+    const validActivities = Object.values(props.allActivities).filter(a => a.id !== props.activity.id);
     const [mergeActivityId, setMergeActivityId] = useState<string>('');
     
     const mergeOptions = validActivities.map(activity => (

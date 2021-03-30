@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Space, Card, Layout, FormInstance, Button, Avatar, Typography } from "antd";
 import { EditOutlined } from '@ant-design/icons';
@@ -10,10 +10,11 @@ import DateSelector from "../../components/DateSelector";
 import SettingsModal from "./SettingsModal";
 import { Activity } from "@productivity-tracker/common/lib/schema";
 import { FirebaseContext } from "@productivity-tracker/common/lib/firestore";
+import shallow from 'zustand/shallow'
 
 const { Text } = Typography;
 
-export default function Categories() {
+export function Categories() {
     
     const firebaseHandler = useContext(FirebaseContext);
 
@@ -23,13 +24,24 @@ export default function Categories() {
 
     const params = useParams<{ categoryId: string }>();
     const categoryId = params.categoryId;
-    const category = useRecordStore(state => state.categories[categoryId]);
+
+    const category = useRecordStore(
+        useCallback(
+            state => state.categories[categoryId],
+            [categoryId]
+        )
+    );
+    const activities = useRecordStore(
+        useCallback(
+            state => state.getActivities(categoryId), 
+            [categoryId]
+        )
+    );
 
     if (!params.categoryId || !category) {
         return <Layout>Could not load</Layout>;
     }
 
-    const activities: Activity[] = Object.values(category.activities);
     let tabs = activities.map(activity => {
         return {
             title: activity.name,
@@ -43,7 +55,6 @@ export default function Categories() {
             key: activity.id,
         }
     });
-    console.log(category.activities)
 
     const onAddTab = () => {
         setAddActivityPanelVisible(true);
@@ -108,6 +119,7 @@ export default function Categories() {
                     } else {
                         await firebaseHandler.createActivity(categoryId, {
                             name,
+                            categoryId,
                             dateAdded: (new Date()).toISOString(),
                             schema: {
                                 type: 'Duration'
@@ -120,6 +132,7 @@ export default function Categories() {
             />
             <SettingsModal 
                 category={category}
+                activities={activities}
                 visible={settingsModalVisible}
                 handleOk={() => setSettingsModalVisible(false)}
                 handleCancel={() => setSettingsModalVisible(false)}
@@ -127,3 +140,5 @@ export default function Categories() {
         </>
     );
 }
+
+export default React.memo(Categories);

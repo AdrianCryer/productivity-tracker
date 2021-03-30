@@ -103,6 +103,8 @@ class Firebase {
      */
     removeCategory = async (category: Category | string) => {
         const id = typeof category === 'string' ? category : category.id;
+
+        // Whole thing should be batched.
         await this.getCategories().doc(id).delete();
         
         /** Delete activities */
@@ -132,10 +134,7 @@ class Firebase {
             throw new Error(`Activity name '${activity.name}' already exists`);
         }
 
-        return this.getActivities().add({
-            categoryId,
-            ...activity
-        });
+        return this.getActivities().add(activity);
     }
 
     editActivity = async (categoryId: string, activity: PartialActivity) => {
@@ -148,7 +147,7 @@ class Firebase {
     }
 
     mergeAndRemoveActivity = async (categoryId: string, activity: Activity, mergeToActivityId: string) => {
-        
+
     }
 
     createRecord = async () => {
@@ -167,7 +166,7 @@ class Firebase {
         return this.getCategories().onSnapshot(snap => {
             const changes = snap.docChanges().map(change => ({
                 category: {
-                    ...change.doc.data() as Omit<Category, 'activities' | 'id'>,
+                    ...change.doc.data() as Omit<Category,'id'>,
                     id: change.doc.id
                 },
                 action: change.type
@@ -179,11 +178,10 @@ class Firebase {
     listenForActivityUpdates = (onChange: OnBatchActivitiesChange) => {
         return this.getActivities().onSnapshot(snap => {
             const changes = snap.docChanges().map(change => {
-                const { categoryId, ...activity } = change.doc.data();
+                console.log(change.doc.data())
                 return {
-                    categoryId, 
                     activity: {
-                        ...activity,
+                        ...change.doc.data() as Activity,
                         id: change.doc.id
                     } as Activity, 
                     action: change.type

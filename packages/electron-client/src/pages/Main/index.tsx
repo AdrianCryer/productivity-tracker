@@ -3,29 +3,25 @@ import { Route, RouteComponentProps } from 'react-router-dom';
 import HomePage from '../Home';
 import SettingsPage from '../Settings';
 import CategoriesPage from '../Categories';
-import { EventAdderTopbar, Page } from '../../components';
+import { Page } from '../../components';
 import { Button, Layout, FormInstance } from 'antd';
-import { DoubleLeftOutlined, DoubleRightOutlined } from '@ant-design/icons';
-import { useRecordStore } from '../../stores/RecordStore';
-import AddCategoryModal from '../AddCategory';
+import { IRecordStore, useRecordStore } from '../../stores/RecordStore';
+import AddCategoryModal from '../AddCategoryModal';
 import SideNav from './SideNav';
 import { FirebaseContext } from '@productivity-tracker/common/lib/firestore';
 import "./index.css"
+import EventAdderTopbar from './EventAdderTopbar';
 
-const { Sider } = Layout;
 const MENU_WIDTH = 256;
-
 
 export default function Main({ match }: RouteComponentProps<{}>) {
 
     const firebaseHandler = useContext(FirebaseContext);
-    const [collapsed, setCollapsed] = useState(false);
     const [addCategoryVisible, setAddCategoryVisible] = useState(false);
     const { 
         _modifyCategoriesBatch,
         _modifyActivitiesBatch
     } = useRecordStore.getState();
-    const categories = useRecordStore(state => state.categories);
 
     useEffect(() => {
         const unsubCategories = firebaseHandler.listenForCategoryUpdates(_modifyCategoriesBatch);
@@ -40,41 +36,13 @@ export default function Main({ match }: RouteComponentProps<{}>) {
     console.log('rerenderd app')
     return (
         <Layout className="layout-background">
-            <Sider
-                className="layout-sider"
+            <SideNav 
                 width={MENU_WIDTH}
-                collapsible
-                collapsed={collapsed}
-                trigger={null}
-            >
-                <Button
-                    type="primary"
-                    onClick={() => setCollapsed(open => !open)}
-                    style={{ width: '100%', height: 32 }}
-                >
-                    {React.createElement(collapsed ? DoubleRightOutlined : DoubleLeftOutlined)}
-                </Button>
-                <SideNav 
-                    mountPath={match.path}
-                    categories={Object.values(categories)}
-                    onAddActivity={() => setAddCategoryVisible(true)} 
-                />
-            </Sider>
+                mountPath={match.path}
+                onAddCategory={() => setAddCategoryVisible(true)} 
+            />
             <Layout> 
-                <EventAdderTopbar 
-                    categories={categories}
-                    onAddEntry={data => {
-                        // addEvent(
-                        //     data.categoryId,
-                        //     data.activityId,
-                        //     { 
-                        //         timeStart: data.timeStart, 
-                        //         timeEnd: data.timeEnd 
-                        //     }
-                        // );
-                    }}
-                
-                />
+                <EventAdderTopbar />
                 <Layout className="content">
                     <Route
                         path={match.path}
@@ -97,8 +65,8 @@ export default function Main({ match }: RouteComponentProps<{}>) {
                     <Route
                         path={`${match.path}/categories/:categoryId`}
                         exact
-                        render={(props) => (
-                            <Page {...props} title="Categories">
+                        render={() => (
+                            <Page title="Categories">
                                 <CategoriesPage />
                             </Page>
                         )}
@@ -108,22 +76,7 @@ export default function Main({ match }: RouteComponentProps<{}>) {
             <AddCategoryModal 
                 visible={addCategoryVisible}
                 handleCancel={() => setAddCategoryVisible(false)}
-                handleOk={async (form: FormInstance) => {
-                    const name = form.getFieldValue('name');
-                    if (Object.values(categories).find(c => c.name === name)) {
-                        form.setFields([{
-                            name: 'name',
-                            errors: ['Category name already exists']
-                        }]);
-                    } else {
-                        await firebaseHandler.createCategory({
-                            dateAdded: (new Date()).toISOString(),
-                            name: name,
-                            colour: "#000019"
-                        });
-                        setAddCategoryVisible(false);
-                    }
-                }}
+                handleOk={() => setAddCategoryVisible(false)}
             />
         </Layout>
     );

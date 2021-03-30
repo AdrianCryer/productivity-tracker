@@ -4,6 +4,7 @@ import { State } from 'zustand';
 import { createStore } from "./Store";
 import { Indexed,
     Category,
+    Activity,
     DataRecord,
     OnBatchCategoryChange,
     OnBatchActivitiesChange 
@@ -13,6 +14,7 @@ import { Indexed,
 export interface IRecordStore extends State {
     /** PERSISTED STATE */
     categories: Indexed<Category>;
+    activities: Indexed<Activity>;
     records: Indexed<DataRecord>;
 
     /** DERIVED STATE */
@@ -26,7 +28,13 @@ export interface IRecordStore extends State {
     getRecordsByDate: (date: Date) => DataRecord[];
     getRecordsByDateString: (dateString: string) => DataRecord[];
     getRecordsByActivity: (categoryId: string, activityId: string) => DataRecord[];
+    getActivities: (categoryId: string) => Activity[];
+    getActivitiesIndexed: (categoryId: string) => Indexed<Activity>;
 };
+
+
+export const activitiesSelector = (state: IRecordStore) => state.activities;
+export const categoriesSelector = (state: IRecordStore) => state.categories;
 
 const storageKey = "productivity-tracker-storage";
 const storage = new ElectronStore<IRecordStore>();
@@ -47,6 +55,7 @@ const persistOptions = {
  */
 const useRecordStore = createStore<IRecordStore>((set, get) => ({
     categories: {},
+    activities: {},
     records: {},
     recordsByActivity: {},
     recordsByDate: {},
@@ -56,14 +65,7 @@ const useRecordStore = createStore<IRecordStore>((set, get) => ({
             for (let { category, action } of updates) {
 
                 if (action === 'added') {
-                    let activities = {};
-                    if (category.id in state.categories) {
-                        activities = state.categories[category.id].activities;
-                    }
-                    state.categories[category.id] = {
-                        ...category,
-                        activities
-                    };
+                    state.categories[category.id] = category;
                 } else if (action === 'modified') {
                     state.categories[category.id] = {
                         ...state.categories[category.id],
@@ -85,30 +87,24 @@ const useRecordStore = createStore<IRecordStore>((set, get) => ({
     },
 
     _modifyActivitiesBatch(updates) {
+        console.log("Updated activities");
         set(state => {
-            for (let { categoryId, activity, action } of updates) {
-                
-                /**
-                 * What happens if a category and activity is created at the
-                 * same time? Race condition which may break internal state.
-                 * 
-                 * @todo
-                 */
-                let category = state.categories[categoryId];
-
+            for (let { activity, action } of updates) {
                 if (action === 'added' || action === 'modified') {
                     // Should check schema 
-                    category.activities[activity.id] = activity;
+                    state.activities[activity.id] = activity;
+
                 } else if (action === 'removed') {
-                    if (!(activity.id in category.activities)) 
+                    if (!(activity.id in state.activities)) 
                         continue;
 
                     for (let record of Object.values(state.records)) {
-                        if (record.categoryId === categoryId && record.activityId === activity.id) {
+                        if (record.categoryId === activity.categoryId && 
+                            record.activityId === activity.id) {
                             handleDeleteRecord(state, record);
                         }
                     }
-                    delete state.categories[categoryId].activities[activity.id];
+                    delete state.activities[activity.id];
                 }
             }
         });
@@ -139,6 +135,16 @@ const useRecordStore = createStore<IRecordStore>((set, get) => ({
         }
         return get().recordsByActivity[key]
                     .map((id: string) => get().records[id]);
+    },
+
+    getActivities(categoryId: string) {
+        console.log(get().activities);
+        return Object.values(get().activities).filter(a => a.categoryId === categoryId);
+    },
+
+    getActivitiesIndexed(categoryId) {
+        return this.getActivities(categoryId)
+                   .reduce((res: Indexed<Activity>, act: Activity) =>  (res[act.id] = act, res), {})
     }
 
 }), persistOptions);

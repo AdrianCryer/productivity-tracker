@@ -2,10 +2,10 @@ import { CSSProperties, useEffect, useState } from "react";
 import { Col, Menu, Modal, Row, Typography } from "antd";
 import { ExclamationCircleOutlined } from "@ant-design/icons";
 import { ModalButtonContext, UpdateFunctionRef } from "../../../hooks/useModalButton";
-import { Category } from "@productivity-tracker/common/lib/schema";
+import { Category, Activity } from "@productivity-tracker/common/lib/schema";
 import General from "./General";
 import Integrations from "./Integrations";
-import Activity from "./Activity";
+import ActivityPage from "./Activity";
 
 const { Text } = Typography;
 
@@ -26,6 +26,7 @@ const styles: {[key: string]: CSSProperties} = {
 
 type SettingsModalProps = {
     category: Category;
+    activities: Activity[];
     visible: boolean;
     handleOk: () => void;
     handleCancel: () => void;
@@ -45,7 +46,7 @@ export default function SettingsModal(props: SettingsModalProps) {
         if (pages.findIndex(page => page.name === currentPage) < 0) {
             setCurrentPage(DEFAULT_PAGE);
         }
-    }, [props.category])
+    }, [props.category]);
 
     const changePage = (pageName: string) => {
         if (pageName === currentPage)
@@ -96,13 +97,14 @@ export default function SettingsModal(props: SettingsModalProps) {
             name: "Integrations",
             component: <Integrations visible={currentPage === "Integrations"} />
         },
-        ...Object.values(props.category.activities).map(activity => ({
+        ...Object.values(props.activities).map(activity => ({
             name: "Activity " + activity.id,
             component: (
-                <Activity
+                <ActivityPage
                     key={activity.id}
                     visible={currentPage === "Activity " + activity.id}
                     activity={activity}
+                    allActivities={props.activities}
                     onRequiresUpdate={val => setRequiresUpdate(val)}
                     categoryId={props.category.id}
                 />
@@ -117,7 +119,7 @@ export default function SettingsModal(props: SettingsModalProps) {
         </Menu.Item>
     ));
 
-    const menuActivities = Object.values(props.category.activities).map(activity => (
+    const menuActivities = Object.values(props.activities).map(activity => (
         <Menu.Item 
             key={"Activity " + activity.id} 
             onClick={() => changePage("Activity " + activity.id)}

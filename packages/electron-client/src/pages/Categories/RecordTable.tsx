@@ -103,7 +103,7 @@ export default function RecordTable({ categoryId, activityId, date }: RecordTabl
     const firebaseHandler = useContext(FirebaseContext);
 
     const { updateRecord, deleteRecord } = useRecordStore.getState();
-    const activity = useRecordStore(state => state.categories[categoryId].activities[activityId]);
+    const activity = useRecordStore(state => state.activities[activityId]);
     const recordsByDate = useRecordStore(state => state.getRecordsByDate(date));
 
     let filteredRecords = activityId !== undefined ? 

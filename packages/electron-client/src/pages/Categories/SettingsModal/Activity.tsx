@@ -21,6 +21,7 @@ type ActivitySettingsProps = {
     visible: boolean;
     onRequiresUpdate: (val: boolean) => void;
     activity: Activity;
+    allActivities: Activity[];
     categoryId: string;
 };
 
@@ -148,6 +149,7 @@ const ActivitySettings: React.FC<ActivitySettingsProps> = (props) => {
                 visible={showSafeDeleteModal}
                 categoryId={props.categoryId}
                 activity={props.activity}
+                allActivities={props.allActivities}
                 onCancel={() => setShowSafeDeleteModal(false)}
                 onMerge={handleMergeAndDelete}
             />

@@ -3,7 +3,12 @@ import { Input, AutoComplete, Row, Col, Card, Button, TimePicker, Form } from 'a
 import { PlayCircleFilled, PauseCircleFilled, CheckCircleFilled } from '@ant-design/icons'
 import { blue } from '@ant-design/colors';
 import moment from "moment";
-import { Category } from "@productivity-tracker/common/lib/schema";
+import { Category, Activity, Indexed } from "@productivity-tracker/common/lib/schema";
+import { 
+    activitiesSelector, 
+    categoriesSelector, 
+    useRecordStore 
+} from "../../stores/RecordStore";
 
 const styles = {
     formItem: {
@@ -27,18 +32,17 @@ const styles = {
 }
 
 type ButtonStatus = 'Startable' | 'Stoppable' |  'CanAdd'; 
-type EventAdderTopbarProps = {
-    categories: { [id: number]: Category };
-    onAddEntry(formData: any): void;
-};
 
-export default function EventAdderTopbar(props: EventAdderTopbarProps) {
+export default function EventAdderTopbar() {
 
     const [form] = Form.useForm();
     const [, forceUpdate] = useState({});
     const [buttonStatus, setButtonStatus] = useState<ButtonStatus>('Startable');
     const [activityValid, setActivityValid] = useState(false);
     const [activityError, setActivityError] = useState(false);
+
+    const categories = useRecordStore(categoriesSelector);
+    const activities = useRecordStore(activitiesSelector);
     
     // Disable submit button at the beginning.
     useEffect(() => {
@@ -89,11 +93,11 @@ export default function EventAdderTopbar(props: EventAdderTopbarProps) {
 
     const handleAddEvent = (payload: any) => {
         console.log("Submitted ", payload)
-        props.onAddEntry({
-            ...optionsReverseMap[payload.activity],
-            timeStart: payload.timeStart.toDate().toISOString(),
-            timeEnd: payload.timeEnd.toDate().toISOString(),
-        });
+        // props.onAddEntry({
+        //     ...optionsReverseMap[payload.activity],
+        //     timeStart: payload.timeStart.toDate().toISOString(),
+        //     timeEnd: payload.timeEnd.toDate().toISOString(),
+        // });
         form.resetFields(['timeStart', 'timeEnd']);
         setButtonStatus(getButtonStatus())
     }
@@ -103,9 +107,9 @@ export default function EventAdderTopbar(props: EventAdderTopbarProps) {
         let reverseMap: any = [];
         let options: any = [];
 
-        for (let category of Object.values(props.categories)) {
+        for (let category of Object.values(categories)) {
             let group = [];
-            for (let activity of Object.values(category.activities)) {
+            for (let activity of Object.values(activities)) {
                 const key = `${category.name}  |  ${activity.name}`;
                 group.push({
                     value: key,
@@ -118,7 +122,7 @@ export default function EventAdderTopbar(props: EventAdderTopbarProps) {
 
         return [options, reverseMap];
 
-    }, [props.categories])
+    }, [categories]);
 
 
     return (
