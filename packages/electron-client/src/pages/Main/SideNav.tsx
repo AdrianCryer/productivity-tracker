@@ -10,7 +10,6 @@ import {
     DoubleLeftOutlined,
     DoubleRightOutlined
 } from '@ant-design/icons';
-import { Category } from "@productivity-tracker/common/lib/schema";
 import { useState } from "react";
 import { categoriesSelector, useRecordStore } from "../../stores/RecordStore";
 

@@ -78,7 +78,7 @@ class Firebase {
         return this.getUser().collection('records');
     }
     
-    createCategory = async (category: Omit<Category, 'id' | 'activities'>) => {
+    createCategory = async (category: Omit<Category, 'id'>) => {
 
         // Check category name first.
         const categories = await this.getCategories().get();
@@ -86,14 +86,16 @@ class Firebase {
             throw new Error(`Category name '${category.name}' already exists`);
         }
 
-        return this.getCategories().add({
+        let id = this.getCategories().doc().id;
+        this.getCategories().doc(id).set({
             name: category.name,
             dateAdded: category.dateAdded,
             colour: category.colour
         });
+        return id;
     }
 
-    editCategory = async (category: Omit<PartialCategory, 'activities'>) => {
+    editCategory = async (category: PartialCategory) => {
         const { id, ...params } = category;
         return this.getCategories().doc(id).update({ ...params });
     }

@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Route, RouteComponentProps } from 'react-router-dom';
+import { Route, RouteComponentProps, useHistory } from 'react-router-dom';
 import HomePage from '../Home';
 import SettingsPage from '../Settings';
 import CategoriesPage from '../Categories';
@@ -9,8 +9,8 @@ import { IRecordStore, useRecordStore } from '../../stores/RecordStore';
 import AddCategoryModal from '../AddCategoryModal';
 import SideNav from './SideNav';
 import { FirebaseContext } from '@productivity-tracker/common/lib/firestore';
-import "./index.css"
 import EventAdderTopbar from './EventAdderTopbar';
+import "./index.css"
 
 const MENU_WIDTH = 256;
 
@@ -22,7 +22,8 @@ export default function Main({ match }: RouteComponentProps<{}>) {
         _modifyCategoriesBatch,
         _modifyActivitiesBatch
     } = useRecordStore.getState();
-
+    const history = useHistory();
+    
     useEffect(() => {
         const unsubCategories = firebaseHandler.listenForCategoryUpdates(_modifyCategoriesBatch);
         const unsubActivities = firebaseHandler.listenForActivityUpdates(_modifyActivitiesBatch);
@@ -76,7 +77,10 @@ export default function Main({ match }: RouteComponentProps<{}>) {
             <AddCategoryModal 
                 visible={addCategoryVisible}
                 handleCancel={() => setAddCategoryVisible(false)}
-                handleOk={() => setAddCategoryVisible(false)}
+                handleOk={(id) => {
+                    setAddCategoryVisible(false);
+                    history.push(`${match.path}/categories/${id}`)
+                }}
             />
         </Layout>
     );

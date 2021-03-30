@@ -41,13 +41,13 @@ const storage = new ElectronStore<IRecordStore>();
 
 const persistOptions = {
     name: storageKey,
-    getStorage: () => ({
-        getItem: (name: string) => {
-            const res = storage.get(name);
-            return typeof res === 'string' ? res : null;
-        },
-        setItem: (name: string, value: string) => { storage.set(name, value) }
-    }),
+    // getStorage: () => ({
+    //     getItem: (name: string) => {
+    //         const res = storage.get(name);
+    //         return typeof res === 'string' ? res : null;
+    //     },
+    //     setItem: (name: string, value: string) => { storage.set(name, value) }
+    // }),
 };
 
 /**
@@ -61,6 +61,7 @@ const useRecordStore = createStore<IRecordStore>((set, get) => ({
     recordsByDate: {},
 
     _modifyCategoriesBatch(updates) {
+        console.log(updates);
         set(state => {
             for (let { category, action } of updates) {
 
@@ -87,7 +88,6 @@ const useRecordStore = createStore<IRecordStore>((set, get) => ({
     },
 
     _modifyActivitiesBatch(updates) {
-        console.log("Updated activities");
         set(state => {
             for (let { activity, action } of updates) {
                 if (action === 'added' || action === 'modified') {
@@ -138,7 +138,6 @@ const useRecordStore = createStore<IRecordStore>((set, get) => ({
     },
 
     getActivities(categoryId: string) {
-        console.log(get().activities);
         return Object.values(get().activities).filter(a => a.categoryId === categoryId);
     },
 
