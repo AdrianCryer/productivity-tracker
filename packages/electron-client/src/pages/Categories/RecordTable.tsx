@@ -5,6 +5,7 @@ import EditableTable, { DataColumn, DataRow } from "../../components/EditableTab
 import { getFormmattedDuration } from "../../core/helpers";
 import { useRecordStore } from "../../stores/RecordStore";
 import { 
+    Activity,
     ColumnDescription, 
     DataRecord,
     Duration,
@@ -92,19 +93,19 @@ function mapRecordToColumn(record: DataRecord, schema: RecordSchema) {
 }
 
 type RecordTableProps = { 
-    categoryId: string; 
-    activityId: string, 
-    date: Date 
+    activity: Activity;
+    date: Date;
 };
 
-export default function RecordTable({ categoryId, activityId, date }: RecordTableProps) {
+export default function RecordTable({ activity, date }: RecordTableProps) {
 
     // Grab the firebase context
     const firebaseHandler = useContext(FirebaseContext);
-
     const { updateRecord, deleteRecord } = useRecordStore.getState();
-    const activity = useRecordStore(state => state.activities[activityId]);
+    // const activity = useRecordStore(state => state.activities[activityId]);
     const recordsByDate = useRecordStore(state => state.getRecordsByDate(date));
+    const activityId = activity.id;
+    const categoryId = activity.categoryId;
 
     let filteredRecords = activityId !== undefined ? 
         recordsByDate.filter(record => record.activityId === activityId) : 

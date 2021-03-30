@@ -1,4 +1,4 @@
-import { CSSProperties, useEffect, useState } from "react";
+import { CSSProperties, useCallback, useEffect, useState } from "react";
 import { Col, Menu, Modal, Row, Typography } from "antd";
 import { ExclamationCircleOutlined } from "@ant-design/icons";
 import { ModalButtonContext, UpdateFunctionRef } from "../../../hooks/useModalButton";
@@ -23,6 +23,8 @@ const styles: {[key: string]: CSSProperties} = {
         overflow: 'auto'
     }
 };
+
+type SettingsModalPage = { name: string; component: JSX.Element; noMenu?: boolean };
 
 type SettingsModalProps = {
     category: Category;
@@ -82,15 +84,16 @@ export default function SettingsModal(props: SettingsModalProps) {
         }
     }
 
-    const pages: { name: string; component: JSX.Element; noMenu?: boolean }[] = [
+    const onRequiresUpdate = useCallback((val: boolean) => setRequiresUpdate(val), []);
+
+    const pages: SettingsModalPage[] = [
         {
             name: "General",
             component: (
                 <General
                     visible={currentPage === "General"}
                     category={props.category}
-                    activities={props.activities}
-                    onRequiresUpdate={val => setRequiresUpdate(val)}
+                    onRequiresUpdate={onRequiresUpdate}
                 />
             )
         },
@@ -106,7 +109,7 @@ export default function SettingsModal(props: SettingsModalProps) {
                     visible={currentPage === "Activity " + activity.id}
                     activity={activity}
                     allActivities={props.activities}
-                    onRequiresUpdate={val => setRequiresUpdate(val)}
+                    onRequiresUpdate={onRequiresUpdate}
                     categoryId={props.category.id}
                 />
             ),

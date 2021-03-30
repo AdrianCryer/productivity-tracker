@@ -40,13 +40,12 @@ export function Categories() {
         return <Layout>Could not load</Layout>;
     }
 
-    let tabs = activities.map(activity => {
+    const tabs = activities.map(activity => {
         return {
             title: activity.name,
             content: (
                 <RecordTable 
-                    categoryId={categoryId} 
-                    activityId={activity.id} 
+                    activity={activity} 
                     date={date} 
                 />
             ),
@@ -115,7 +114,7 @@ export function Categories() {
                             errors: ['Activity name already exists']
                         }]);
                     } else {
-                        await firebaseHandler.createActivity(categoryId, {
+                        firebaseHandler.createActivity(categoryId, {
                             name,
                             categoryId,
                             dateAdded: (new Date()).toISOString(),

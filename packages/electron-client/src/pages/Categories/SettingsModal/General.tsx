@@ -7,6 +7,7 @@ import { useResetFormOnHide } from "../../../hooks/useResetFormOnHide";
 import { validateCategory } from "../../../validation";
 import { FirebaseContext } from "@productivity-tracker/common/lib/firestore";
 import { Activity, Category, PartialCategory } from "@productivity-tracker/common/lib/schema";
+import React from "react";
 
 const { Text } = Typography;
 
@@ -20,7 +21,6 @@ type GeneralProps = {
     visible: boolean;
     onRequiresUpdate: (val: boolean) => void;
     category: Category;
-    activities: Activity[];
 };
 
 const General: React.FC<GeneralProps> = (props) => {
@@ -38,12 +38,12 @@ const General: React.FC<GeneralProps> = (props) => {
             name: props.category.name,
             colour: props.category.colour
         }
-    }, [props.category, props.activities]);
+    }, [props.category]);
 
     useModalButton({
         visible: props.visible,
         onUpdate: async () => {
-            await firebaseHandler.editCategory({
+            firebaseHandler.editCategory({
                 id: props.category.id,
                 ...partial
             });
@@ -121,4 +121,4 @@ const General: React.FC<GeneralProps> = (props) => {
     )
 };
 
-export default General;
+export default React.memo(General);
