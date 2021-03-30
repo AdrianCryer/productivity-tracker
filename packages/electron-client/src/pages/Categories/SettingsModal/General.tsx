@@ -6,7 +6,7 @@ import { useModalButton } from "../../../hooks/useModalButton";
 import { useResetFormOnHide } from "../../../hooks/useResetFormOnHide";
 import { validateCategory } from "../../../validation";
 import { FirebaseContext } from "@productivity-tracker/common/lib/firestore";
-import { Category, PartialCategory } from "@productivity-tracker/common/lib/schema";
+import { Activity, Category, PartialCategory } from "@productivity-tracker/common/lib/schema";
 
 const { Text } = Typography;
 
@@ -20,6 +20,7 @@ type GeneralProps = {
     visible: boolean;
     onRequiresUpdate: (val: boolean) => void;
     category: Category;
+    activities: Activity[];
 };
 
 const General: React.FC<GeneralProps> = (props) => {
@@ -37,7 +38,7 @@ const General: React.FC<GeneralProps> = (props) => {
             name: props.category.name,
             colour: props.category.colour
         }
-    }, [props.category]);
+    }, [props.category, props.activities]);
 
     useModalButton({
         visible: props.visible,
@@ -75,8 +76,8 @@ const General: React.FC<GeneralProps> = (props) => {
     };
 
     const handleDeleteCategory = async () => {
-        await firebaseHandler.removeCategory(props.category);
-        history.push('');
+        firebaseHandler.removeCategory(props.category);
+        history.replace('/user');
     }
 
     return (

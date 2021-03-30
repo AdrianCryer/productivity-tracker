@@ -46,7 +46,7 @@ export default function SettingsModal(props: SettingsModalProps) {
         if (pages.findIndex(page => page.name === currentPage) < 0) {
             setCurrentPage(DEFAULT_PAGE);
         }
-    }, [props.category]);
+    }, [props.category, props.activities]);
 
     const changePage = (pageName: string) => {
         if (pageName === currentPage)
@@ -89,6 +89,7 @@ export default function SettingsModal(props: SettingsModalProps) {
                 <General
                     visible={currentPage === "General"}
                     category={props.category}
+                    activities={props.activities}
                     onRequiresUpdate={val => setRequiresUpdate(val)}
                 />
             )

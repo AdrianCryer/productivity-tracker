@@ -145,7 +145,18 @@ class Firebase {
     }
 
     removeActivity = async (categoryId: string, activity: Activity) => {
-
+        let batch = this.store.batch();
+        batch.delete(this.getActivities().doc(activity.id));
+        this.getRecords()
+            .where('categoryId', '==', categoryId)
+            .where('activityId', '==', activity.id)
+            .get().then(snap => {
+                let batch = this.store.batch();
+                snap.forEach(doc => {
+                    batch.delete(doc.ref);
+                });
+            });
+        batch.commit();
     }
 
     mergeAndRemoveActivity = async (categoryId: string, activity: Activity, mergeToActivityId: string) => {

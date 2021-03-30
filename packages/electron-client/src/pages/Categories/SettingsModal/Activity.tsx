@@ -89,10 +89,11 @@ const ActivitySettings: React.FC<ActivitySettingsProps> = (props) => {
 
     const handleDeleteActivity = async () => {
         // Check events.
+        console.log('deleting', props.activity)
         if (activityEventCount !== 0) {
             setShowSafeDeleteModal(true);
         } else {
-            await firebaseHandler.removeActivity(props.categoryId, props.activity);
+            firebaseHandler.removeActivity(props.categoryId, props.activity);
         }
     };
 

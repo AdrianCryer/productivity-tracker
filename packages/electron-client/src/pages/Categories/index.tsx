@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useState } from "react";
+import React, { useCallback, useContext, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Space, Card, Layout, FormInstance, Button, Avatar, Typography } from "antd";
 import { EditOutlined } from '@ant-design/icons';
@@ -8,9 +8,7 @@ import AddActivityPanel from "./AddActivityPanel";
 import RecordTable from "./RecordTable";
 import DateSelector from "../../components/DateSelector";
 import SettingsModal from "./SettingsModal";
-import { Activity } from "@productivity-tracker/common/lib/schema";
 import { FirebaseContext } from "@productivity-tracker/common/lib/firestore";
-import shallow from 'zustand/shallow'
 
 const { Text } = Typography;
 
