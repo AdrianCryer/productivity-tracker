@@ -1,9 +1,9 @@
-import { useState, useEffect, useMemo } from "react"; 
+import { useState, useEffect, useMemo, useContext } from "react"; 
 import { Input, AutoComplete, Row, Col, Card, Button, TimePicker, Form } from 'antd';
 import { PlayCircleFilled, PauseCircleFilled, CheckCircleFilled } from '@ant-design/icons'
 import { blue } from '@ant-design/colors';
 import moment from "moment";
-import { Category, Activity, Indexed } from "@productivity-tracker/common/lib/schema";
+import { FirebaseContext } from "@productivity-tracker/common/lib/firestore";
 import { 
     activitiesSelector, 
     categoriesSelector, 
@@ -35,6 +35,7 @@ type ButtonStatus = 'Startable' | 'Stoppable' |  'CanAdd';
 
 export default function EventAdderTopbar() {
 
+    const firebaseHandler = useContext(FirebaseContext);
     const [form] = Form.useForm();
     const [, forceUpdate] = useState({});
     const [buttonStatus, setButtonStatus] = useState<ButtonStatus>('Startable');
@@ -92,14 +93,29 @@ export default function EventAdderTopbar() {
     }
 
     const handleAddEvent = (payload: any) => {
+
+        const ownership = optionsReverseMap[payload.activity];
+        if (activities[ownership.activityId].schema.type === 'Duration') {
+            firebaseHandler.createRecord({
+                ...ownership,
+                timeCreated: new Date(),
+                data: {
+                    timeStart: payload.timeStart.toDate(),
+                    timeEnd: payload.timeEnd.toDate(),
+                }
+            });
+        }
+
+        form.resetFields(['timeStart', 'timeEnd']);
+        setButtonStatus(getButtonStatus());
+
         console.log("Submitted ", payload)
         // props.onAddEntry({
         //     ...optionsReverseMap[payload.activity],
         //     timeStart: payload.timeStart.toDate().toISOString(),
         //     timeEnd: payload.timeEnd.toDate().toISOString(),
         // });
-        form.resetFields(['timeStart', 'timeEnd']);
-        setButtonStatus(getButtonStatus())
+        
     }
 
     // Map to reverse the values => category.id, activity.id pair
@@ -206,7 +222,6 @@ export default function EventAdderTopbar() {
                                     onClick={onTimerPress}
                                 />
                             </Form.Item>
-                           
                         </Col>
                     </Row>
                 </Form>

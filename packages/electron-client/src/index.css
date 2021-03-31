@@ -11,3 +11,16 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.layout-background {
+  background-color: #fff;
+}
+
+.layout-sider {
+  background-color: #fff;
+  height: 100vh;
+  position: sticky;
+  overflow: auto;
+  left: 0;
+  top: 0;
+}

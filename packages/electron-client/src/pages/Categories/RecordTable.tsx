@@ -1,22 +1,22 @@
 import { Popconfirm } from "antd";
 import moment from "moment";
-import React, { useContext } from "react";
+import React, { useCallback, useContext } from "react";
 import EditableTable, { DataColumn, DataRow } from "../../components/EditableTable";
 import { getFormmattedDuration } from "../../core/helpers";
 import { useRecordStore } from "../../stores/RecordStore";
 import { 
     Activity,
-    ColumnDescription, 
+    DataRecordDescription, 
     DataRecord,
     Duration,
-    RecordSchema,
+    ActivitySchema,
     TimedString 
 } from "@productivity-tracker/common/lib/schema";
 import { FirebaseContext } from "@productivity-tracker/common/lib/firestore";
 
 
 function generateTableColumns(
-    description: ColumnDescription, isEmpty: boolean, 
+    description: DataRecordDescription, isEmpty: boolean, 
     onDelete: (row: DataRow) => void
 ): DataColumn[] {
 
@@ -72,7 +72,7 @@ function generateTableColumns(
     ]
 }
 
-function mapRecordToColumn(record: DataRecord, schema: RecordSchema) {
+function mapRecordToColumn(record: DataRecord, schema: ActivitySchema) {
     if (schema.type === 'Duration') {
         const data = record.data as Duration;
         return {
@@ -101,17 +101,19 @@ export default function RecordTable({ activity, date }: RecordTableProps) {
 
     // Grab the firebase context
     const firebaseHandler = useContext(FirebaseContext);
-    const { updateRecord, deleteRecord } = useRecordStore.getState();
-    // const activity = useRecordStore(state => state.activities[activityId]);
-    const recordsByDate = useRecordStore(state => state.getRecordsByDate(date));
+    const recordsByDate = useRecordStore(
+        useCallback(
+            state => state.getRecordsByDate(date),
+            [date],
+        )
+    );
     const activityId = activity.id;
-    const categoryId = activity.categoryId;
 
     let filteredRecords = activityId !== undefined ? 
         recordsByDate.filter(record => record.activityId === activityId) : 
         recordsByDate;
-    filteredRecords = filteredRecords.filter(record => record.categoryId === categoryId);
 
+    // Memo this.
     const tableData = filteredRecords.map(record => ({
         id: record.id,
         key: record.id,
@@ -119,19 +121,23 @@ export default function RecordTable({ activity, date }: RecordTableProps) {
         ...mapRecordToColumn(record, activity.schema)
     }));
 
-    const onUpdate = (row: DataRow) => {
-        // updateRecord({
-        //     id: row.id,
-        //     duration: {
-        //         timeStart: row.timeStart.toDate().toISOString(),
-        //         timeEnd: row.timeEnd.toDate().toISOString()
-        //     }
-        // })
+    const onUpdate = async (row: DataRow) => {
+
+        if (activity.schema.type === 'Duration') {
+            firebaseHandler.editRecord({
+                id: row.id,
+                data: {
+                    timeStart: row.timeStart.toDate(),
+                    timeEnd: row.timeEnd.toDate()
+                }
+            })
+        } else {
+            console.log("Can't update yet.. not implemented")
+        }
     };
 
-    const onDelete = (row: DataRow) => {
-        // firebaseHandler.removeRecord(row.id);
-        // deleteRecord(row.id);
+    const onDelete = async (row: DataRow) => {
+        firebaseHandler.removeRecord(row.id);
     };
 
     const columns = generateTableColumns(activity.schema.type, tableData.length > 0, onDelete);
@@ -144,5 +150,4 @@ export default function RecordTable({ activity, date }: RecordTableProps) {
             data={tableData}
         />
     );
-
 }

@@ -7,7 +7,11 @@ import { Indexed,
     Activity,
     DataRecord,
     OnBatchCategoryChange,
-    OnBatchActivitiesChange 
+    OnBatchActivitiesChange, 
+    OnBatchRecordsChange,
+    ActivitySchema,
+    getRelevantTimes,
+    Duration
 } from '@productivity-tracker/common/lib/schema';
 
 
@@ -23,6 +27,7 @@ export interface IRecordStore extends State {
 
     _modifyCategoriesBatch: OnBatchCategoryChange;
     _modifyActivitiesBatch: OnBatchActivitiesChange;
+    _modifyRecordsBatch: OnBatchRecordsChange;
 
     /** INDEXES */
     getRecordsByDate: (date: Date) => DataRecord[];
@@ -31,7 +36,6 @@ export interface IRecordStore extends State {
     getActivities: (categoryId: string) => Activity[];
     getActivitiesIndexed: (categoryId: string) => Indexed<Activity>;
 };
-
 
 export const activitiesSelector = (state: IRecordStore) => state.activities;
 export const categoriesSelector = (state: IRecordStore) => state.categories;
@@ -49,6 +53,8 @@ const persistOptions = {
     //     setItem: (name: string, value: string) => { storage.set(name, value) }
     // }),
 };
+
+
 
 /**
  * Store configurations
@@ -77,8 +83,9 @@ const useRecordStore = createStore<IRecordStore>((set, get) => ({
                         continue;
                     // Remove all records within category
                     for (let record of Object.values(state.records)) {
-                        if (record.categoryId === category.id) {
-                            handleDeleteRecord(state, record);
+                        const activity = get().activities[record.activityId];
+                        if (activity.categoryId === category.id) {
+                            handleDeleteRecord(state, record, activity.schema);
                         }
                     }
                     delete state.categories[category.id];
@@ -99,9 +106,9 @@ const useRecordStore = createStore<IRecordStore>((set, get) => ({
                         continue;
 
                     for (let record of Object.values(state.records)) {
-                        if (record.categoryId === activity.categoryId && 
-                            record.activityId === activity.id) {
-                            handleDeleteRecord(state, record);
+                        if (record.activityId === activity.id) {
+                            const activity = get().activities[record.activityId];
+                            handleDeleteRecord(state, record, activity.schema);
                         }
                     }
                     delete state.activities[activity.id];
@@ -109,6 +116,32 @@ const useRecordStore = createStore<IRecordStore>((set, get) => ({
             }
         });
     },    
+
+    _modifyRecordsBatch(updates) {
+        set(state => {
+            for (let { record, action } of updates) {
+
+                // Skip record since if it does not belong to a category
+                if (!(record.activityId in state.activities))
+                    continue;
+
+                const schema = state.activities[record.activityId].schema;
+
+                if (action === 'added') {
+                    const parsedRecord = parseRecordFromFirebase(record, schema);
+                    console.log("adding", record)
+                    handleCreateRecord(state, parsedRecord, schema);
+                } else if (action === 'modified') { 
+                    state.records[record.id] = parseRecordFromFirebase(record, schema);
+                } else if (action === 'removed') {
+                    console.log('deleting', record)
+                    if (!(record.id in state.records)) 
+                        continue;
+                    delete state.records[record.id];
+                }
+            }
+        });
+    },
 
     // INDEXES
     getRecordsByDate(date: Date) {
@@ -128,12 +161,11 @@ const useRecordStore = createStore<IRecordStore>((set, get) => ({
                     .map((id: string) => get().records[id]);
     },
 
-    getRecordsByActivity(categoryId: string, activityId: string) {
-        const key = `${categoryId},${activityId}`;
-        if (!(key in get().recordsByActivity)) {
+    getRecordsByActivity(activityId: string) {
+        if (!(activityId in get().recordsByActivity)) {
             return [];
         }
-        return get().recordsByActivity[key]
+        return get().recordsByActivity[activityId]
                     .map((id: string) => get().records[id]);
     },
 
@@ -148,21 +180,75 @@ const useRecordStore = createStore<IRecordStore>((set, get) => ({
 
 }), persistOptions);
 
-function handleDeleteRecord(state: Draft<IRecordStore>, record: DataRecord) {
+function handleDeleteRecord(state: Draft<IRecordStore>, record: DataRecord, schema: ActivitySchema) {
     
-    let key = `${record.categoryId},${record.activityId}`;
+    let key = record.activityId;
     let index = state.recordsByActivity[key].findIndex(rid => rid === record.id);
     state.recordsByActivity[key].splice(index, 1);
 
-    const keys = record.data.getRelevantTimes().map(dateString => 
+    const keys = getRelevantTimes(record.data, schema).map(dateString => 
         (new Date(dateString)).toLocaleDateString()
     );
     for (let k of keys) {
         index = state.recordsByDate[k].findIndex(r => r === record.id);
-        state.recordsByDate[key].splice(index, 1);
+        state.recordsByDate[k].splice(index, 1);
     }
 
     delete state.records[record.id];
+}
+
+function handleCreateRecord(state: Draft<IRecordStore>, record: DataRecord, schema: ActivitySchema) {
+    // console.log(Object.keys(state.recordsByDate).map(ds => [ds, state.recordsByDate[ds].toString()]))
+
+    state.records[record.id] = record;
+
+    if (!state.recordsByActivity[record.activityId]) {
+        state.recordsByActivity[record.activityId] = [];
+    }
+    if (!state.recordsByActivity[record.activityId].includes(record.id))
+        state.recordsByActivity[record.activityId].push(record.id);
+
+    let keys = getRelevantTimes(record.data, schema).map(dateString => 
+        (new Date(dateString)).toLocaleDateString()
+    )
+    keys = keys.filter((data, i) => keys.indexOf(data) === i);
+
+    for (let k of keys) {
+        if (!state.recordsByDate[k]) {
+            state.recordsByDate[k] = [];
+        }
+        if (!state.recordsByDate[k].includes(record.id))
+            state.recordsByDate[k].push(record.id);
+    }
+}
+
+function serialiseDate(date: Date) {
+    return date.toISOString();
+}
+
+function parseRecordFromFirebase(
+    record: Omit<DataRecord, 'data'> & { data: any }, 
+    schema: ActivitySchema
+): DataRecord {
+    let data: any;
+    if (schema.type === 'Duration') {
+        data = {
+            timeStart: serialiseDate(record.data.timeStart.toDate()), 
+            timeEnd: serialiseDate(record.data.timeEnd.toDate())
+        } as Duration;
+    } else if (schema.type === 'TimedNumber' || schema.type === 'TimedString') {
+        data = {
+            ...record.data,
+            time: serialiseDate(record.data.time.toDate()),
+        };
+    } else {
+        data = record.data;
+    }
+    return { 
+        ...record, 
+        // timeCreated: serialiseDate(record.timeCreated.toDate()),
+        data 
+    };
 }
 
 export { useRecordStore };

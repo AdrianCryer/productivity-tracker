@@ -101,7 +101,7 @@ const ActivitySettings: React.FC<ActivitySettingsProps> = (props) => {
         if (mergeToId === '') {
             firebaseHandler.removeActivity(props.categoryId, props.activity);
         } else {
-            firebaseHandler.mergeAndRemoveActivity(props.categoryId, props.activity, mergeToId);
+            firebaseHandler.mergeAndRemoveActivity(props.activity, mergeToId);
             // deleteAndMergeActivity(props.categoryId, props.activity, mergeToId);
             // deleteActivity(props.categoryId, props.activity);
 

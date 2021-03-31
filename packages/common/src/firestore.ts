@@ -4,7 +4,7 @@ import 'firebase/auth';
 import 'firebase/database';
 import 'firebase/functions';
 import { createContext } from "react";
-import { Activity, Category, OnBatchActivitiesChange, OnBatchCategoryChange, PartialActivity, PartialCategory } from "./schema";
+import { Activity, Category, DataRecord, OnBatchActivitiesChange, OnBatchCategoryChange, OnBatchRecordsChange, PartialActivity, PartialCategory, PartialDataRecord } from "./schema";
 
 class Firebase {
     auth: firebase.auth.Auth;
@@ -87,11 +87,7 @@ class Firebase {
         }
 
         let id = this.getCategories().doc().id;
-        this.getCategories().doc(id).set({
-            name: category.name,
-            dateAdded: category.dateAdded,
-            colour: category.colour
-        });
+        this.getCategories().doc(id).set(category);
         return id;
     }
 
@@ -141,7 +137,7 @@ class Firebase {
 
     editActivity = async (categoryId: string, activity: PartialActivity) => {
         const { id, ...params } = activity;
-        return this.getActivities().doc(id).update({ ...params });
+        return this.getActivities().doc(id).update(params);
     }
 
     removeActivity = async (categoryId: string, activity: Activity) => {
@@ -159,20 +155,24 @@ class Firebase {
         batch.commit();
     }
 
-    mergeAndRemoveActivity = async (categoryId: string, activity: Activity, mergeToActivityId: string) => {
-
+    mergeAndRemoveActivity = async (activity: Activity, mergeToActivityId: string) => {
+        
     }
 
-    createRecord = async () => {
-
+    createRecord = async (record: Omit<DataRecord, 'id'>) => {
+        // Should really check schema / if it belongs to an activity
+        let id = this.getRecords().doc().id;
+        this.getRecords().doc(id).set(record);
+        return id;
     }
 
-    editRecord = async () => {
-
+    editRecord = async (record: PartialDataRecord) => {
+        const { id, ...params } = record;
+        return this.getRecords().doc(id).update(params);
     }
 
-    removeRecord = async () => {
-
+    removeRecord = async (recordId: string) => {
+        return this.getRecords().doc(recordId).delete();
     }
 
     listenForCategoryUpdates = (onChange: OnBatchCategoryChange) => {
@@ -191,10 +191,9 @@ class Firebase {
     listenForActivityUpdates = (onChange: OnBatchActivitiesChange) => {
         return this.getActivities().onSnapshot(snap => {
             const changes = snap.docChanges().map(change => {
-                console.log(change.doc.data())
                 return {
                     activity: {
-                        ...change.doc.data() as Activity,
+                        ...change.doc.data() as Omit<Activity, 'id'>,
                         id: change.doc.id
                     } as Activity, 
                     action: change.type
@@ -204,8 +203,19 @@ class Firebase {
         });
     }
 
-    listenForRecordUpdates = () => {
-
+    listenForRecordUpdates = (onChange: OnBatchRecordsChange) => {
+        return this.getRecords().onSnapshot(snap => {
+            const changes = snap.docChanges().map(change => {
+                return {
+                    record: {
+                        ...change.doc.data() as Omit<DataRecord, 'id' | 'data'> & { data: any },
+                        id: change.doc.id
+                    } as Omit<DataRecord, 'data'> & { data: any }, 
+                    action: change.type
+                };
+            });
+            onChange(changes);
+        });
     }
 }
 

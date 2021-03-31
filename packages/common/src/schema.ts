@@ -18,22 +18,21 @@ export interface Activity {
     categoryId: string;
     name: string;
     dateAdded: string;
-    schema: RecordSchema;
+    schema: ActivitySchema;
 };
 
 export interface DataRecord {
     id: string;
-    categoryId: string;
     activityId: string;
     timeCreated: string;
-    data: TimedData;
+    data: DataRecordData;
 };
 
-export type Column = Duration | TimedString | TimedNumber;
-export type ColumnDescription = 'Duration' | 'TimedString' | 'TimedNumber';
-export type RecordType = TimedData[];
-export type RecordSchema = {
-    type: ColumnDescription,
+export type DataRecordData = Duration | TimedString | TimedNumber;
+export type DataRecordDescription = 'Duration' | 'TimedString' | 'TimedNumber';
+
+export type ActivitySchema = {
+    type: DataRecordDescription,
     attributes?: any
 };
 
@@ -57,84 +56,54 @@ export type OnBatchActivitiesChange = (
     }[]
 ) => void;
 
-// export function validateRecordType(schema: ColumnDescription[], record: RecordType[]): boolean {
-//     if (schema.length !== record.length) {
-//         return false;
-//     }
-//     for (let i = 0; i < schema.length; i++) {
-//         if (typeof record[i] !== schema[i])
-//             return false;
-//     }
-//     return true;
-// }
+export type OnBatchRecordsChange = (
+    updates: {
+        record: Omit<DataRecord, 'data'> & { data: any }, 
+        action: firebase.firestore.DocumentChangeType
+    }[]
+) => void;
+
+export function getRelevantTimes(data: any, schema: ActivitySchema): string[] {
+    if (schema.type === 'Duration') {
+        const duration = data as Duration;
+        console.log(duration)
+        return [duration.timeStart, duration.timeEnd];
+    } else if (schema.type === 'TimedNumber') {
+        const duration = data as TimedNumber;
+        return [duration.time];
+    } else if (schema.type === 'TimedString') {
+        const duration = data as TimedString;
+        return [duration.time];
+    }
+    return [];
+}
+
 
 /**
  * Primitive Data Types
  */
-export interface TimedData {
-    getRelevantTimes(): string[];
-};
+export type PrimitiveTypes = Duration | string | number;
 
-export class Duration implements TimedData {
+
+export interface Duration {
     timeStart: string;
     timeEnd: string;
-
-    constructor(timeStart: string, timeEnd: string) {
-        this.timeStart = timeStart;
-        this.timeEnd = timeEnd;
-    }
-
-    getRelevantTimes(): string[] {
-        return [this.timeStart, this.timeEnd];
-    }
 };
 
-export class TimedString implements TimedData {
+export interface TimedString {
     time: string;
     value: string;
-
-    constructor(time: string, value: string) {
-        this.time = time;
-        this.value = value;
-    }
-
-    getRelevantTimes(): string[] {
-        return [this.time];
-    }
 };
 
-export class TimedNumber implements TimedData {
+export interface TimedNumber {
     time: string;
     value: number;
     type: 'integer' | 'decimal';
     precision?: number;
-
-    constructor(time: string, value: number, type: 'integer' | 'decimal', precision?: number) {
-        this.time = time;
-        this.value = value;
-        this.type = type;
-        this.precision = precision;
-    }
-
-    getRelevantTimes(): string[] {
-        return [this.time];
-    }
 };
 
-export type PrimitiveTypes = Duration | string | number;
-
-export class TimedCollection implements TimedData {
+export interface TimedCollection {
     time: string;
     collection: PrimitiveTypes[];
     labels: string[];
-
-    constructor(time: string, collection: PrimitiveTypes[], labels: string[]) {
-        this.time = time;
-        this.collection = collection;
-        this.labels = labels;
-    }
-
-    getRelevantTimes(): string[] {
-        return [this.time];
-    }
 }
