@@ -108,10 +108,7 @@ export default function RecordTable({ activity, date }: RecordTableProps) {
         )
     );
     const activityId = activity.id;
-
-    let filteredRecords = activityId !== undefined ? 
-        recordsByDate.filter(record => record.activityId === activityId) : 
-        recordsByDate;
+    let filteredRecords = recordsByDate.filter(record => record.activityId === activityId);
 
     // Memo this.
     const tableData = filteredRecords.map(record => ({

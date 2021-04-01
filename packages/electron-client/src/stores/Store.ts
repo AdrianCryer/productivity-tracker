@@ -13,5 +13,6 @@ export function createStore<T extends State>(
     /** PersistOptions<T> not exported from zustand/middleware :( */
     persistOptions: any
 ) {
-    return create<T>(persist(immer(store), persistOptions));
+    // return create<T>(persist(immer(store), persistOptions));
+    return create<T>(immer(store));
 }

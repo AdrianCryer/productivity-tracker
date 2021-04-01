@@ -121,24 +121,32 @@ export default function EventAdderTopbar() {
     // Map to reverse the values => category.id, activity.id pair
     const [options, optionsReverseMap] = useMemo(() => {
         let reverseMap: any = [];
-        let options: any = [];
 
-        for (let category of Object.values(categories)) {
-            let group = [];
-            for (let activity of Object.values(activities)) {
-                const key = `${category.name}  |  ${activity.name}`;
-                group.push({
-                    value: key,
-                    label: activity.name
-                });
-                reverseMap[key] = { activityId: activity.id, categoryId: category.id };
+        let groups: {
+            [categoryId: string]: { value: string; label: string; }[]
+        } = {};
+        for (let activity of Object.values(activities)) {
+            const category = categories[activity.categoryId];
+            const key = `${category.name}  |  ${activity.name}`;
+
+            if (!(category.id in groups)) {
+                groups[category.id] = [];
             }
-            options.push({ label: category.name, options: group });
+            groups[category.id].push({
+                value: key,
+                label: activity.name
+            });
+            reverseMap[key] = { activityId: activity.id, categoryId: category.id };
         }
+
+        let options = Object.entries(groups).map(([categoryId, group]) => ({
+            label: categories[categoryId].name, 
+            options: group
+        }));
 
         return [options, reverseMap];
 
-    }, [categories]);
+    }, [categories, activities]);
 
 
     return (

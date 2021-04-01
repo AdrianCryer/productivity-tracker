@@ -22,8 +22,8 @@ export interface IRecordStore extends State {
     records: Indexed<DataRecord>;
 
     /** DERIVED STATE */
-    recordsByActivity: { [key: string]: string[] };
-    recordsByDate: { [key: string]: string[] };
+    recordsByActivity: { [key: string]: { [id: string]: boolean } };
+    recordsByDate: { [key: string]: { [id: string]: boolean } };
 
     _modifyCategoriesBatch: OnBatchCategoryChange;
     _modifyActivitiesBatch: OnBatchActivitiesChange;
@@ -45,16 +45,14 @@ const storage = new ElectronStore<IRecordStore>();
 
 const persistOptions = {
     name: storageKey,
-    // getStorage: () => ({
-    //     getItem: (name: string) => {
-    //         const res = storage.get(name);
-    //         return typeof res === 'string' ? res : null;
-    //     },
-    //     setItem: (name: string, value: string) => { storage.set(name, value) }
-    // }),
+    getStorage: () => ({
+        getItem: (name: string) => {
+            const res = storage.get(name);
+            return typeof res === 'string' ? res : null;
+        },
+        setItem: (name: string, value: string) => { storage.set(name, value) }
+    }),
 };
-
-
 
 /**
  * Store configurations
@@ -67,7 +65,6 @@ const useRecordStore = createStore<IRecordStore>((set, get) => ({
     recordsByDate: {},
 
     _modifyCategoriesBatch(updates) {
-        console.log(updates);
         set(state => {
             for (let { category, action } of updates) {
 
@@ -126,18 +123,16 @@ const useRecordStore = createStore<IRecordStore>((set, get) => ({
                     continue;
 
                 const schema = state.activities[record.activityId].schema;
+                const parsedRecord = parseRecordFromFirebase(record, schema);
 
                 if (action === 'added') {
-                    const parsedRecord = parseRecordFromFirebase(record, schema);
-                    console.log("adding", record)
                     handleCreateRecord(state, parsedRecord, schema);
                 } else if (action === 'modified') { 
-                    state.records[record.id] = parseRecordFromFirebase(record, schema);
+                    state.records[record.id] = parsedRecord;
                 } else if (action === 'removed') {
-                    console.log('deleting', record)
                     if (!(record.id in state.records)) 
                         continue;
-                    delete state.records[record.id];
+                    handleDeleteRecord(state, parsedRecord, schema);
                 }
             }
         });
@@ -149,7 +144,7 @@ const useRecordStore = createStore<IRecordStore>((set, get) => ({
         if (!(dateString in get().recordsByDate)) {
             return [];
         }
-        return get().recordsByDate[dateString]
+        return Object.keys(get().recordsByDate[dateString])
                     .map((id: string) => get().records[id]);
     },
 
@@ -157,7 +152,7 @@ const useRecordStore = createStore<IRecordStore>((set, get) => ({
         if (!(dateString in get().recordsByDate)) {
             return [];
         }
-        return get().recordsByDate[dateString]
+        return Object.keys(get().recordsByDate[dateString])
                     .map((id: string) => get().records[id]);
     },
 
@@ -165,7 +160,7 @@ const useRecordStore = createStore<IRecordStore>((set, get) => ({
         if (!(activityId in get().recordsByActivity)) {
             return [];
         }
-        return get().recordsByActivity[activityId]
+        return Object.keys(get().recordsByActivity[activityId])
                     .map((id: string) => get().records[id]);
     },
 
@@ -182,31 +177,31 @@ const useRecordStore = createStore<IRecordStore>((set, get) => ({
 
 function handleDeleteRecord(state: Draft<IRecordStore>, record: DataRecord, schema: ActivitySchema) {
     
-    let key = record.activityId;
-    let index = state.recordsByActivity[key].findIndex(rid => rid === record.id);
-    state.recordsByActivity[key].splice(index, 1);
+    const key = record.activityId;
+    if (key in state.recordsByActivity && record.id in state.recordsByActivity[key]) {
+        delete state.recordsByActivity[key][record.id];
+    }
 
     const keys = getRelevantTimes(record.data, schema).map(dateString => 
         (new Date(dateString)).toLocaleDateString()
     );
     for (let k of keys) {
-        index = state.recordsByDate[k].findIndex(r => r === record.id);
-        state.recordsByDate[k].splice(index, 1);
+        if (k in state.recordsByDate && record.id in state.recordsByDate[k]) {
+            delete state.recordsByDate[k][record.id];
+        }
     }
 
     delete state.records[record.id];
 }
 
 function handleCreateRecord(state: Draft<IRecordStore>, record: DataRecord, schema: ActivitySchema) {
-    // console.log(Object.keys(state.recordsByDate).map(ds => [ds, state.recordsByDate[ds].toString()]))
 
     state.records[record.id] = record;
 
     if (!state.recordsByActivity[record.activityId]) {
-        state.recordsByActivity[record.activityId] = [];
+        state.recordsByActivity[record.activityId] = {};
     }
-    if (!state.recordsByActivity[record.activityId].includes(record.id))
-        state.recordsByActivity[record.activityId].push(record.id);
+    state.recordsByActivity[record.activityId][record.id] = true;
 
     let keys = getRelevantTimes(record.data, schema).map(dateString => 
         (new Date(dateString)).toLocaleDateString()
@@ -215,10 +210,9 @@ function handleCreateRecord(state: Draft<IRecordStore>, record: DataRecord, sche
 
     for (let k of keys) {
         if (!state.recordsByDate[k]) {
-            state.recordsByDate[k] = [];
+            state.recordsByDate[k] = {};
         }
-        if (!state.recordsByDate[k].includes(record.id))
-            state.recordsByDate[k].push(record.id);
+        state.recordsByDate[k][record.id] = true;
     }
 }
 

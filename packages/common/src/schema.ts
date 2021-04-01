@@ -66,7 +66,6 @@ export type OnBatchRecordsChange = (
 export function getRelevantTimes(data: any, schema: ActivitySchema): string[] {
     if (schema.type === 'Duration') {
         const duration = data as Duration;
-        console.log(duration)
         return [duration.timeStart, duration.timeEnd];
     } else if (schema.type === 'TimedNumber') {
         const duration = data as TimedNumber;
