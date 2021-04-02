@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { BrowserRouter } from 'react-router-dom';
 import firebase from "firebase/app";
 import 'firebase/auth';
 import App from './App';
@@ -14,7 +15,9 @@ firebaseHandler.auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 ReactDOM.render(
 	<React.StrictMode>
 		<FirebaseContext.Provider value={firebaseHandler}>
-			<App />
+			<BrowserRouter>
+				<App />
+			</BrowserRouter>
 		</FirebaseContext.Provider>
 	</React.StrictMode>,
 	document.getElementById('root')

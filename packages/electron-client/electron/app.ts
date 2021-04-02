@@ -195,7 +195,6 @@ export default class App {
         App.store = new Store();
 
         // Start auth service is not already present.
-        console.log("Current linking url", App.deepLinkingUrl)
         if (!App.deepLinkingUrl) {
             authServer();
         }

@@ -10,7 +10,6 @@
 
 # production
 /build
-/build-auth
 
 # misc
 .DS_Store
