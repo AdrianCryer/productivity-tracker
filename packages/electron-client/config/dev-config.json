@@ -1,0 +1,11 @@
+{
+    "name": "Productivity Tracker",
+    "initialWindow": {
+        "height": 900,
+        "width": 1200,
+        "title": "Productivity Tracker"
+    },
+    "protocol": "prodtracker",
+    "devServer": "http://localhost:3000",
+    "debugMode": true
+}

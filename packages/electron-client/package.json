@@ -2,7 +2,7 @@
   "name": "electron-client",
   "version": "0.1.0",
   "private": true,
-  "main": "./electron/main.js",
+  "main": "build/electron/main.js",
   "homepage": "./",
   "dependencies": {
     "@ant-design/colors": "^6.0.0",
@@ -45,7 +45,7 @@
     "test": "craco test",
     "eject": "craco eject",
     "ebuild": "npm run build && node_modules/.bin/build",
-    "dev": "concurrently \"npm start\" \"wait-on http://localhost:3000 && electron .\""
+    "dev": "concurrently \"craco start\" \"wait-on http://localhost:3000 && tsc -p electron -w\" \"wait-on http://localhost:3000 && tsc -p electron && electron .\""
   },
   "build": {
     "appId": "prodtracker.id",
@@ -58,7 +58,14 @@
         "prodtracker"
       ]
     },
-    "win": {}
+    "win": {},
+    "extends": null,
+    "files": [
+      "build/**/*"
+    ],
+    "directories": {
+      "buildResources": "assets"
+    }
   },
   "eslintConfig": {
     "extends": [

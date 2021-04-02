@@ -1,0 +1,13 @@
+{
+    "extends": "../../tsconfig.settings.json",
+    "compilerOptions": {
+      "module": "commonjs",
+      "rootDir": "../",
+      "outDir": "../build",
+      "noEmit": false,
+      "composite": true,
+      "typeRoots": [
+        "node_modules/@types"
+      ]
+    }
+  }
