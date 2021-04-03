@@ -14,7 +14,7 @@ export async function authenticate(
     onSuccess: (credential: firebase.auth.UserCredential) => void,
     onError: (error: string) => void
 ) {
-    console.log("signing in")
+    console.log("[Info] Signing in");
     const credential = await firebaseConsumer.auth.signInWithCustomToken(token);
     if (!credential.user) {
         onError("Authenticated but there was an issue retrieving the user");

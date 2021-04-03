@@ -33,45 +33,6 @@ const styles: { [name: string]: React.CSSProperties } = {
 
 export default function Login() {
 
-    // const history = useHistory();
-    // const firebaseConsumer = useContext(FirebaseContext);
-    // const [authToken, setAuthToken] = useState('');
-
-    // useEffect(() => {
-        
-    //     ipcRenderer.on('deep-linking-params', (event: any, params: string) => {
-
-    //         const parsedParams = new URLSearchParams(params);
-    //         let token = parsedParams.get('auth-token');
-
-    //         if (token && token !== authToken) {
-    //             token = token.replace(/\/$/, "");
-    //             setAuthToken(token);
-    //         }
-    //     });
-    // }, []);
-
-    // Update credentials / sign-in
-    // useEffect(() => {
-    //     async function authenticate() {
-    //         if (authToken !== '') {
-    //             const credential = await firebaseConsumer.auth.signInWithCustomToken(authToken);
-    //             if (!credential.user) {
-    //                 throw new Error(`Authenticated but there was
-    //                                 an issue retrieving the user`);
-    //             }
-
-    //             if (credential.user.metadata.creationTime === 
-    //                 credential.user.metadata.lastSignInTime) {
-    //                 await firebaseConsumer.createUser(credential);
-    //             }
-    //             console.log("[Info] Authenticated correctly.", credential);
-    //             history.push('/user');
-    //         }
-    //     }
-    //     authenticate();
-    // }, [authToken])
-
     const onSignin = () => {
         const googleLink = `/desktop-google-sign-in`;
 

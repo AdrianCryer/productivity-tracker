@@ -10,20 +10,6 @@ export default function App() {
 
     const history = useHistory();
     const firebaseConsumer = useContext(FirebaseContext);
-    const [loading, setLoading] = useState(false);
-
-    console.log("Rerenderd App.tsx structure");
-
-    useEffect(() => {
-        async function setup() {
-            await setPersistence(firebaseConsumer, 'local');
-            console.log(firebaseConsumer.auth.currentUser)
-            if (firebaseConsumer.auth.currentUser) {
-                history.push('/user');
-            }
-        }
-        setup();
-    }, []);
 
     useEffect(() => {
 
@@ -44,16 +30,13 @@ export default function App() {
             }
         });
 
-        firebaseConsumer.auth.onAuthStateChanged((observation) => {
-            console.log(observation);
-        })
-
-        // listenForAuthChange()
+        // Redirect to user if already logged in.
+        firebaseConsumer.auth.onAuthStateChanged(() => {
+            if (firebaseConsumer.auth.currentUser) {
+                history.push('/user');
+            }
+        });
     }, [])
-
-    if (loading) {
-        return <div>Loading...</div>;
-    }
 
     return (
         <Switch>
