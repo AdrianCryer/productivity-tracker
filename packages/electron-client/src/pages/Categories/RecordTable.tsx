@@ -1,8 +1,8 @@
 import { Popconfirm } from "antd";
 import moment from "moment";
-import React, { useCallback, useContext } from "react";
+import React, { useCallback, useContext, useMemo } from "react";
 import EditableTable, { DataColumn, DataRow } from "../../components/EditableTable";
-import { getFormmattedDuration } from "../../core/helpers";
+import { recordTimeComparator, getFormmattedDuration } from "../../core/helpers";
 import { useRecordStore } from "../../stores/RecordStore";
 import { 
     Activity,
@@ -108,15 +108,18 @@ export default function RecordTable({ activity, date }: RecordTableProps) {
         )
     );
     const activityId = activity.id;
-    let filteredRecords = recordsByDate.filter(record => record.activityId === activityId);
 
-    // Memo this.
-    const tableData = filteredRecords.map(record => ({
-        id: record.id,
-        key: record.id,
-        activity: activity.name,
-        ...mapRecordToColumn(record, activity.schema)
-    }));
+    const tableData = useMemo(() => {
+        const comparator = (a: DataRecord, b: DataRecord) => recordTimeComparator(activity.schema, a, b);
+        const filteredRecords = recordsByDate.filter(record => record.activityId === activityId)
+                                             .sort(comparator);
+        return filteredRecords.map(record => ({
+            id: record.id,
+            key: record.id,
+            activity: activity.name,
+            ...mapRecordToColumn(record, activity.schema)
+        }));
+    }, [recordsByDate]);
 
     const onUpdate = async (row: DataRow) => {
 

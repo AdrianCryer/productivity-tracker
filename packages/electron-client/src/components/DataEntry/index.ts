@@ -1,3 +1,4 @@
 import ColourSelector from "./ColourSelector";
+import SortableList from "./SortableList";
 
-export { ColourSelector };
+export { ColourSelector, SortableList };

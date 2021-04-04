@@ -1,0 +1,25 @@
+.sortable-list-wrapper {
+    position: relative;
+    overflow: hidden;
+}
+
+.sortable-list {
+    width: 100%;
+    /* cursor: url('http://gtms02.alicdn.com/tps/i2/T1_PMSFLBaXXcu5FDa-20-20.png') 10 10,pointer!important; */
+    position: relative;
+}
+.sortable-list > div{
+    overflow: hidden;
+}
+
+.sortable-list-list {
+    background: #fff;
+    margin: 5px auto;
+    padding: 10px;
+    transition:  box-shadow .5s, transform .5s;
+}
+
+.sortable-list-list.list-drag-selected{
+    box-shadow: 0 8px 20px #E6E6E6;
+    transform: scale(1.05) !important;
+}

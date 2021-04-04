@@ -3,6 +3,7 @@ import { useCallback, useState } from "react";
 import { SettingOutlined  } from '@ant-design/icons';
 import { PageHeading, SummaryHeader } from "../../components";
 import { useRecordStore } from "../../stores/RecordStore";
+import { SortableList } from "../../components/DataEntry";
 
 type HomeProps = {
     initialDate: Date;
@@ -42,6 +43,22 @@ export default function Dashboard(props: HomeProps) {
                 totalMinutes={0}
                 totalHours={0}
                 onChangeDate={onChangeDate}
+            />
+            <SortableList
+                data={[
+                    {
+                      title: 'Category 1',
+                      text: 'Subtext...',
+                    },
+                    {
+                        title: 'Category 2',
+                        text: 'Subtext...',
+                      },
+                      {
+                        title: 'Category 3',
+                        text: 'Subtext...',
+                      },
+                ]}
             />
         </Space>
     )

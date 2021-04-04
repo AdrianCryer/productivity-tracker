@@ -83,7 +83,6 @@ export function getRelevantTimes(data: any, schema: ActivitySchema): string[] {
  */
 export type PrimitiveTypes = Duration | string | number;
 
-
 export interface Duration {
     timeStart: string;
     timeEnd: string;

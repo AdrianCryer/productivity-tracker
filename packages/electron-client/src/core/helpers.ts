@@ -1,3 +1,4 @@
+import { ActivitySchema, DataRecord, getRelevantTimes } from "@productivity-tracker/common/lib/schema";
 
 export function formatAMPM(date: Date): string {
     let hours = date.getHours();
@@ -33,4 +34,11 @@ export function getNumberOfWeek(date: Date) {
     const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
     const pastDaysOfYear = (+date - +firstDayOfYear) / 86400000;
     return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
+}
+
+export function recordTimeComparator(schema: ActivitySchema, a: DataRecord, b: DataRecord) {
+    // Pick oldest from all indexable dates.
+    const timesA = getRelevantTimes(a.data, schema).map(t => +(new Date(t)));
+    const timesB = getRelevantTimes(b.data, schema).map(t => +(new Date(t)));
+    return Math.max(...timesA) - Math.max(...timesB)
 }
