@@ -108,7 +108,10 @@ export function Categories() {
                 visible={addActivityPanelVisible}
                 handleOk={async (form: FormInstance) => {
                     const name = form.getFieldValue('name');
-                    if (nameAlreadyExists(name)) {
+                    const schemaType = form.getFieldValue('schemaType');
+                    console.log(form.getFieldsValue());
+
+                    if (nameAlreadyExists(name) || !schemaType) {
                         form.setFields([{
                             name: 'name',
                             errors: ['Activity name already exists']
@@ -119,7 +122,7 @@ export function Categories() {
                             categoryId,
                             dateAdded: (new Date()).toISOString(),
                             schema: {
-                                type: 'Duration'
+                                type: schemaType
                             }
                         });
                         setAddActivityPanelVisible(false);
