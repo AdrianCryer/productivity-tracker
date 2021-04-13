@@ -42,7 +42,7 @@ function generateTableColumns(
                 cellType: 'timePicker'
             },
         ]
-    } else if (description === 'TimedString') {
+    } else if (description === 'TimedString' || description === 'TimedNumber') {
         extra = [
             {
                 title: 'Value',
@@ -52,10 +52,10 @@ function generateTableColumns(
     }
 
     return [
-        {
-            title: 'Activity',
-            dataIndex: 'activity',
-        },
+        // {
+        //     title: 'Activity',
+        //     dataIndex: 'activity',
+        // },
         ...extra,
         {
             title: 'Modify',
