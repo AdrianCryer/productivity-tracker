@@ -3,6 +3,7 @@ import { Route, RouteComponentProps, useHistory } from 'react-router-dom';
 import DashboardPage from '../Dashboard';
 import SettingsPage from '../Settings';
 import CategoriesPage from '../Categories';
+import StatisticsPage from '../Statistics';
 import { Page } from '../../components';
 import { Layout } from 'antd';
 import { useRecordStore } from '../../stores/RecordStore';
@@ -84,6 +85,15 @@ export default function Main({ match }: RouteComponentProps<{}>) {
                         render={() => (
                             <Page title="Settings">
                                 <SettingsPage />
+                            </Page>
+                        )}
+                    />
+                    <Route
+                        path={`${match.path}/statistics`}
+                        exact
+                        render={() => (
+                            <Page title="Statistics">
+                                <StatisticsPage />
                             </Page>
                         )}
                     />

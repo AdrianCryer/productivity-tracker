@@ -74,14 +74,19 @@ const SideNav = (props: SideNavProps) => {
                         Add
                     </Menu.Item>
                 </SubMenu>
-                <Menu.Item key="3" icon={<PieChartOutlined />}>
+                <Menu.Item 
+                    key="3" 
+                    icon={<PieChartOutlined />}
+                    onClick={() => handleClick("statistics")}
+                >
                     Statistics
                 </Menu.Item>
                 <Menu.Item key="4" icon={<FileTextOutlined />}>
                     Notes
                 </Menu.Item>
                 <Menu.Item 
-                    key="5" icon={<SettingOutlined />} 
+                    key="5" 
+                    icon={<SettingOutlined />} 
                     onClick={() => handleClick("settings")}
                 >
                     Settings
