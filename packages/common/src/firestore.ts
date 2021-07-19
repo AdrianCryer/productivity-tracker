@@ -4,9 +4,21 @@ import 'firebase/auth';
 import 'firebase/database';
 import 'firebase/functions';
 import { createContext } from "react";
-import { Activity, Category, DataRecord, OnBatchActivitiesChange, OnBatchCategoryChange, OnBatchRecordsChange, PartialActivity, PartialCategory, PartialDataRecord } from "./schema";
+import { 
+    Activity, 
+    Category, 
+    DataRecord, 
+    OnBatchActivitiesChange, 
+    OnBatchCategoryChange, 
+    OnBatchRecordsChange, 
+    PartialActivity, 
+    PartialCategory, 
+    PartialDataRecord 
+} from "./schema";
+
 
 class Firebase {
+
     auth: firebase.auth.Auth;
     store: firebase.firestore.Firestore;
     db: firebase.database.Database;
@@ -14,28 +26,27 @@ class Firebase {
 
     constructor(config?: any) {
         if (!config) {
-            config = Firebase.getDefaultConfigFromEnv(process.env);    
+            config = Firebase.getDefaultConfigFromEnv(process.env);
         }
         const fb = firebase.initializeApp(config);
         // fb.analytics();
-        
+
         this.store = fb.firestore();
         this.auth = fb.auth();
         this.db = fb.database();
         this.functions = fb.functions();
-
         this.store.enablePersistence()
     }
 
     static getDefaultConfigFromEnv(env: NodeJS.ProcessEnv) {
         return {
-            apiKey:             env.REACT_APP_FIREBASE_API_KEY,
-            authDomain:         env.REACT_APP_FIREBASE_AUTH_DOMAIN,
-            projectId:          env.REACT_APP_FIREBASE_PROJECT_ID,
-            storageBucket:      env.REACT_APP_FIREBASE_STORAGE_BUCKET,
-            messagingSenderId:  env.REACT_APP_FIREBASE_SENDER_ID,
-            appId:              env.REACT_APP_FIREBASE_APP_ID,
-            measurementId:      env.REACT_APP_FIREBASE_MEASUREMENT_ID
+            apiKey: env.REACT_APP_FIREBASE_API_KEY,
+            authDomain: env.REACT_APP_FIREBASE_AUTH_DOMAIN,
+            projectId: env.REACT_APP_FIREBASE_PROJECT_ID,
+            storageBucket: env.REACT_APP_FIREBASE_STORAGE_BUCKET,
+            messagingSenderId: env.REACT_APP_FIREBASE_SENDER_ID,
+            appId: env.REACT_APP_FIREBASE_APP_ID,
+            measurementId: env.REACT_APP_FIREBASE_MEASUREMENT_ID
         };
     }
 
@@ -79,7 +90,7 @@ class Firebase {
     getRecords = () => {
         return this.getUser().collection('records');
     }
-    
+
     createCategory = async (category: Omit<Category, 'id'>) => {
 
         // Check category name first.
@@ -106,7 +117,7 @@ class Firebase {
 
         // Whole thing should be batched.
         await this.getCategories().doc(id).delete();
-        
+
         /** Delete activities */
         await this.getActivities().where('categoryId', '==', id).get().then(snap => {
             let batch = this.store.batch();
@@ -158,7 +169,7 @@ class Firebase {
     }
 
     mergeAndRemoveActivity = async (activity: Activity, mergeToActivityId: string) => {
-        
+
     }
 
     createRecord = async (record: Omit<DataRecord, 'id'>) => {
@@ -181,7 +192,7 @@ class Firebase {
         return this.getCategories().onSnapshot(snap => {
             const changes = snap.docChanges().map(change => ({
                 category: {
-                    ...change.doc.data() as Omit<Category,'id'>,
+                    ...change.doc.data() as Omit<Category, 'id'>,
                     id: change.doc.id
                 },
                 action: change.type
@@ -197,7 +208,7 @@ class Firebase {
                     activity: {
                         ...change.doc.data() as Omit<Activity, 'id'>,
                         id: change.doc.id
-                    } as Activity, 
+                    } as Activity,
                     action: change.type
                 };
             });
@@ -213,7 +224,7 @@ class Firebase {
                     record: {
                         ...change.doc.data() as Omit<DataRecord, 'id' | 'data'> & { data: any },
                         id: change.doc.id
-                    } as Omit<DataRecord, 'data'> & { data: any }, 
+                    } as Omit<DataRecord, 'data'> & { data: any },
                     action: change.type
                 };
             });
@@ -226,4 +237,3 @@ class Firebase {
 
 export const FirebaseContext = createContext<Firebase>({} as Firebase);
 export default Firebase;
-    
