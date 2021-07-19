@@ -1,6 +1,6 @@
 import React, { useCallback, useContext, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Space, Card, Layout, FormInstance, Button, Avatar, Typography } from "antd";
+import { Space, Card, Layout, FormInstance, Button, Avatar, Typography, Dropdown, Menu } from "antd";
 import { EditOutlined } from '@ant-design/icons';
 import { EditableTabs, PageHeading } from "../../components";
 import { useRecordStore } from "../../stores/RecordStore";
@@ -40,9 +40,28 @@ export function Categories() {
         return <Layout>Could not load</Layout>;
     }
 
+    const menu = (
+        <Menu>
+            <Menu.Item key="1">Change type</Menu.Item>
+            <Menu.Item key="2">Rename Activity</Menu.Item>
+            <Menu.Item key="3">Delete Activity</Menu.Item>
+        </Menu>
+    );
+
     const tabs = activities.map(activity => {
         return {
-            title: activity.name,
+            title: (
+                <Dropdown 
+                    overlay={menu} 
+                    trigger={['contextMenu']} 
+                    overlayStyle={{
+                        height: "100%",
+                        // width: "100%",
+                    }}
+                >
+                    <Text editable={true} style={{ height: "100%", padding: 0, margin: 0 }}>{activity.name}</Text>
+                </Dropdown>
+            ),
             content: (
                 <RecordTable 
                     activity={activity} 
@@ -75,7 +94,7 @@ export function Categories() {
                                 width: 12, 
                                 height: 12, 
                                 verticalAlign: 'middle', 
-                                marginRight: 10, 
+                                marginRight: 12, 
                                 backgroundColor: category.colour,
                             }}
                         />

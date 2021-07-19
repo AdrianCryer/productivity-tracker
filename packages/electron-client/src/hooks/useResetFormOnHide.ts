@@ -7,6 +7,7 @@ export const useResetFormOnHide = ({ form, visible, defaultValues, currentValues
     defaultValues?: any 
     currentValues?: any 
 }, refreshDeps?: React.DependencyList) => {
+    
     const prevVisibleRef = useRef<boolean>();
     useEffect(() => {
         prevVisibleRef.current = visible;

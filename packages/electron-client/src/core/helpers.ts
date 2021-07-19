@@ -1,4 +1,6 @@
-import { ActivitySchema, DataRecord, getRelevantTimes } from "@productivity-tracker/common/lib/schema";
+import { ActivitySchema, DataRecord, Duration, getRelevantTimes } from "@productivity-tracker/common/lib/schema";
+import moment from "moment";
+
 
 export function formatAMPM(date: Date): string {
     let hours = date.getHours();
@@ -42,3 +44,36 @@ export function recordTimeComparator(schema: ActivitySchema, a: DataRecord, b: D
     const timesB = getRelevantTimes(b.data, schema).map(t => +(new Date(t)));
     return Math.max(...timesA) - Math.max(...timesB)
 }
+
+export function generateDataTableColumnFormat(schema: ActivitySchema) {
+    // if (schema.key === 'Duration') {
+
+    // }
+}
+
+// export function generateDataTableValue(schema: ActivitySchema, record: DataRecord) {
+//     let tableRow: { key?: any; value?: any; } = {};
+//     if (schema.key === 'Duration') {
+//         const data = record.data as Duration;
+//         tableRow.key = {
+//             duration: getFormmattedDuration(
+//                 new Date(data.timeStart), 
+//                 new Date(data.timeEnd)
+//             ),
+//             timeStart: moment(data.timeStart),
+//             timeEnd: moment(data.timeEnd),
+//         };
+//     } else if (schema.key === 'Timestamp') {
+//         // Do stuff
+//     } else if (schema.key === 'Week') {
+//         // Do stuff
+//     } else if (schema.key === 'Month') {
+//         // Do stuff
+//     } else if (schema.key === 'Year') {
+//         // Do stuff
+//     }
+
+//     if (schema.valueType === '') {
+        
+//     }
+// }

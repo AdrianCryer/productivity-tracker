@@ -61,8 +61,8 @@ export default function Statistics() {
                 </Row>
                 
                 <Divider/>
-                <Title level={4}>Archived</Title>
-                <Divider/>
+                {/* <Title level={4}>Archived</Title>
+                <Divider/> */}
                 <Link 
                     to="/" 
                     component={Typography.Link}

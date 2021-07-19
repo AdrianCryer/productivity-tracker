@@ -23,6 +23,8 @@ class Firebase {
         this.auth = fb.auth();
         this.db = fb.database();
         this.functions = fb.functions();
+
+        this.store.enablePersistence()
     }
 
     static getDefaultConfigFromEnv(env: NodeJS.ProcessEnv) {
@@ -205,6 +207,7 @@ class Firebase {
 
     listenForRecordUpdates = (onChange: OnBatchRecordsChange) => {
         return this.getRecords().onSnapshot(snap => {
+            console.log("snap metadata", snap.metadata);
             const changes = snap.docChanges().map(change => {
                 return {
                     record: {
@@ -214,6 +217,7 @@ class Firebase {
                     action: change.type
                 };
             });
+            console.log(changes);
             onChange(changes);
         });
     }

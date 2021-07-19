@@ -3,7 +3,7 @@ import { Tabs } from "antd";
 const { TabPane } = Tabs;
 
 type TabContent = {
-    title: string;
+    title: React.ReactNode;
     content: any;
     key: string;
     closable?: boolean;
@@ -36,6 +36,7 @@ export default function EditableTabs(props: EditableTabsProps) {
             onChange={(key: string) => setActiveKey(key)}
             activeKey={isActiveKeyValid ? activeKey : initialKey}
             onEdit={onEdit}
+            // size="large"
         >
             {props.tabs.map(tab => (
                 <TabPane tab={tab.title} key={tab.key} closable={tab.closable || false}>

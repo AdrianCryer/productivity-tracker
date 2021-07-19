@@ -4,6 +4,8 @@ import { State } from 'zustand';
 import { Activity, Category, Duration, DurationEvent } from '../core';
 import { createStore } from "./Store";
 
+
+
 /**
  * Primary data store of the application.
  */
@@ -11,6 +13,9 @@ type Indexed<T> = { [id: number]: T };
 export type PartialCategory = Partial<Omit<Category, 'id'>>
 export type PartialActivity = Partial<Omit<Activity, 'id'>>
 
+/**
+ * @deprecated
+ */
 export interface IDataStore extends State {
 
     /** PERSISTED STATE */

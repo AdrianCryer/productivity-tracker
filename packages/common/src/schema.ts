@@ -28,10 +28,41 @@ export interface DataRecord {
     data: DataRecordData;
 };
 
+export type KeyType = 'Timestamp' | 'Day' | 'Week' | 'Year';
+export type ValueType = null | 'Number' | 'String';
+export type Modifier = 'getFormmattedDuration' | 'sum' | 'average' ;
+
+export interface RecordSchema {
+    key: { 
+        [label: string]: { 
+            type: KeyType, 
+            props?: any 
+        } 
+    },
+    value: { 
+        [label: string]: { 
+            type: ValueType, 
+            props?: any 
+        } 
+    },
+    derived?: {
+        [label: string]: {
+            function: Modifier,
+            params: string[]
+        }
+    },
+    indexes?: [],
+    order?: string[],
+    props?: {
+        displayInAdder?: boolean,
+    }
+}
+
 export type DataRecordData = Duration | TimedString | TimedNumber;
 export type DataRecordDescription = 'Duration' | 'TimedString' | 'TimedNumber';
 
 export type ActivitySchema = {
+    key?: DataRecordDescription,
     type: DataRecordDescription,
     attributes?: any
 };
