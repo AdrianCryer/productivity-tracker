@@ -32,7 +32,7 @@ export interface Activity {
 
 /** Partials */
 export type PartialCategory = Partial<Category> & Pick<Category, 'id'>;
-export type PartialActivity = Partial<Activity> & Pick<Activity, 'id'>;
+export type PartialActivity = Partial<Omit<Activity, 'records'>> & Pick<Activity, 'id'>;
 export type PartialRecord = Partial<Record> & Pick<Record, 'id'>;
 
 /** Helper data types */
@@ -65,7 +65,7 @@ export interface RecordSchema {
 export type GroupBySchema = (string | AttributeModifier)[];
 
 export interface AttributeModifier {
-    function: 'Tuple' | 'ToDateString' | 'ToWeekString' | 'ToYearString',
+    function: 'Tuple' | 'ToDateString' | 'ToWeekString' | 'ToYearString' | 'getFormmattedDuration',
     params: GroupBySchema
 }
 
@@ -76,10 +76,10 @@ let example: GroupBySchema = [
 
 
 /** Allowed key types */
-export type KeyType = 'Timestamp' | 'Day' | 'Week' | 'Year';
+export type KeyType = 'Duration' | 'Timestamp' | 'Day' | 'Week' | 'Year';
 
 /** Allowed value types */
-export type ValueType = 'Number' | 'String';
+export type ValueType = 'Number' | 'String' | KeyType;
 
 /** Modifiers that can be applied to fields */
 export type Modifier = 'getFormmattedDuration' | 'sum' | 'average';

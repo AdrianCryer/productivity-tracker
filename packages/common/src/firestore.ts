@@ -7,14 +7,16 @@ import { createContext } from "react";
 import { 
     Activity, 
     Category, 
-    DataRecord, 
-    OnBatchActivitiesChange, 
-    OnBatchCategoryChange, 
-    OnBatchRecordsChange, 
+    Record, 
     PartialActivity, 
     PartialCategory, 
-    PartialDataRecord 
-} from "./schema";
+    PartialRecord 
+} from "./client-schema";
+import {
+    OnBatchActivitiesChange, 
+    OnBatchCategoryChange, 
+    OnBatchRecordsChange
+} from "./server-schema";
 
 
 class Firebase {
@@ -93,7 +95,8 @@ class Firebase {
 
     createCategory = async (category: Omit<Category, 'id'>) => {
 
-        // Check category name first.
+        // Check category name first. 
+        /** @todo This won't work when offline */
         const categories = await this.getCategories().get();
         if (Object.values(categories).find(c => c.name === category.name)) {
             throw new Error(`Category name '${category.name}' already exists`);
@@ -127,7 +130,11 @@ class Firebase {
             return batch.commit();
         });
 
-        /** Delete records @todo check if number of records is less than 500 */
+        /** 
+         * Delete records
+         * @todo check if number of records is less than 500 as this is a 
+         * limitation of firebase.
+         */
         return this.getRecords().where('categoryId', '==', id).get().then(snap => {
             let batch = this.store.batch();
             snap.forEach(doc => {
@@ -137,7 +144,7 @@ class Firebase {
         });
     }
 
-    createActivity = async (categoryId: string, activity: Omit<Activity, 'id'>) => {
+    createActivity = async (categoryId: string, activity: Omit<Activity, 'id' | 'records'>) => {
 
         // Check category name first.
         const activities = await this.getActivities().where('categoryId', '==', categoryId).get();
@@ -148,7 +155,7 @@ class Firebase {
         return this.getActivities().add(activity);
     }
 
-    editActivity = async (categoryId: string, activity: PartialActivity) => {
+    editActivity = async (activity: PartialActivity) => {
         const { id, ...params } = activity;
         return this.getActivities().doc(id).update(params);
     }
@@ -172,14 +179,14 @@ class Firebase {
 
     }
 
-    createRecord = async (record: Omit<DataRecord, 'id'>) => {
+    createRecord = async (record: Omit<Record, 'id'>) => {
         // Should really check schema / if it belongs to an activity
         let id = this.getRecords().doc().id;
         this.getRecords().doc(id).set(record);
         return id;
     }
 
-    editRecord = async (record: PartialDataRecord) => {
+    editRecord = async (record: PartialRecord) => {
         const { id, ...params } = record;
         return this.getRecords().doc(id).update(params);
     }
@@ -216,15 +223,16 @@ class Firebase {
         });
     }
 
-    listenForRecordUpdates = (onChange: OnBatchRecordsChange) => {
+    listenForRecordUpdates = (onChange: OnBatchRecordsChange, ) => {
         return this.getRecords().onSnapshot(snap => {
             console.log("snap metadata", snap.metadata);
+            // Should I do data casting here?
             const changes = snap.docChanges().map(change => {
                 return {
                     record: {
-                        ...change.doc.data() as Omit<DataRecord, 'id' | 'data'> & { data: any },
+                        ...change.doc.data() as Omit<Record, 'id'>,
                         id: change.doc.id
-                    } as Omit<DataRecord, 'data'> & { data: any },
+                    } as Omit<Record, 'data'> & { data: any },
                     action: change.type
                 };
             });
