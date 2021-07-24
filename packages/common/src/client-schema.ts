@@ -27,6 +27,7 @@ export interface Activity {
     dateAdded: string;
     schema: RecordSchema;
     records: Record[];
+    groupings: GroupBySchema[]
 };
 
 /** Partials */
@@ -49,17 +50,30 @@ export interface RecordSchema {
         } 
     },
     derived?: {
-        [label: string]: {
-            function: Modifier,
-            params: string[]
-        }
+        [label: string]: (string | AttributeModifier)
     },
-    indexes?: { [name: string]: { function: Modifier} },
     order?: string[],
     props?: {
         displayInAdder?: boolean,
     }
 };
+
+/** 
+ * Dictates how records can be grouped by for display.
+ * Default grouping is to display all records.
+ */
+export type GroupBySchema = (string | AttributeModifier)[];
+
+export interface AttributeModifier {
+    function: 'Tuple' | 'ToDateString' | 'ToWeekString' | 'ToYearString',
+    params: GroupBySchema
+}
+
+let example: GroupBySchema = [
+    { function: 'ToDateString', params: ['TimeStart'] },
+    { function: 'ToDateString', params: ['TimeEnd'] }
+];
+
 
 /** Allowed key types */
 export type KeyType = 'Timestamp' | 'Day' | 'Week' | 'Year';
