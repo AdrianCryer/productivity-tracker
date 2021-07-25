@@ -1,7 +1,6 @@
 import { ActivitySchema, DataRecord, Duration, getRelevantTimes } from "@productivity-tracker/common/lib/schema";
 import moment from "moment";
 
-
 export function formatAMPM(date: Date): string {
     let hours = date.getHours();
     let ampm = hours >= 12 ? 'PM' : 'AM';

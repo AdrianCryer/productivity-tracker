@@ -3,8 +3,8 @@ import firebase from "firebase/app";
 
 enum DateFormat {
     LOCAL,
-    US,
-    INTERNATIONAL,
+    // US,
+    // INTERNATIONAL,
     ISO
 };
 
@@ -32,7 +32,7 @@ export class DateMeta implements MetaType {
     }
 
     /** Deserialise value recieved from server */
-    static deserialise(value: firebase.firestore.Timestamp, props: any) {
+    static deserialise(value: firebase.firestore.Timestamp, props: any): string {
         return this.fromDate(value.toDate(), props);
     };
 }
