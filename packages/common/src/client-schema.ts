@@ -1,3 +1,4 @@
+import { MetaType } from "./types";
 
 /** Core data types */
 export type User = {
@@ -36,22 +37,14 @@ export type PartialActivity = Partial<Omit<Activity, 'records'>> & Pick<Activity
 export type PartialRecord = Partial<Record> & Pick<Record, 'id'>;
 
 /** Helper data types */
+interface Dictionary<T> {
+    [key: string]: T;
+}
+
 export interface RecordSchema {
-    key: { 
-        [label: string]: { 
-            type: KeyType, 
-            props?: any 
-        } 
-    },
-    value?: { 
-        [label: string]: { 
-            type: ValueType, 
-            props?: any 
-        } 
-    },
-    derived?: {
-        [label: string]: (string | AttributeModifier)
-    },
+    key: Dictionary<MetaType>,
+    value?: Dictionary<MetaType>,
+    derived?: Dictionary<string | AttributeModifier>
     order?: string[],
     props?: {
         displayInAdder?: boolean,
@@ -73,13 +66,3 @@ let example: GroupBySchema = [
     { function: 'ToDateString', params: ['TimeStart'] },
     { function: 'ToDateString', params: ['TimeEnd'] }
 ];
-
-
-/** Allowed key types */
-export type KeyType = 'Duration' | 'Timestamp' | 'Day' | 'Week' | 'Year';
-
-/** Allowed value types */
-export type ValueType = 'Number' | 'String' | KeyType;
-
-/** Modifiers that can be applied to fields */
-export type Modifier = 'getFormmattedDuration' | 'sum' | 'average';

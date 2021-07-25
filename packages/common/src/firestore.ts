@@ -232,7 +232,7 @@ class Firebase {
                     record: {
                         ...change.doc.data() as Omit<Record, 'id'>,
                         id: change.doc.id
-                    } as Omit<Record, 'data'> & { data: any },
+                    } as Record,
                     action: change.type
                 };
             });

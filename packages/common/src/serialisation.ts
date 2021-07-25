@@ -1,66 +1,35 @@
 import firebase from "firebase/app";
 import { 
-    Activity, 
-    Category, 
     Record, 
     RecordSchema,
-    PartialActivity, 
-    PartialCategory, 
-    PartialRecord, 
-    ValueType
 } from "./client-schema";
+import Types from "./types";
 
 /**
- * Everything on the server is sent as a string. This serialisation file
- * provides method to cast between the correct typings.
+ * Deserialise a record recieved from the database.
  * 
- *  
+ * @param record        The recieved record data. 
+ * @param recordSchema  The schema of the record.
  */
+export function deserialiseRecord(record: Record, recordSchema: RecordSchema) {
 
-export function serialise(record: Record, recordSchema: RecordSchema) {
-
-    let output = {};
-    for (let [label, attributeSchema] of Object.entries(recordSchema.key)) {
-
-
+    let attributes = {
+        ...Object.entries(recordSchema.key),
+        ...Object.entries(recordSchema.value || {})
+    };
+    for (let [label, attributeSchema] of attributes) {
+        let type;
+        switch(attributeSchema.name) {
+            case 'Date':
+                type = Types.DateMeta;
+                break;
+            default:
+                throw new Error(`Could not deserialise record ${record.id}. 
+                    Unknown type ${attributeSchema.name}.`);
+        }
+        record.data[label] = type.deserialise(
+            record.data[label],
+            attributeSchema.props
+        );
     }
-
-}
-
-class DataType {
-    static deserialise: (value: any) => any;
-    static serialise: (value: any) => any;
-}
-
-class TimeStamp {
-
-    public static serialise = (value: string) => {
-        return value;
-    };
-
-    public static deserialise = (value: firebase.firestore.Timestamp) => {
-        return {
-            value: value.toDate().toISOString()
-        } as TimeStamp
-    };
-}
-
-class Duration {
-
-    public static serialise = (value: {
-        timeStart: TimeStamp,
-        timeEnd: TimeStamp,
-    }) => {
-        return value;
-    };
-
-    public static deserialise = (value: { 
-        timeStart: firebase.firestore.Timestamp, 
-        timeEnd: firebase.firestore.Timestamp
-    }) => {
-        return {
-            timeStart: TimeStamp.deserialise(value.timeStart),
-            timeEnd: TimeStamp.deserialise(value.timeEnd),
-        } as Duration
-    };
 }
